@@ -1,0 +1,7 @@
+{
+  "name": "RaikanBersama.xyz - Digital Wedding Invitation SaaS",
+  "description": "A premium e-invite platform featuring a DIY creator, RSVP management, and AI-powered storytelling for modern couples.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
