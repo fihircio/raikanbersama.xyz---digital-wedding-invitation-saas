@@ -6,54 +6,75 @@ import { Plan } from '../../types';
 const PricingPage: React.FC = () => {
   const plans: Plan[] = [
     {
-      id: 'basic',
-      name: 'Basic',
-      price: 'RM27.90',
+      id: 'lite',
+      name: 'Lite',
+      price: 'RM29',
       period: 'per invitation',
-      description: 'Perfect for intimate weddings',
+      description: 'The essential wedding invitation',
       features: [
-        '5 invitations per year',
-        '10 basic templates',
-        'Standard customization',
-        '50 RSVPs per invitation',
-        'Basic analytics',
-        'Email support'
+        'Tiada Had Pelawat (Unlimited Visitors)',
+        'Tiada Tarikh Luput Link (Lifetime Access)',
+        'Maklumat Boleh Tukar (60 Hari)',
+        'Gallery (1 Image)',
+        'Location (Google Maps/Waze)',
+        'Muzik Latar',
+        'RSVP System',
+        'Guestbook (Ucapan)'
       ],
       isPopular: false
     },
     {
-      id: 'premium',
-      name: 'Premium',
-      price: 'RM57.90',
+      id: 'pro',
+      name: 'Pro',
+      price: 'RM49',
       period: 'per invitation',
-      description: 'For the ultimate wedding experience',
+      description: 'The preferred choice for couples',
       features: [
-        'Unlimited invitations',
-        '30+ premium templates',
-        'Advanced customization',
-        '500 RSVPs per invitation',
-        'Advanced analytics dashboard',
-        'Priority support',
-        'Custom domain option',
-        'AI Assistant access',
-        'Gallery with 10 images'
+        'Tiada Had Pelawat (Unlimited Visitors)',
+        'Tiada Tarikh Luput Link (Lifetime Access)',
+        'Maklumat Boleh Tukar (120 Hari)',
+        'Gallery (5 Images)',
+        'Money Gift (E-Angpow)',
+        'RSVP System (Advanced)',
+        'Guestbook (Ucapan)',
+        'Priority support'
       ],
       isPopular: true
+    },
+    {
+      id: 'elite',
+      name: 'Elite',
+      price: 'RM69',
+      period: 'per invitation',
+      description: 'The ultimate digital experience',
+      features: [
+        'Tiada Had Pelawat (Unlimited Visitors)',
+        'Tiada Tarikh Luput Link (Lifetime Access)',
+        'Maklumat Boleh Tukar (Lifetime Edit)',
+        'Video Youtube Embed',
+        'Unlimited Gallery Images',
+        'Money Gift (E-Angpow)',
+        'Physical Wishlist (Gift Registry)',
+        'Bilingual Support (Melayu/English)',
+        'Custom Design Requests',
+        'PDF Invitation (BETA)'
+      ],
+      isPopular: false
     }
   ];
 
   const faqs = [
     {
-      question: 'Can I change my plan later?',
-      answer: 'Yes, you can upgrade or downgrade your plan at any time.'
+      question: 'Berapa lama link jemputan saya akan aktif?',
+      answer: 'Link jemputan anda aktif selama-lamanya (Lifetime Access). Ia boleh dijadikan kenang-kenangan digital untuk anda dan tetamu.'
     },
     {
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards, debit cards, and online banking.'
+      question: 'Bolehkah saya menukar maklumat selepas membeli?',
+      answer: 'Boleh. Setiap pelan mempunyai tempoh "Edit Window" (60, 120, atau Tanpa Had) untuk anda mengemaskini maklumat majlis.'
     },
     {
-      question: 'Is there a free trial?',
-      answer: 'Yes, we offer a 7-day free trial for the Premium plan.'
+      question: 'Apa itu Money Gift (E-Angpow)?',
+      answer: 'Ciri yang membolehkan tetamu memberikan sumbangan secara digital terus ke akaun bank anda melalui paparan yang elegan.'
     }
   ];
 
@@ -63,15 +84,15 @@ const PricingPage: React.FC = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-serif font-bold text-gray-900 mb-6">
-            Simple, Transparent Pricing
+            Pilih Pelan Anda
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose the perfect plan for your wedding invitation needs. No hidden fees, no surprises.
+            Jemputan digital yang premium, bermakna, dan kekal selamanya.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 mb-20">
+        <div className="grid md:grid-cols-3 gap-8 mb-20">
           {plans.map((plan) => (
             <PricingCard key={plan.id} plan={plan} />
           ))}

@@ -7,44 +7,70 @@ interface FeatureComparisonProps {
 
 const FeatureComparison: React.FC<FeatureComparisonProps> = ({ plans }) => {
   const allFeatures = [
-    { name: 'Number of Invitations', basic: '5/year', premium: 'Unlimited' },
-    { name: 'Template Selection', basic: '10 Basic', premium: '30+ Premium' },
-    { name: 'Customization Options', basic: 'Standard', premium: 'Advanced' },
-    { name: 'RSVP Limit per Invitation', basic: '50', premium: '500' },
-    { name: 'Analytics', basic: 'Basic', premium: 'Advanced Dashboard' },
-    { name: 'Support', basic: 'Email', premium: 'Priority' },
-    { name: 'Custom Domain', basic: '❌', premium: '✅' },
-    { name: 'AI Assistant', basic: '❌', premium: '✅' },
-    { name: 'Gallery Images', basic: '3', premium: '10' }
+    { name: 'Sistem RSVP & Guestbook', lite: true, pro: true, elite: true },
+    { name: 'Tiada Had Pelawat (Unlimited)', lite: true, pro: true, elite: true },
+    { name: 'Link Aktif Selamanya (Lifetime)', lite: true, pro: true, elite: true },
+    { name: 'Lokasi (Google Maps / Waze)', lite: true, pro: true, elite: true },
+    { name: 'Lagu Latar (MP3)', lite: true, pro: true, elite: true },
+    { name: 'Countdown Timer Majlis', lite: true, pro: true, elite: true },
+    { name: 'Edit Maklumat (Edit Window)', lite: '60 Hari', pro: '120 Hari', elite: 'Tanpa Had' },
+    { name: 'Gambar Galeri', lite: '1 Keping', pro: '5 Keping', elite: 'Tanpa Had' },
+    { name: 'Money Gift (E-Angpow)', lite: false, pro: true, elite: true },
+    { name: 'Video YouTube Embed', lite: false, pro: false, elite: true },
+    { name: 'Wishlist (Hadiah Fizikal)', lite: false, pro: false, elite: true },
+    { name: 'Dwi-Bahasa (BM/BI)', lite: false, pro: false, elite: true },
+    { name: 'Download PDF Jemputan', lite: false, pro: false, elite: true },
+    { name: 'Keutamaan Sokongan (Priority)', lite: false, pro: 'Standard', elite: 'High' },
   ];
 
   return (
-    <div className="bg-gray-50 rounded-3xl p-8 overflow-hidden">
-      <h3 className="text-2xl font-serif font-bold text-center text-gray-900 mb-8">
-        Compare Features
-      </h3>
-      
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-4 px-6 font-bold text-gray-900">Feature</th>
-              <th className="text-center py-4 px-6 font-bold text-gray-900">Basic</th>
-              <th className="text-center py-4 px-6 font-bold text-gray-900">Premium</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allFeatures.map((feature, index) => (
-              <tr key={index} className="border-b border-gray-100 hover:bg-white transition">
-                <td className="py-4 px-6 font-medium text-gray-900">{feature.name}</td>
-                <td className="py-4 px-6 text-center text-gray-700">{feature.basic}</td>
-                <td className="py-4 px-6 text-center text-gray-700">{feature.premium}</td>
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-serif font-bold text-center text-gray-900 mb-12">
+          Bandingkan Pelan
+        </h2>
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-4 px-6 text-sm font-semibold text-gray-700">Ciri-ciri</th>
+                <th className="py-4 px-6 text-sm font-semibold text-center text-gray-700">Lite</th>
+                <th className="py-4 px-6 text-sm font-semibold text-center text-gray-700">Pro</th>
+                <th className="py-4 px-6 text-sm font-semibold text-center text-gray-700">Elite</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {allFeatures.map((feature) => (
+                <tr key={feature.name} className="hover:bg-gray-50 transition-colors">
+                  <td className="py-4 px-6 text-sm text-gray-600">{feature.name}</td>
+                  <td className="py-4 px-6 text-sm text-center">
+                    {typeof feature.lite === 'boolean' ? (
+                      feature.lite ? <span className="text-green-500 text-lg">✓</span> : <span className="text-gray-300 text-lg">✕</span>
+                    ) : (
+                      <span className="text-gray-900 font-medium">{feature.lite}</span>
+                    )}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-center">
+                    {typeof feature.pro === 'boolean' ? (
+                      feature.pro ? <span className="text-green-500 text-lg">✓</span> : <span className="text-gray-300 text-lg">✕</span>
+                    ) : (
+                      <span className="text-gray-900 font-medium">{feature.pro}</span>
+                    )}
+                  </td>
+                  <td className="py-4 px-6 text-sm text-center">
+                    {typeof feature.elite === 'boolean' ? (
+                      feature.elite ? <span className="text-green-500 text-lg">✓</span> : <span className="text-gray-300 text-lg">✕</span>
+                    ) : (
+                      <span className="text-gray-900 font-medium">{feature.elite}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

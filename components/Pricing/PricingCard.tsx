@@ -19,7 +19,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
             </span>
           </div>
         )}
-        
+
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
           <div className="mb-4">
@@ -28,7 +28,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
           </div>
           <p className="text-gray-600">{plan.description}</p>
         </div>
-        
+
         <ul className="space-y-4 mb-8">
           {plan.features.map((feature, index) => (
             <li key={index} className="flex items-start">
@@ -39,21 +39,20 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
             </li>
           ))}
         </ul>
-        
+
         <button
           onClick={() => setShowPaymentModal(true)}
-          className={`w-full py-4 rounded-full font-bold text-lg transition ${
-            plan.isPopular
+          className={`w-full py-4 rounded-full font-bold text-lg transition ${plan.isPopular
               ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg'
               : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-          }`}
+            }`}
         >
-          {plan.isPopular ? 'Start Premium Trial' : 'Choose Basic'}
+          Pilih Sekarang
         </button>
       </div>
-      
+
       {showPaymentModal && (
-        <PaymentModal 
+        <PaymentModal
           plan={plan}
           onClose={() => setShowPaymentModal(false)}
         />
