@@ -46,6 +46,8 @@ class FileStorageService {
     // Initialize S3 client
     this.s3Client = new S3Client({
       region: config.awsRegion,
+      endpoint: config.s3Endpoint, // Support for R2/S3 compatible services
+      forcePathStyle: true, // Often required for S3-compatible storage
       credentials: {
         accessKeyId: config.s3AccessKeyId,
         secretAccessKey: config.s3SecretAccessKey,
@@ -145,7 +147,7 @@ class FileStorageService {
             fit: 'cover',
             position: 'center',
           })
-          .jpeg({ quality: 80 })
+          .webp({ quality: 80 }) // Optimize with WebP
           .toBuffer();
       }
 
@@ -189,7 +191,10 @@ class FileStorageService {
       await this.s3Client.send(command);
 
       // Generate the URL for the uploaded file
-      const url = `https://${config.s3BucketName}.s3.${config.awsRegion}.amazonaws.com/${key}`;
+      // Use custom public domain if configured (e.g., Cloudflare R2), otherwise fallback to standard S3 URL
+      const url = config.s3PublicDomain
+        ? `${config.s3PublicDomain}/${key}`
+        : `https://${config.s3BucketName}.s3.${config.awsRegion}.amazonaws.com/${key}`;
 
       return { url, key };
     } catch (error) {
@@ -224,15 +229,26 @@ class FileStorageService {
 
       const extension = mimeToExtension[validation.fileType!] || 'bin';
 
-      // Generate S3 key
-      const key = this.generateS3Key(fileType, userId, extension);
+      // Convert original image to WebP if it's an image (except SVG)
+      let finalBuffer = buffer;
+      let finalMimeType = validation.fileType!;
+      let finalExtension = extension;
 
-      // Upload the original file
-      const uploadResult = await this.uploadToS3(buffer, key, validation.fileType!);
+      if ((fileType === FileType.GALLERY_IMAGE || fileType === FileType.BACKGROUND) && extension !== 'svg') {
+        finalBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+        finalMimeType = 'image/webp';
+        finalExtension = 'webp';
+      }
+
+      // Generate S3 key
+      const key = this.generateS3Key(fileType, userId, finalExtension);
+
+      // Upload the file
+      const uploadResult = await this.uploadToS3(finalBuffer, key, finalMimeType);
 
       // Generate thumbnails for images (except SVG)
       let thumbnails: UploadResult['thumbnails'];
-      if ((fileType === FileType.GALLERY_IMAGE || fileType === FileType.BACKGROUND) && extension !== 'svg') {
+      if ((fileType === FileType.GALLERY_IMAGE || fileType === FileType.BACKGROUND) && finalExtension === 'webp') {
         const thumbnailBuffers = await this.generateThumbnails(buffer);
         thumbnails = {
           small: '',
@@ -241,8 +257,8 @@ class FileStorageService {
         };
 
         for (const [sizeName, thumbBuffer] of Object.entries(thumbnailBuffers)) {
-          const thumbnailKey = this.generateS3Key(`${fileType}-thumb-${sizeName}` as FileType, userId, 'jpg');
-          const thumbnailUpload = await this.uploadToS3(thumbBuffer, thumbnailKey, 'image/jpeg');
+          const thumbnailKey = this.generateS3Key(`${fileType}-thumb-${sizeName}` as FileType, userId, 'webp');
+          const thumbnailUpload = await this.uploadToS3(thumbBuffer, thumbnailKey, 'image/webp');
           if (sizeName === 'small') {
             thumbnails.small = thumbnailUpload.url;
           } else if (sizeName === 'medium') {

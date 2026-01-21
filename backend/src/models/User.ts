@@ -8,6 +8,8 @@ export class User extends Model {
   public password!: string;
   public membership_tier!: MembershipTier;
   public membership_expires_at?: Date;
+  public phone_number?: string;
+  public company_name?: string;
   public email_verified!: boolean;
   public created_at!: Date;
   public updated_at!: Date;
@@ -44,6 +46,14 @@ export class User extends Model {
         },
         membership_expires_at: {
           type: DataTypes.DATE,
+          allowNull: true,
+        },
+        phone_number: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        company_name: {
+          type: DataTypes.STRING,
           allowNull: true,
         },
         email_verified: {

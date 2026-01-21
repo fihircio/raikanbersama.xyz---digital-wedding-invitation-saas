@@ -56,11 +56,27 @@ app.use(helmet({
 app.use(securityHeaders);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  config.frontendUrl
+].filter((origin, index, self) => origin && self.indexOf(origin) === index); // Remove duplicates and empty values
+
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  exposedHeaders: ['X-CSRF-Token'],
 }));
 
 // Enhanced rate limiting with multiple strategies
@@ -139,21 +155,21 @@ app.use(errorHandler);
 // Initialize database and start server
 const startServer = async () => {
   let databaseConnected = false;
-  
+
   try {
     // Connect to database
     await connectDatabase();
     databaseConnected = true;
-    
+
     // Initialize models
     initializeModels(sequelize);
-    
+
     // Initialize database (create tables if they don't exist)
     await initializeDatabase();
-    
+
   } catch (error) {
     logger.error('Database connection failed:', error);
-    
+
     // In development, don't exit if database doesn't exist yet
     if (config.nodeEnv !== 'production') {
       logger.warn('Starting server in development mode without database connection. Please ensure PostgreSQL is running and database exists.');
@@ -173,11 +189,11 @@ const startServer = async () => {
     if (!databaseConnected) {
       logger.warn('Server started without database connection. Some features may not work properly.');
     }
-    
+
     // Start token cleanup scheduler
     startTokenCleanup();
   });
-  
+
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (err: Error) => {
     logger.error('Unhandled Promise Rejection:', err);
@@ -186,7 +202,7 @@ const startServer = async () => {
       process.exit(1);
     });
   });
-  
+
   // Handle uncaught exceptions
   process.on('uncaughtException', (err: Error) => {
     logger.error('Uncaught Exception:', err);
@@ -195,7 +211,7 @@ const startServer = async () => {
       process.exit(1);
     });
   });
-  
+
   // Graceful shutdown
   process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down gracefully');
@@ -207,7 +223,7 @@ const startServer = async () => {
       process.exit(0);
     });
   });
-  
+
   // Handle SIGINT (Ctrl+C)
   process.on('SIGINT', async () => {
     logger.info('SIGINT received, shutting down gracefully');

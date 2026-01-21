@@ -1,6 +1,6 @@
 import { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery } from '../models';
 import { MembershipTier } from '../types/models';
-import { 
+import {
   userRepository,
   invitationRepository,
   rsvpRepository,
@@ -20,7 +20,7 @@ class DatabaseService {
   async getUserById(id: string) {
     const user = await userRepository.findById(id);
     if (!user) return null;
-    
+
     // Convert to API format
     return convertUserToApi(user);
   }
@@ -28,7 +28,7 @@ class DatabaseService {
   async getUserByEmail(email: string) {
     const user = await userRepository.findByEmail(email);
     if (!user) return null;
-    
+
     // Convert to API format
     return convertUserToApi(user);
   }
@@ -41,7 +41,7 @@ class DatabaseService {
     email_verified?: boolean;
   }) {
     const user = await userRepository.createUser(userData);
-    
+
     // Convert to API format
     return convertUserToApi(user);
   }
@@ -49,7 +49,7 @@ class DatabaseService {
   async updateUser(id: string, userData: Partial<User>) {
     const user = await userRepository.updateProfile(id, userData);
     if (!user) return null;
-    
+
     // Convert to API format
     return convertUserToApi(user);
   }
@@ -178,6 +178,27 @@ class DatabaseService {
 
   async deleteContactPerson(id: string) {
     return await contactPersonRepository.deleteContactPerson(id);
+  }
+
+  // Gallery operations
+  async getGalleryByInvitationId(invitationId: string) {
+    return await galleryRepository.findByInvitationId(invitationId);
+  }
+
+  async addGalleryImage(galleryData: { invitation_id: string; image_url: string; caption?: string; display_order?: number }) {
+    return await galleryRepository.createGalleryItem(galleryData);
+  }
+
+  async deleteGalleryImage(id: string) {
+    return await galleryRepository.deleteById(id);
+  }
+
+  async getGalleryCount(invitationId: string) {
+    return await galleryRepository.countByInvitationId(invitationId);
+  }
+
+  async updateGallery(invitationId: string, itemIds: string[]) {
+    return await galleryRepository.reorderItems(invitationId, itemIds);
   }
 }
 

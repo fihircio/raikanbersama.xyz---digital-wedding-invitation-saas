@@ -11,19 +11,22 @@ import logger from '../utils/logger';
 const runSeeder = async (): Promise<void> => {
   try {
     logger.info('Starting database seeding...');
-    
+
     // Connect to database
     await connectDatabase();
-    
+
+    // Ensure database schema is up to date
+    await initializeDatabase();
+
     // Initialize models before seeding
     initializeModels(sequelize);
-    
+
     // Run seeder
     await seedDatabase();
-    
+
     // Close connection
     await closeDatabase();
-    
+
     logger.info('Database seeding completed successfully!');
     process.exit(0);
   } catch (error) {

@@ -27,7 +27,7 @@ function getSessionId(req: Request): string {
   // Try to get session ID from various sources
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent') || 'unknown';
-  
+
   // Create a hash from IP and user agent for session identification
   return crypto.createHash('sha256')
     .update(`${ip}:${userAgent}`)
@@ -55,16 +55,16 @@ setInterval(cleanupExpiredTokens, 5 * 60 * 1000);
 export const generateCSRFToken = (req: Request, res: Response, next: NextFunction): void => {
   const sessionId = getSessionId(req);
   const token = _generateCSRFToken();
-  
+
   // Store token with expiration (1 hour)
   tokenStore.set(sessionId, {
     token,
     expires: Date.now() + 60 * 60 * 1000
   });
-  
+
   // Set CSRF token in response header
   res.set('X-CSRF-Token', token);
-  
+
   // Also store in a cookie for client-side access
   res.cookie('csrf-token', token, {
     httpOnly: false, // Client needs to read this for AJAX requests
@@ -72,7 +72,7 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
     sameSite: 'strict',
     maxAge: 60 * 60 * 1000 // 1 hour
   });
-  
+
   next();
 };
 
@@ -80,25 +80,25 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
  * Middleware to validate CSRF token
  * @param options - Configuration options
  */
-export const validateCSRFToken = (options: { 
-  skipMethods?: string[]; 
-  skipPaths?: string[] 
+export const validateCSRFToken = (options: {
+  skipMethods?: string[];
+  skipPaths?: string[]
 } = {}) => {
   const { skipMethods = ['GET', 'HEAD', 'OPTIONS'], skipPaths = [] } = options;
-  
+
   return (req: Request, res: Response, next: NextFunction): void => {
     // Skip validation for specified methods and paths
     if (skipMethods.includes(req.method) || skipPaths.some(path => req.path.startsWith(path))) {
       next();
       return;
     }
-    
+
     const sessionId = getSessionId(req);
     const storedTokenData = tokenStore.get(sessionId);
-    
+
     if (!storedTokenData || storedTokenData.expires < Date.now()) {
-      logger.warn('CSRF token expired or not found', { 
-        sessionId, 
+      logger.warn('CSRF token expired or not found', {
+        sessionId,
         path: req.path,
         method: req.method,
         ip: req.ip
@@ -109,17 +109,17 @@ export const validateCSRFToken = (options: {
       });
       return;
     }
-    
+
     // Get token from header, body, or query
     const tokenFromHeader = req.get('X-CSRF-Token');
     const tokenFromBody = req.body?.csrf_token;
     const tokenFromQuery = req.query?.csrf_token as string;
-    
+
     const providedToken = tokenFromHeader || tokenFromBody || tokenFromQuery;
-    
+
     if (!providedToken) {
-      logger.warn('CSRF token missing in request', { 
-        sessionId, 
+      logger.warn('CSRF token missing in request', {
+        sessionId,
         path: req.path,
         method: req.method,
         ip: req.ip
@@ -130,11 +130,11 @@ export const validateCSRFToken = (options: {
       });
       return;
     }
-    
+
     // Validate token
     if (providedToken !== storedTokenData.token) {
-      logger.warn('Invalid CSRF token', { 
-        sessionId, 
+      logger.warn('Invalid CSRF token', {
+        sessionId,
         path: req.path,
         method: req.method,
         ip: req.ip,
@@ -146,7 +146,7 @@ export const validateCSRFToken = (options: {
       });
       return;
     }
-    
+
     // Token is valid, continue
     next();
   };
@@ -162,10 +162,10 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
     next();
     return;
   }
-  
+
   const sessionId = getSessionId(req);
   const storedTokenData = tokenStore.get(sessionId);
-  
+
   if (!storedTokenData || storedTokenData.expires < Date.now()) {
     res.status(403).json({
       success: false,
@@ -173,15 +173,15 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
     });
     return;
   }
-  
+
   // Get token from cookie
   const tokenFromCookie = req.cookies?.['csrf-token'];
-  
+
   // Get token from header or body
   const tokenFromHeader = req.get('X-CSRF-Token');
   const tokenFromBody = req.body?.csrf_token;
   const providedToken = tokenFromHeader || tokenFromBody;
-  
+
   if (!tokenFromCookie || !providedToken) {
     res.status(403).json({
       success: false,
@@ -189,11 +189,11 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
     });
     return;
   }
-  
+
   // Validate that both tokens match
   if (tokenFromCookie !== providedToken || providedToken !== storedTokenData.token) {
-    logger.warn('Double submit CSRF validation failed', { 
-      sessionId, 
+    logger.warn('Double submit CSRF validation failed', {
+      sessionId,
       path: req.path,
       method: req.method,
       ip: req.ip
@@ -204,7 +204,7 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
     });
     return;
   }
-  
+
   next();
 };
 
@@ -214,9 +214,9 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
 export const invalidateCSRFToken = (req: Request, res: Response, next: NextFunction): void => {
   const sessionId = getSessionId(req);
   tokenStore.delete(sessionId);
-  
+
   // Clear CSRF cookie
   res.clearCookie('csrf-token');
-  
+
   next();
 };

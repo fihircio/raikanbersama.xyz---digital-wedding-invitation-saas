@@ -7,6 +7,8 @@ import { ItineraryItem } from './ItineraryItem';
 import { ContactPerson } from './ContactPerson';
 import { BackgroundImage } from './BackgroundImage';
 import { Gallery } from './Gallery';
+import { Favorite } from './Favorite';
+import { Order } from './Order';
 
 const models = {
   User,
@@ -16,12 +18,14 @@ const models = {
   ItineraryItem,
   ContactPerson,
   BackgroundImage,
-  Gallery
+  Gallery,
+  Favorite,
+  Order
 };
 
 // Setup model associations
 export const setupAssociations = (): void => {
-  const { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery } = models;
+  const { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery, Favorite, BackgroundImage, Order } = models;
 
   // User has many Invitations
   User.hasMany(Invitation, {
@@ -82,6 +86,46 @@ export const setupAssociations = (): void => {
     foreignKey: 'invitation_id',
     as: 'invitation'
   });
+
+  // User has many Favorites
+  User.hasMany(Favorite, {
+    foreignKey: 'user_id',
+    as: 'favorites'
+  });
+  Favorite.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  // BackgroundImage has many Favorites
+  BackgroundImage.hasMany(Favorite, {
+    foreignKey: 'background_image_id',
+    as: 'favorites'
+  });
+  Favorite.belongsTo(BackgroundImage, {
+    foreignKey: 'background_image_id',
+    as: 'backgroundImage'
+  });
+
+  // User has many Orders
+  User.hasMany(Order, {
+    foreignKey: 'user_id',
+    as: 'orders'
+  });
+  Order.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  // Invitation has many Orders
+  Invitation.hasMany(Order, {
+    foreignKey: 'invitation_id',
+    as: 'orders'
+  });
+  Order.belongsTo(Invitation, {
+    foreignKey: 'invitation_id',
+    as: 'invitation'
+  });
 };
 
 // Initialize all models
@@ -106,7 +150,9 @@ export {
   ItineraryItem,
   ContactPerson,
   BackgroundImage,
-  Gallery
+  Gallery,
+  Favorite,
+  Order
 };
 
 export default models;

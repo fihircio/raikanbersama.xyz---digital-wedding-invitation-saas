@@ -1,9 +1,9 @@
-import { 
-  Invitation, 
-  RSVP, 
-  GuestWish, 
-  ItineraryItem, 
-  ContactPerson, 
+import {
+  Invitation,
+  RSVP,
+  GuestWish,
+  ItineraryItem,
+  ContactPerson,
   BackgroundImage,
   MembershipTier
 } from '../types/models';
@@ -75,7 +75,35 @@ const MOCK_INVITATIONS: Invitation[] = [
       account_no: '123456789012',
       account_holder: 'Siti Hawa binti Ahmad',
       qr_url: ''
-    }
+    },
+    wishlist_details: {
+      enabled: false,
+      receiver_phone: '',
+      receiver_address: '',
+      items: []
+    },
+    rsvp_settings: {
+      response_mode: 'rsvp_and_wish',
+      external_url: '',
+      note: '',
+      closing_date: undefined,
+      fields: {
+        name: true,
+        phone: true,
+        email: false,
+        address: false,
+        company: false,
+        job_title: false,
+        car_plate: false,
+        remarks: false,
+        wish: true
+      },
+      has_children_policy: false,
+      pax_limit_per_rsvp: 10,
+      total_guest_limit: 500,
+      has_slots: false
+    },
+    rsvps: []
   }
 ];
 
@@ -94,7 +122,7 @@ const MOCK_USERS: User[] = [
     email: 'user@example.com',
     name: 'Test User',
     password: '$2b$10$example_hashed_password', // This would be a bcrypt hash in production
-    membership_tier: MembershipTier.PREMIUM,
+    membership_tier: MembershipTier.ELITE,
     membership_expires_at: '2025-12-31T23:59:59Z',
     email_verified: true,
     created_at: '2024-01-01T00:00:00Z',
@@ -121,7 +149,9 @@ const MOCK_BACKGROUNDS: BackgroundImage[] = [
     thumbnail: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=200',
     category: 'elegant',
     isPremium: false,
-    tags: ['rose', 'elegant', 'romantic']
+    tags: ['rose', 'elegant', 'romantic'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: 'bg-2',
@@ -130,7 +160,9 @@ const MOCK_BACKGROUNDS: BackgroundImage[] = [
     thumbnail: 'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&q=80&w=200',
     category: 'minimalist',
     isPremium: false,
-    tags: ['minimalist', 'white', 'clean']
+    tags: ['minimalist', 'white', 'clean'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: 'bg-3',
@@ -139,7 +171,9 @@ const MOCK_BACKGROUNDS: BackgroundImage[] = [
     thumbnail: 'https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&q=80&w=200',
     category: 'floral',
     isPremium: true,
-    tags: ['floral', 'garden', 'nature']
+    tags: ['floral', 'garden', 'nature'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
     id: 'bg-4',
@@ -148,7 +182,9 @@ const MOCK_BACKGROUNDS: BackgroundImage[] = [
     thumbnail: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=200',
     category: 'popular',
     isPremium: true,
-    tags: ['gold', 'classic', 'luxury']
+    tags: ['gold', 'classic', 'luxury'],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
 
@@ -216,7 +252,29 @@ class MockDataService {
       id: `inv-${Date.now()}`,
       ...invitationData,
       views: 0,
-      wishes: []
+      wishes: [],
+      rsvps: [],
+      rsvp_settings: {
+        response_mode: 'rsvp_and_wish',
+        external_url: '',
+        note: '',
+        closing_date: undefined,
+        fields: {
+          name: true,
+          phone: true,
+          email: false,
+          address: false,
+          company: false,
+          job_title: false,
+          car_plate: false,
+          remarks: false,
+          wish: true
+        },
+        has_children_policy: false,
+        pax_limit_per_rsvp: 10,
+        total_guest_limit: 500,
+        has_slots: false
+      }
     };
     invitations.push(newInvitation);
     return newInvitation;
@@ -312,28 +370,28 @@ class MockDataService {
       message: wishData.message,
       created_at: new Date().toISOString()
     };
-    
+
     // Add to global wishes array
     guestWishes.push(newWish);
-    
+
     // Add to invitation's wishes array
     const invitation = invitations.find(inv => inv.id === wishData.invitation_id);
     if (invitation) {
       invitation.wishes.push(newWish);
     }
-    
+
     return newWish;
   }
 
   async deleteGuestWish(id: string): Promise<boolean> {
     const initialLength = guestWishes.length;
     guestWishes = guestWishes.filter(wish => wish.id !== id);
-    
+
     // Remove from all invitations' wishes arrays
     invitations.forEach(inv => {
       inv.wishes = inv.wishes.filter(wish => wish.id !== id);
     });
-    
+
     return guestWishes.length < initialLength;
   }
 
@@ -349,13 +407,13 @@ class MockDataService {
       time: itemData.time,
       activity: itemData.activity
     };
-    
+
     // Add to invitation's itinerary array
     const invitation = invitations.find(inv => inv.id === itemData.invitation_id);
     if (invitation) {
       invitation.itinerary.push(newItem);
     }
-    
+
     return newItem;
   }
 
@@ -376,7 +434,7 @@ class MockDataService {
 
   async deleteItineraryItem(id: string): Promise<boolean> {
     let deleted = false;
-    
+
     // Remove from all invitations' itinerary arrays
     invitations.forEach(inv => {
       const initialLength = inv.itinerary.length;
@@ -385,7 +443,7 @@ class MockDataService {
         deleted = true;
       }
     });
-    
+
     return deleted;
   }
 
@@ -402,13 +460,13 @@ class MockDataService {
       relation: personData.relation,
       phone: personData.phone
     };
-    
+
     // Add to invitation's contacts array
     const invitation = invitations.find(inv => inv.id === personData.invitation_id);
     if (invitation) {
       invitation.contacts.push(newPerson);
     }
-    
+
     return newPerson;
   }
 
@@ -429,7 +487,7 @@ class MockDataService {
 
   async deleteContactPerson(id: string): Promise<boolean> {
     let deleted = false;
-    
+
     // Remove from all invitations' contacts arrays
     invitations.forEach(inv => {
       const initialLength = inv.contacts.length;
@@ -438,7 +496,7 @@ class MockDataService {
         deleted = true;
       }
     });
-    
+
     return deleted;
   }
 

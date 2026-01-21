@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest } from '../types/api';
 import authService from '../services/authService';
 import { User } from '../models';
+import { MembershipTier } from '../types/models';
 import logger from '../utils/logger';
 
 /**
@@ -24,7 +25,7 @@ export const authenticate = async (
   try {
     // Get token from header
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({
         success: false,
@@ -96,7 +97,7 @@ export const optionalAuth = async (
   try {
     // Get token from header
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token provided, continue without authentication
       next();
@@ -146,10 +147,10 @@ export const requirePremium = (
     return;
   }
 
-  if (req.user.membership_tier !== 'premium' && req.user.membership_tier !== 'basic') {
+  if (req.user.membership_tier === MembershipTier.FREE) {
     res.status(403).json({
       success: false,
-      error: 'Premium or Basic membership required for this feature.'
+      error: 'Paid membership required for this feature.'
     });
     return;
   }
@@ -162,7 +163,7 @@ export const requirePremium = (
  * @param requiredTier - Required membership tier
  * @returns Middleware function
  */
-export const requireMembershipTier = (requiredTier: 'free' | 'basic' | 'premium') => {
+export const requireMembershipTier = (requiredTier: MembershipTier) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
@@ -173,13 +174,14 @@ export const requireMembershipTier = (requiredTier: 'free' | 'basic' | 'premium'
     }
 
     const tierHierarchy = {
-      'free': 0,
-      'basic': 1,
-      'premium': 2
+      [MembershipTier.FREE]: 0,
+      [MembershipTier.BASIC]: 1,
+      [MembershipTier.PREMIUM]: 2,
+      [MembershipTier.ELITE]: 3
     };
 
-    const userTierLevel = tierHierarchy[req.user.membership_tier];
-    const requiredTierLevel = tierHierarchy[requiredTier];
+    const userTierLevel = tierHierarchy[req.user.membership_tier as MembershipTier];
+    const requiredTierLevel = tierHierarchy[requiredTier as MembershipTier];
 
     if (userTierLevel < requiredTierLevel) {
       res.status(403).json({

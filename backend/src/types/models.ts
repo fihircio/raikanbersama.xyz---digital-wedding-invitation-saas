@@ -1,7 +1,15 @@
 export enum MembershipTier {
   FREE = 'free',
   BASIC = 'basic',
-  PREMIUM = 'premium'
+  PREMIUM = 'premium',
+  ELITE = 'elite'
+}
+
+export enum OrderStatus {
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  REFUNDED = 'refunded'
 }
 
 export interface ItineraryItem {
@@ -22,6 +30,48 @@ export interface GuestWish {
   name: string;
   message: string;
   created_at: string;
+}
+
+export interface WishlistItem {
+  id: string;
+  item_name: string;
+  item_link: string;
+  item_image: string;
+}
+
+export interface RSVP {
+  id: string;
+  invitation_id: string;
+  guest_name: string;
+  pax: number;
+  is_attending: boolean;
+  phone_number: string;
+  message?: string;
+  slot?: string;
+  created_at: Date | string;
+}
+
+export interface RsvpSettings {
+  response_mode: 'rsvp_and_wish' | 'wish_only' | 'external' | 'none';
+  external_url?: string;
+  note?: string;
+  closing_date?: string;
+  fields: {
+    name: boolean;
+    phone: boolean;
+    email: boolean;
+    address: boolean;
+    company: boolean;
+    job_title: boolean;
+    car_plate: boolean;
+    remarks: boolean;
+    wish: boolean;
+  };
+  has_children_policy: boolean;
+  pax_limit_per_rsvp: number;
+  total_guest_limit: number;
+  has_slots: boolean;
+  slots_options?: string[];
 }
 
 export interface Invitation {
@@ -45,6 +95,8 @@ export interface Invitation {
   gallery: string[];
   views: number;
   wishes: GuestWish[];
+  rsvps: RSVP[];
+  rsvp_settings: RsvpSettings;
   settings: {
     music_url: string;
     primary_color: string;
@@ -70,6 +122,14 @@ export interface Invitation {
     hero_size?: string;
     invitation_color?: string;
     invitation_size?: string;
+    youtube_url?: string;
+    language_mode?: 'melayu' | 'english' | 'bilingual';
+    pdf_export_enabled?: boolean;
+    layout_settings?: {
+      cover_layout?: string;
+      font_family?: string;
+      overlay_opacity?: number;
+    };
   };
   money_gift_details: {
     enabled: boolean;
@@ -78,17 +138,12 @@ export interface Invitation {
     account_holder: string;
     qr_url: string;
   };
-}
-
-export interface RSVP {
-  id: string;
-  invitation_id: string;
-  guest_name: string;
-  pax: number;
-  is_attending: boolean;
-  phone_number: string;
-  message?: string;
-  created_at: string;
+  wishlist_details: {
+    enabled: boolean;
+    receiver_phone: string;
+    receiver_address: string;
+    items: WishlistItem[];
+  };
 }
 
 export interface BackgroundImage {
@@ -96,9 +151,16 @@ export interface BackgroundImage {
   name: string;
   url: string;
   thumbnail: string;
-  category: 'popular' | 'minimalist' | 'elegant' | 'floral';
+  category: string;
   isPremium: boolean;
   tags: string[];
+  layout_settings?: {
+    cover_layout?: string;
+    font_family?: string;
+    overlay_opacity?: number;
+  };
+  created_at: Date | string;
+  updated_at: Date | string;
 }
 
 export interface CatalogState {
@@ -118,4 +180,17 @@ export interface Plan {
   description: string;
   features: string[];
   isPopular: boolean;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  invitation_id?: string;
+  amount: number;
+  status: OrderStatus;
+  plan_tier: MembershipTier;
+  payment_id?: string;
+  payment_method?: string;
+  created_at: Date | string;
+  updated_at: Date | string;
 }

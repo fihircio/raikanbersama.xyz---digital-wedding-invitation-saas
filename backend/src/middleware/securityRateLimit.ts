@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
+import config from '../config';
 
 /**
  * Security Rate Limiting Middleware
@@ -53,9 +54,14 @@ export const sensitiveOperationLimiter = (options: {
   maxAttempts?: number;
   operationName?: string;
 } = {}) => {
-  const { windowMs = 15 * 60 * 1000, maxAttempts = 5, operationName = 'sensitive operation' } = options;
+  const { windowMs = 15 * 60 * 1000, maxAttempts = 100, operationName = 'sensitive operation' } = options;
   
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Skip rate limiting completely in development
+    if (config.nodeEnv === 'development') {
+      return next();
+    }
+    
     const clientId = getClientId(req);
     const now = Date.now();
     
@@ -109,7 +115,7 @@ export const sensitiveOperationLimiter = (options: {
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per window
+  max: 200, // Increased to 200 attempts per window for development
   message: {
     success: false,
     error: 'Too many authentication attempts. Please try again later.',
@@ -135,10 +141,15 @@ export const authLimiter = rateLimit({
  * Rate limiter for content creation (RSVPs, guest wishes, etc.)
  */
 export const contentCreationLimiter = (req: Request, res: Response, next: NextFunction): void => {
+  // Skip rate limiting completely in development
+  if (config.nodeEnv === 'development') {
+    return next();
+  }
+  
   const clientId = getClientId(req);
   const now = Date.now();
   const windowMs = 60 * 60 * 1000; // 1 hour
-  const maxAttempts = 20; // 20 content items per hour
+  const maxAttempts = 500; // Increased to 500 content items per hour for development
   
   // Get or create client data
   let clientData = contentCreationStore.get(clientId);
@@ -189,7 +200,7 @@ export const contentCreationLimiter = (req: Request, res: Response, next: NextFu
  */
 export const fileUploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 50, // 50 files per hour
+  max: 500, // Increased to 500 files per hour for development
   message: {
     success: false,
     error: 'Too many file uploads. Please try again later.',
@@ -224,12 +235,17 @@ export const progressiveRateLimiter = (options: {
   baseMaxAttempts?: number;
   maxMultiplier?: number;
 } = {}) => {
-  const { baseWindowMs = 15 * 60 * 1000, baseMaxAttempts = 5, maxMultiplier = 8 } = options;
+  const { baseWindowMs = 15 * 60 * 1000, baseMaxAttempts = 100, maxMultiplier = 8 } = options;
   
   // Store violation history
   const violationHistory = new Map<string, { count: number; lastViolation: number }>();
   
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Skip rate limiting completely in development
+    if (config.nodeEnv === 'development') {
+      return next();
+    }
+    
     const clientId = getClientId(req);
     const now = Date.now();
     

@@ -21,13 +21,13 @@ const INAPPROPRIATE_WORDS = [
   'divorce', 'breakup', 'cheating', 'affair', 'scam'
 ];
 
-// Spam patterns
+// Spam patterns (adjusted for wedding content)
 const SPAM_PATTERNS = [
-  /(\w+)\1{3,}/, // Repeated characters (e.g., "aaaaaa")
-  /[A-Z]{5,}/, // Excessive capitalization
+  /(\w+)\1{4,}/, // Repeated characters (e.g., "aaaaaa") - increased threshold
+  /[A-Z]{7,}/, // Excessive capitalization - increased threshold
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, // URLs
-  /\b\d{3,}\b/, // Numbers with 3+ digits (potential phone numbers)
-  /[!@#$%^&*]{3,}/, // Excessive special characters
+  /\b\d{4,}\b/, // Numbers with 4+ digits (potential phone numbers) - increased threshold
+  /[!@#$%^&*]{4,}/, // Excessive special characters - increased threshold
 ];
 
 // Suspicious patterns
@@ -96,25 +96,38 @@ class ContentModerationService {
       score += 80;
     }
 
-    // Check for inappropriate words
-    const foundInappropriateWords = INAPPROPRIATE_WORDS.filter(word => 
-      lowerContent.includes(word)
+    // Check for inappropriate words (with context awareness)
+    const foundInappropriateWords = INAPPROPRIATE_WORDS.filter(word => {
+      // Only flag as inappropriate if it's an exact word match (not part of another word)
+      const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
+      return wordRegex.test(lowerContent);
+    });
+    
+    // Special handling for Malaysian wedding context
+    const malayWeddingTerms = ['kahwin', 'kahwin', 'perkahwinan', 'persandingan', 'walimatulurus', 'majlis'];
+    const containsMalayWeddingTerms = malayWeddingTerms.some(term =>
+      lowerContent.includes(term)
     );
     
     if (foundInappropriateWords.length > 0) {
+      // Reduce penalty for Malaysian wedding terms
+      const penaltyMultiplier = containsMalayWeddingTerms ? 0.2 : 1;
       categories.inappropriate = true;
       categories.profanity = true;
-      score += foundInappropriateWords.length * 15;
+      score += foundInappropriateWords.length * 15 * penaltyMultiplier;
     }
 
-    // Check for spam patterns
-    const matchedSpamPatterns = SPAM_PATTERNS.filter(pattern => 
+    // Check for spam patterns (more lenient for wedding content)
+    const matchedSpamPatterns = SPAM_PATTERNS.filter(pattern =>
       pattern.test(content)
     );
     
     if (matchedSpamPatterns.length > 0) {
-      categories.spam = true;
-      score += matchedSpamPatterns.length * 20;
+      // Only flag as spam if multiple spam patterns are detected (increased threshold)
+      if (matchedSpamPatterns.length > 3) {
+        categories.spam = true;
+        score += matchedSpamPatterns.length * 20;
+      }
     }
 
     // Check for suspicious patterns
@@ -133,9 +146,9 @@ class ContentModerationService {
 
     // Normalize score to 0-100
     score = Math.min(100, score);
-
-    // Determine if content is approved
-    const isApproved = score < 50; // Threshold can be adjusted
+    
+    // Determine if content is approved (more lenient threshold for wedding platform)
+    const isApproved = score < 70; // Increased threshold for wedding platform
     let reason: string | undefined;
 
     if (!isApproved) {

@@ -9,11 +9,13 @@ import contactPersonRoutes from './contact-persons';
 import galleryRoutes from './gallery';
 import backgroundRoutes from './backgrounds';
 import fileRoutes from './files';
+import favoriteRoutes from './favorites';
+import profileRoutes from './profile';
+import orderRoutes from './orders';
 import docsRoutes from './docs';
 
 const router = Router();
 
-// API routes
 router.use('/health', healthRoutes);
 router.use('/docs', docsRoutes);
 router.use('/users', userRoutes);
@@ -24,6 +26,9 @@ router.use('/itinerary', itineraryRoutes);
 router.use('/contact-persons', contactPersonRoutes);
 router.use('/gallery', galleryRoutes);
 router.use('/backgrounds', backgroundRoutes);
+router.use('/favorites', favoriteRoutes);
+router.use('/profile', profileRoutes);
+router.use('/orders', orderRoutes);
 router.use('/files', fileRoutes);
 
 // API version and info
@@ -36,10 +41,16 @@ router.get('/', (req, res) => {
     endpoints: {
       auth: {
         register: 'POST /api/users/register',
-        login: 'POST /api/users/login',
-        getProfile: 'GET /api/users/profile',
-        updateProfile: 'PUT /api/users/profile',
-        changePassword: 'PUT /api/users/password'
+        login: 'POST /api/users/login'
+      },
+      profile: {
+        get: 'GET /api/profile',
+        update: 'PUT /api/profile',
+        changePassword: 'PUT /api/profile/password'
+      },
+      orders: {
+        getAll: 'GET /api/orders',
+        getById: 'GET /api/orders/:id'
       },
       invitations: {
         getAll: 'GET /api/invitations',
@@ -90,6 +101,12 @@ router.get('/', (req, res) => {
         getByCategory: 'GET /api/backgrounds/category/:category',
         getPremium: 'GET /api/backgrounds/premium',
         getFree: 'GET /api/backgrounds/free'
+      },
+      favorites: {
+        getAll: 'GET /api/favorites',
+        add: 'POST /api/favorites',
+        remove: 'DELETE /api/favorites/:backgroundId',
+        check: 'GET /api/favorites/check/:backgroundId'
       },
       files: {
         uploadGalleryImage: 'POST /api/files/gallery',

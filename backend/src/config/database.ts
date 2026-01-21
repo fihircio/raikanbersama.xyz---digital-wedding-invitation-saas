@@ -27,18 +27,18 @@ const databaseUrl = process.env.DATABASE_URL;
 // Create Sequelize instance
 const sequelize = databaseUrl
   ? new Sequelize(databaseUrl, {
-      dialect: 'postgres',
-      ssl: process.env.DB_SSL === 'true',
-      pool: dbConfig.pool,
-      logging: dbConfig.logging,
-      timezone: dbConfig.timezone
-    })
+    dialect: 'postgres',
+    ssl: process.env.DB_SSL === 'true',
+    pool: dbConfig.pool,
+    logging: dbConfig.logging,
+    timezone: dbConfig.timezone
+  })
   : new Sequelize(
-      dbConfig.database,
-      dbConfig.username,
-      dbConfig.password,
-      dbConfig
-    );
+    dbConfig.database,
+    dbConfig.username,
+    dbConfig.password,
+    dbConfig
+  );
 
 // Test database connection
 export const connectDatabase = async (): Promise<void> => {
@@ -66,7 +66,8 @@ export const initializeDatabase = async (): Promise<void> => {
     }
 
     // Sync all models with database
-    await sequelize.sync({ force: true });
+    // Use alter: true to update existing tables without dropping them
+    await sequelize.sync({ alter: true });
     logger.info('Database synchronized successfully.');
   } catch (error) {
     logger.error('Error synchronizing database:', error);

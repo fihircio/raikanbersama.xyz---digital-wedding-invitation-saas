@@ -5,6 +5,7 @@ interface User {
   name: string;
   email: string;
   createdAt: string;
+  membership_tier: string;
 }
 
 interface AuthContextType {
@@ -39,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
+
     if (storedToken && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
@@ -51,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('user');
       }
     }
-    
+
     setIsLoading(false);
   }, []);
 
@@ -70,13 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.success) {
         const userData = data.data.user;
         const tokenData = data.data.token;
-        
+
         setUser(userData);
         setToken(tokenData);
-        
+
         localStorage.setItem('token', tokenData);
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         return { success: true };
       } else {
         return { success: false, error: data.error || 'Login failed' };
@@ -102,13 +103,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.success) {
         const userData = data.data.user;
         const tokenData = data.data.token;
-        
+
         setUser(userData);
         setToken(tokenData);
-        
+
         localStorage.setItem('token', tokenData);
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         return { success: true };
       } else {
         return { success: false, error: data.error || 'Registration failed' };

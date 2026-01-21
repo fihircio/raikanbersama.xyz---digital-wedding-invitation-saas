@@ -20,6 +20,8 @@ interface Config {
   s3BucketName: string;
   s3AccessKeyId: string;
   s3SecretAccessKey: string;
+  s3Endpoint?: string;
+  s3PublicDomain?: string;
   // File Upload Configuration
   maxFileSize: number;
   allowedImageTypes: string[];
@@ -44,6 +46,8 @@ const config: Config = {
   s3BucketName: process.env.S3_BUCKET_NAME || 'raikanbersama-uploads',
   s3AccessKeyId: process.env.S3_ACCESS_KEY_ID || '',
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+  s3Endpoint: process.env.S3_ENDPOINT,
+  s3PublicDomain: process.env.S3_PUBLIC_DOMAIN,
   // File Upload Configuration
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880', 10), // 5MB in bytes
   allowedImageTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
