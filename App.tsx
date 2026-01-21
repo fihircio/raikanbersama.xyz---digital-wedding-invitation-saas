@@ -11,11 +11,14 @@ import DashboardPage from './src/pages/DashboardPage';
 import EditorPage from './src/pages/EditorPage';
 import ManageInvitationPage from './src/pages/ManageInvitationPage';
 import PublicInvitationPage from './src/pages/PublicInvitationPage';
+import ProfilePage from './src/pages/ProfilePage';
+import OrdersPage from './src/pages/OrdersPage';
+import FavoritesPage from './src/pages/FavoritesPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -23,11 +26,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -44,7 +47,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/i/:slug" element={<PublicInvitationPage />} />
-            
+
             {/* Protected Routes */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
@@ -58,10 +61,34 @@ const App: React.FC = () => {
                 <EditorPage />
               </ProtectedRoute>
             } />
+            <Route path="/create" element={
+              <ProtectedRoute>
+                <Navbar />
+                <EditorPage />
+              </ProtectedRoute>
+            } />
             <Route path="/manage/:id" element={
               <ProtectedRoute>
                 <Navbar />
                 <ManageInvitationPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Navbar />
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/orders" element={
+              <ProtectedRoute>
+                <Navbar />
+                <OrdersPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/favorites" element={
+              <ProtectedRoute>
+                <Navbar />
+                <FavoritesPage />
               </ProtectedRoute>
             } />
           </Routes>
