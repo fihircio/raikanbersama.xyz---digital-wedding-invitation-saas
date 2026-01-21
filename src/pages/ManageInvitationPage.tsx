@@ -1,23 +1,176 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Invitation, RSVP } from '../../types';
-import { MOCK_INVITATIONS, MOCK_RSVPS } from '../../constants';
+import { MOCK_RSVPS } from '../../constants';
+import { useAuth } from '../contexts/AuthContext';
 
 const ManageInvitationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState('guests');
   const [magicGuest, setMagicGuest] = useState('');
   const [magicLink, setMagicLink] = useState('');
+  const [invitation, setInvitation] = useState<Invitation | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [rsvps, setRsvps] = useState<RSVP[]>([]);
 
-  const invitation = MOCK_INVITATIONS.find(i => i.id === id);
-  const rsvps = MOCK_RSVPS.filter(r => r.invitation_id === id);
+  useEffect(() => {
+    const fetchInvitation = async () => {
+      if (!id || !token) return;
+
+      try {
+        // Get CSRF token from cookie
+        const getCookie = (name: string) => {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop()?.split(';').shift();
+          return null;
+        };
+        const csrfToken = getCookie('csrf-token');
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        // Add CSRF token if available
+        if (csrfToken) {
+          headers['X-CSRF-Token'] = csrfToken;
+        }
+
+        const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Manage: API Response received', data);
+          setInvitation(data.data);
+        } else {
+          console.error('❌ Manage: Failed to fetch invitation:', response.statusText);
+        }
+      } catch (error) {
+        console.error('❌ Manage: Error fetching invitation:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchRsvps = async () => {
+      if (!id || !token) return;
+
+      try {
+        // Get CSRF token from cookie
+        const getCookie = (name: string) => {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop()?.split(';').shift();
+          return null;
+        };
+        const csrfToken = getCookie('csrf-token');
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        // Add CSRF token if available
+        if (csrfToken) {
+          headers['X-CSRF-Token'] = csrfToken;
+        }
+
+        const response = await fetch(`http://localhost:3001/api/rsvps/invitation/${id}`, {
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Manage: RSVPs API Response received', data);
+          setRsvps(data.data);
+        } else {
+          console.error('❌ Manage: Failed to fetch RSVPs:', response.statusText);
+          // Fallback to mock data if API fails
+          setRsvps(MOCK_RSVPS.filter(r => r.invitation_id === id));
+        }
+      } catch (error) {
+        console.error('❌ Manage: Error fetching RSVPs:', error);
+        // Fallback to mock data if API fails
+        setRsvps(MOCK_RSVPS.filter(r => r.invitation_id === id));
+      }
+    };
+
+    fetchInvitation();
+    fetchRsvps();
+  }, [id, token]);
+
+  const fetchWishes = async () => {
+    if (!id || !token) return;
+
+    try {
+      // Get CSRF token from cookie
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Add CSRF token if available
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
+      const response = await fetch(`http://localhost:3001/api/guest-wishes/invitation/${id}`, {
+        method: 'GET',
+        headers,
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Manage: Wishes API Response received', data);
+        // Update the invitation with the fetched wishes
+        setInvitation(prev => prev ? { ...prev, wishes: data.data } : null);
+      } else {
+        console.error('❌ Manage: Failed to fetch wishes:', response.statusText);
+      }
+    } catch (error) {
+      console.error('❌ Manage: Error fetching wishes:', error);
+    }
+  };
+
+  // Fetch wishes when the tab changes to 'wishes'
+  useEffect(() => {
+    if (activeTab === 'wishes' && invitation) {
+      fetchWishes();
+    }
+  }, [activeTab, id, token, invitation]);
 
   const stats = useMemo(() => {
-    const totalPax = rsvps.reduce((acc, curr) => acc + (curr.is_attending ? curr.pax : 0), 0);
-    const attendingCount = rsvps.filter(r => r.is_attending).length;
-    const notAttendingCount = rsvps.filter(r => !r.is_attending).length;
+    const totalPax = (rsvps || []).reduce((acc, curr) => acc + (curr.is_attending ? curr.pax : 0), 0);
+    const attendingCount = (rsvps || []).filter(r => r.is_attending).length;
+    const notAttendingCount = (rsvps || []).filter(r => !r.is_attending).length;
     return { totalPax, attendingCount, notAttendingCount };
   }, [rsvps]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 text-center font-serif italic text-gray-400">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
+        <p className="mt-4">Loading invitation...</p>
+      </div>
+    );
+  }
 
   if (!invitation) return <div className="pt-32 text-center font-serif italic text-gray-400">Invitation not found.</div>;
 
@@ -62,7 +215,7 @@ const ManageInvitationPage: React.FC = () => {
             { label: 'Kad Dibuka', value: invitation.views, icon: '👁️', color: 'bg-blue-50 text-blue-600' },
             { label: 'Jumlah Pax', value: stats.totalPax, icon: '👥', color: 'bg-green-50 text-green-600' },
             { label: 'Hadir', value: stats.attendingCount, icon: '✅', color: 'bg-emerald-50 text-emerald-600' },
-            { label: 'Ucapan', value: invitation.wishes.length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
+            { label: 'Ucapan', value: (invitation.wishes || []).length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
           ].map((stat, i) => (
             <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 ${stat.color}`}>{stat.icon}</div>
@@ -100,7 +253,7 @@ const ManageInvitationPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {rsvps.map((rsvp) => (
+                    {(rsvps || []).map((rsvp) => (
                       <tr key={rsvp.id} className="hover:bg-gray-50 transition group">
                         <td className="px-8 py-6">
                           <p className="font-bold text-gray-800 text-sm">{rsvp.guest_name}</p>
@@ -131,7 +284,7 @@ const ManageInvitationPage: React.FC = () => {
                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Recent Activity
                 </h4>
                 <div className="space-y-6">
-                   {rsvps.slice(0, 4).map((r, i) => (
+                   {(rsvps || []).slice(0, 4).map((r, i) => (
                      <div key={i} className="flex gap-4 items-start">
                         <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${r.is_attending ? 'bg-green-50 text-green-600' : 'bg-rose-50 text-rose-600'}`}>
                           {r.guest_name.charAt(0)}
@@ -153,7 +306,7 @@ const ManageInvitationPage: React.FC = () => {
         {/* Tab Content: Wishes */}
         {activeTab === 'wishes' && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-             {invitation.wishes.length > 0 ? invitation.wishes.map((wish) => (
+             {(invitation.wishes || []).length > 0 ? (invitation.wishes || []).map((wish) => (
                <div key={wish.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative group hover:shadow-md transition">
                   <p className="text-sm font-bold text-gray-800 mb-3 font-serif italic">{wish.name}</p>
                   <p className="text-sm text-gray-500 leading-relaxed italic">"{wish.message}"</p>

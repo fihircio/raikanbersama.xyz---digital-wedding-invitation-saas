@@ -30,25 +30,25 @@ export const getAllRSVPs = async (req: AuthenticatedRequest, res: Response): Pro
     const { page = 1, limit = 10 } = getPaginationParams(req);
     const { search, sortBy = 'created_at', sortOrder = 'desc' } = getFilterParams(req);
     const { invitation_id, is_attending } = req.query;
-    
+
     // Get user's invitations to ensure user can only see RSVPs for their own invitations
     const userInvitations = await invitationRepository.findByUserId(userId);
     const userInvitationIds = userInvitations.map(inv => inv.id);
-    
+
     // Build where conditions
     const whereCondition: any = {
       invitation_id: userInvitationIds.length > 0 ? { $in: userInvitationIds } : null,
     };
-    
+
     // Apply additional filters
     if (invitation_id) {
       whereCondition.invitation_id = invitation_id;
     }
-    
+
     if (is_attending !== undefined) {
       whereCondition.is_attending = is_attending === 'true';
     }
-    
+
     // Apply search filter if provided
     if (search) {
       whereCondition.$or = [
@@ -57,16 +57,16 @@ export const getAllRSVPs = async (req: AuthenticatedRequest, res: Response): Pro
         { message: { $iLike: `%${search}%` } }
       ];
     }
-    
+
     // Get RSVPs with pagination
     const result = await rsvpRepository.getRSVPsWithPagination(
       Number(page),
       Number(limit),
       whereCondition
     );
-    
+
     const pagination = calculatePagination(Number(page), Number(limit), result.count);
-    
+
     res.status(200).json({
       success: true,
       data: result.rows,
@@ -90,7 +90,7 @@ export const getRSVPById = async (req: AuthenticatedRequest, res: Response): Pro
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -140,7 +140,7 @@ export const getRSVPsByInvitationId = async (req: AuthenticatedRequest, res: Res
   try {
     const userId = req.user?.id;
     const { invitationId } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -160,7 +160,7 @@ export const getRSVPsByInvitationId = async (req: AuthenticatedRequest, res: Res
     }
 
     const rsvps = await rsvpRepository.findByInvitationId(invitationId);
-    
+
     res.status(200).json({
       success: true,
       data: rsvps
@@ -182,7 +182,7 @@ export const getRSVPsByInvitationId = async (req: AuthenticatedRequest, res: Res
 export const createRSVP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const rsvpData = req.body as Omit<RSVP, 'id' | 'created_at'>;
-    
+
     // Check if invitation exists and is published
     const invitation = await invitationRepository.findById(rsvpData.invitation_id);
     if (!invitation) {
@@ -201,23 +201,25 @@ export const createRSVP = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    // Check if guest has already RSVP'd
+    // Check if guest has already RSVP'd (only prevent exact duplicates, not similar names)
     const existingRSVPs = await rsvpRepository.findByInvitationId(rsvpData.invitation_id);
-    const existingRSVP = existingRSVPs.find(r => 
-      r.guest_name.toLowerCase() === rsvpData.guest_name.toLowerCase() && 
+    const existingRSVP = existingRSVPs.find(r =>
+      r.guest_name.toLowerCase() === rsvpData.guest_name.toLowerCase() &&
       r.phone_number === rsvpData.phone_number
     );
-    
+
+    // Allow RSVP from unregistered guests but prevent exact duplicates
+    // This allows magic links to work while still preventing spam
     if (existingRSVP) {
       res.status(400).json({
         success: false,
-        error: 'You have already RSVPd for this invitation'
+        error: 'You have already RSVPd for this invitation with this exact name and phone number'
       } as ApiResponse);
       return;
     }
 
     const newRSVP = await rsvpRepository.createRSVP(rsvpData);
-    
+
     logger.info(`New RSVP created: ${newRSVP.id} for invitation: ${rsvpData.invitation_id}`);
 
     res.status(201).json({
@@ -242,7 +244,7 @@ export const updateRSVP = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -278,7 +280,7 @@ export const updateRSVP = async (req: AuthenticatedRequest, res: Response): Prom
       repositoryUpdateData.created_at = new Date(repositoryUpdateData.created_at);
     }
     const updatedRSVP = await rsvpRepository.updateRSVP(id, repositoryUpdateData);
-    
+
     logger.info(`RSVP updated: ${id} by user: ${userId}`);
 
     res.status(200).json({
@@ -303,7 +305,7 @@ export const deleteRSVP = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -333,10 +335,10 @@ export const deleteRSVP = async (req: AuthenticatedRequest, res: Response): Prom
     }
 
     const deleted = await rsvpRepository.deleteById(id);
-    
+
     if (deleted) {
       logger.info(`RSVP deleted: ${id} by user: ${userId}`);
-      
+
       res.status(200).json({
         success: true,
         message: 'RSVP deleted successfully'
@@ -365,7 +367,7 @@ export const getRSVPStats = async (req: AuthenticatedRequest, res: Response): Pr
   try {
     const userId = req.user?.id;
     const { invitationId } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -385,7 +387,7 @@ export const getRSVPStats = async (req: AuthenticatedRequest, res: Response): Pr
     }
 
     const stats = await rsvpRepository.getRSVPStats(invitationId);
-    
+
     res.status(200).json({
       success: true,
       data: stats
@@ -408,7 +410,7 @@ export const exportRSVPs = async (req: AuthenticatedRequest, res: Response): Pro
   try {
     const userId = req.user?.id;
     const { invitationId } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -428,17 +430,18 @@ export const exportRSVPs = async (req: AuthenticatedRequest, res: Response): Pro
     }
 
     const rsvps = await rsvpRepository.findByInvitationId(invitationId);
-    
+
     // Format data for CSV export
     const csvData = rsvps.map(rsvp => ({
       'Guest Name': rsvp.guest_name,
       'Phone Number': rsvp.phone_number,
       'Number of Guests (PAX)': rsvp.pax,
+      'Slot / Category': rsvp.slot || '-',
       'Attending': rsvp.is_attending ? 'Yes' : 'No',
       'Message': rsvp.message || '',
       'RSVP Date': rsvp.created_at.toISOString().split('T')[0]
     }));
-    
+
     res.status(200).json({
       success: true,
       data: csvData

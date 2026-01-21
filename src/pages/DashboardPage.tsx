@@ -11,11 +11,11 @@ const DashboardPage: React.FC = () => {
   const { user, token } = useAuth();
   const [invitations, setInvitations] = useState<Invitation[]>(MOCK_INVITATIONS);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const fetchInvitations = async () => {
       if (!token) return;
-      
+
       try {
         // Get CSRF token from cookie
         const getCookie = (name: string) => {
@@ -25,41 +25,44 @@ const DashboardPage: React.FC = () => {
           return null;
         };
         const csrfToken = getCookie('csrf-token');
-        
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         };
-        
+
         // Add CSRF token if available
         if (csrfToken) {
           headers['X-CSRF-Token'] = csrfToken;
         }
-        
+
         const response = await fetch('http://localhost:3001/api/invitations', {
           method: 'GET',
           headers,
           credentials: 'include'
         });
-        
+
         if (response.ok) {
           const data = await response.json();
+          console.log('✅ Dashboard: API Response received', data);
+          console.log('📦 Dashboard: Invitations data', data.data);
+          console.log('📊 Dashboard: Number of invitations', data.data?.length || 0);
           setInvitations(data.data);
         } else {
-          console.error('Failed to fetch invitations:', response.statusText);
+          console.error('❌ Dashboard: Failed to fetch invitations:', response.statusText);
           // Keep using mock data if API fails
         }
       } catch (error) {
-        console.error('Error fetching invitations:', error);
+        console.error('❌ Dashboard: Error fetching invitations:', error);
         // Keep using mock data if API fails
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchInvitations();
   }, [token]);
-  
+
   if (loading) {
     return (
       <div className="pt-24 pb-12 bg-gray-50 min-h-screen flex items-center justify-center">
@@ -70,7 +73,7 @@ const DashboardPage: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="pt-24 pb-12 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,13 +83,14 @@ const DashboardPage: React.FC = () => {
             <p className="text-gray-500 text-sm">Uruskan semua jemputan digital anda di sini.</p>
             <p className="text-gray-400 text-xs mt-1">Selamat datang kembali, {user?.name}!</p>
           </div>
-          <button className="bg-rose-600 text-white px-8 py-3.5 rounded-full font-bold flex items-center space-x-2 hover:bg-rose-700 shadow-2xl shadow-rose-200 transition transform active:scale-95 uppercase text-[10px] tracking-widest">
+          <Link to="/catalog" className="bg-rose-600 text-white px-8 py-3.5 rounded-full font-bold flex items-center space-x-2 hover:bg-rose-700 shadow-2xl shadow-rose-200 transition transform active:scale-95 uppercase text-[10px] tracking-widest">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
             <span>Bina Baru</span>
-          </button>
+          </Link>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {console.log('🎨 Dashboard: Rendering invitations', invitations)}
           {invitations.map((inv) => (
             <div key={inv.id} className="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl transition-all duration-700">
               <div className="h-64 bg-gray-200 relative overflow-hidden">
@@ -106,7 +110,7 @@ const DashboardPage: React.FC = () => {
                     <Link to={`/manage/${inv.id}`} className="flex-1 text-center py-4 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 shadow-lg shadow-rose-100 transition">Urus Tetamu</Link>
                     <Link to={`/edit/${inv.id}`} className="flex-1 text-center py-4 bg-gray-50 text-gray-700 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 transition">Ubah Reka</Link>
                   </div>
-                  <Link to={`/i/${inv.slug}`} className="w-full text-center py-3 border border-gray-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-rose-600 hover:border-rose-100 transition duration-300">Buka Link Utama</Link>
+                  <Link to={`/i/${inv.slug || inv.id}`} className="w-full text-center py-3 border border-gray-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-rose-600 hover:border-rose-100 transition duration-300">Buka Link Utama</Link>
                 </div>
               </div>
             </div>

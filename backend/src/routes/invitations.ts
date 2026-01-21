@@ -108,6 +108,48 @@ const createInvitationSchema = {
         return 'Invalid Waze URL';
       }
     }
+  },
+  'settings.youtube_url': {
+    type: 'string',
+    custom: (value: string) => {
+      if (!value) return true;
+      try {
+        const url = new URL(value);
+        return url.hostname === 'youtube.com' || url.hostname === 'www.youtube.com' || url.hostname === 'youtu.be';
+      } catch {
+        return 'Invalid YouTube URL';
+      }
+    }
+  },
+  'settings.language_mode': {
+    type: 'string',
+    enum: ['melayu', 'english', 'bilingual']
+  },
+  'settings.pdf_export_enabled': {
+    type: 'boolean'
+  },
+  'wishlist_details.enabled': {
+    type: 'boolean'
+  },
+  'wishlist_details.receiver_phone': {
+    type: 'string',
+    max: 20
+  },
+  'wishlist_details.receiver_address': {
+    type: 'string',
+    max: 500
+  },
+  'wishlist_details.items': {
+    type: 'array',
+    items: {
+      type: 'object',
+      keys: {
+        id: { type: 'string', required: true },
+        item_name: { type: 'string', required: true, max: 200 },
+        item_link: { type: 'string', max: 500 },
+        item_image: { type: 'string', max: 1000 }
+      }
+    }
   }
 };
 
@@ -296,6 +338,25 @@ const updateInvitationSchema = {
     type: 'string',
     pattern: /^\d+(px|em|rem|%)$/
   },
+  'settings.youtube_url': {
+    type: 'string',
+    custom: (value: string) => {
+      if (!value) return true;
+      try {
+        const url = new URL(value);
+        return url.hostname === 'youtube.com' || url.hostname === 'www.youtube.com' || url.hostname === 'youtu.be';
+      } catch {
+        return 'Invalid YouTube URL';
+      }
+    }
+  },
+  'settings.language_mode': {
+    type: 'string',
+    enum: ['melayu', 'english', 'bilingual']
+  },
+  'settings.pdf_export_enabled': {
+    type: 'boolean'
+  },
   'money_gift_details.enabled': {
     type: 'boolean'
   },
@@ -320,6 +381,29 @@ const updateInvitationSchema = {
         return true;
       } catch {
         return 'Invalid QR code URL';
+      }
+    }
+  },
+  'wishlist_details.enabled': {
+    type: 'boolean'
+  },
+  'wishlist_details.receiver_phone': {
+    type: 'string',
+    max: 20
+  },
+  'wishlist_details.receiver_address': {
+    type: 'string',
+    max: 500
+  },
+  'wishlist_details.items': {
+    type: 'array',
+    items: {
+      type: 'object',
+      keys: {
+        id: { type: 'string', required: true },
+        item_name: { type: 'string', required: true, max: 200 },
+        item_link: { type: 'string', max: 500 },
+        item_image: { type: 'string', max: 1000 }
       }
     }
   }

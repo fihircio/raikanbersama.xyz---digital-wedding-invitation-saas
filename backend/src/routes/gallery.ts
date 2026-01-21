@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { createSecureRoute } from '../middleware/securityMiddleware';
-import { 
-  getGalleryImagesByInvitationId, 
-  addGalleryImage, 
-  removeGalleryImage, 
-  updateGalleryImages 
+import {
+  getGalleryImagesByInvitationId,
+  addGalleryImage,
+  removeGalleryImage,
+  updateGalleryImages
 } from '../controllers/galleryController';
 
 const router = Router();
@@ -30,28 +30,6 @@ const addGalleryImageSchema = {
   }
 };
 
-const updateGalleryImagesSchema = {
-  gallery: {
-    type: 'array',
-    required: true,
-    custom: (value: string[]) => {
-      if (!Array.isArray(value)) return 'Gallery must be an array';
-      if (value.length === 0) return 'Gallery cannot be empty';
-      if (value.length > 20) return 'Gallery cannot have more than 20 images';
-      
-      // Validate each URL
-      for (const url of value) {
-        try {
-          new URL(url);
-        } catch {
-          return `Invalid image URL format: ${url}`;
-        }
-      }
-      return true;
-    }
-  }
-};
-
 const invitationIdParamSchema = {
   invitationId: {
     type: 'string',
@@ -59,15 +37,19 @@ const invitationIdParamSchema = {
   }
 };
 
-const imageIndexParamSchema = {
-  imageIndex: {
+const idParamSchema = {
+  id: {
     type: 'string',
+    required: true
+  }
+};
+
+const updateGalleryImagesSchema = {
+  itemIds: {
+    type: 'array',
     required: true,
-    custom: (value: string) => {
-      const index = parseInt(value, 10);
-      if (isNaN(index) || index < 0) {
-        return 'Image index must be a non-negative integer';
-      }
+    custom: (value: string[]) => {
+      if (!Array.isArray(value)) return 'itemIds must be an array';
       return true;
     }
   }
@@ -86,15 +68,15 @@ router.get('/invitation/:invitationId', createSecureRoute('profile', { params: i
 router.post('/', createSecureRoute('profile', { body: addGalleryImageSchema }), addGalleryImage);
 
 /**
- * @route DELETE /api/gallery/:invitationId/:imageIndex
+ * @route DELETE /api/gallery/:id
  * @access Private
  */
-router.delete('/:invitationId/:imageIndex', createSecureRoute('profile', { params: invitationIdParamSchema }), removeGalleryImage);
+router.delete('/:id', createSecureRoute('profile', { params: idParamSchema }), removeGalleryImage);
 
 /**
- * @route PUT /api/gallery/:invitationId
+ * @route PUT /api/gallery/reorder/:invitationId
  * @access Private
  */
-router.put('/:invitationId', createSecureRoute('profile', { params: invitationIdParamSchema, body: updateGalleryImagesSchema }), updateGalleryImages);
+router.put('/reorder/:invitationId', createSecureRoute('profile', { params: invitationIdParamSchema, body: updateGalleryImagesSchema }), updateGalleryImages);
 
 export default router;

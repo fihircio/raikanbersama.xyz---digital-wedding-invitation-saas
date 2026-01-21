@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import TabButton from '../../components/Editor/TabButton';
-import { Invitation, ContactPerson } from '../../types';
+import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings } from '../../types';
 import { MOCK_INVITATIONS, THEME_COLORS } from '../../constants';
 import { generatePantun, generateStory } from '../../services/geminiService';
 import { InvitationContent } from './PublicInvitationPage';
@@ -9,19 +9,21 @@ import { useAuth } from '../contexts/AuthContext';
 
 const EditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { token } = useAuth();
+  const navigate = useNavigate();
+  const { token, user } = useAuth();
   const [inv, setInv] = useState<Invitation | null>(null);
   const [activeTab, setActiveTab] = useState('utama');
   const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
+  const wishlistItemInputRef = useRef<HTMLInputElement>(null);
+  const [currentWishlistItemIdx, setCurrentWishlistItemIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchInvitation = async () => {
       if (!id || !token) return;
-      
+
       try {
-        // Get CSRF token from cookie
         const getCookie = (name: string) => {
           const value = `; ${document.cookie}`;
           const parts = value.split(`; ${name}=`);
@@ -29,63 +31,75 @@ const EditorPage: React.FC = () => {
           return null;
         };
         const csrfToken = getCookie('csrf-token');
-        
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         };
-        
-        // Add CSRF token if available
+
         if (csrfToken) {
           headers['X-CSRF-Token'] = csrfToken;
         }
-        
+
         const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
           method: 'GET',
           headers,
           credentials: 'include'
         });
-        
+
         if (response.ok) {
           const data = await response.json();
+          console.log('✅ Editor: API Response received', data);
           let invitationData = data.data;
-          
-          // Check for selected background from catalog
-          const selectedBackground = sessionStorage.getItem('selectedBackground');
-          if (selectedBackground) {
-            const background = JSON.parse(selectedBackground);
-            invitationData = {
-              ...invitationData,
-              settings: {
-                ...invitationData.settings,
-                background_image: background.url
-              }
+
+          if (!invitationData.wishlist_details) {
+            invitationData.wishlist_details = {
+              enabled: false,
+              receiver_phone: '',
+              receiver_address: '',
+              items: []
             };
-            // Clear from sessionStorage after applying
-            sessionStorage.removeItem('selectedBackground');
           }
-          
+          if (!invitationData.money_gift_details) {
+            invitationData.money_gift_details = {
+              enabled: false,
+              bank_name: '',
+              account_no: '',
+              account_holder: '',
+              qr_url: '',
+              gift_title: 'Hadiah & Ingatan',
+              gift_subtitle: 'Khas buat mempelai'
+            };
+          }
+
           setInv(invitationData);
         } else {
-          console.error('Failed to fetch invitation:', response.statusText);
-          // Fallback to mock data if API fails
+          console.error('❌ Editor: Failed to fetch invitation:', response.statusText);
           const found = MOCK_INVITATIONS.find(item => item.id === id);
           if (found) {
             setInv(found);
+          } else {
+            alert(`Invitation with ID "${id}" not found.`);
+            navigate('/dashboard');
           }
         }
       } catch (error) {
-        console.error('Error fetching invitation:', error);
-        // Fallback to mock data if API fails
+        console.error('❌ Editor: Error fetching invitation:', error);
         const found = MOCK_INVITATIONS.find(item => item.id === id);
         if (found) {
           setInv(found);
         }
       }
     };
-    
-    fetchInvitation();
-  }, [id, token]);
+
+    if (!id) {
+      // If no ID is present, we shouldn't be here. 
+      // Redirect to catalog to pick a design.
+      navigate('/catalog');
+    } else {
+      fetchInvitation();
+    }
+  }, [id, token, user, navigate]);
 
   // Save invitation data to backend
   const saveInvitation = async () => {
@@ -98,23 +112,23 @@ const EditorPage: React.FC = () => {
         return null;
       };
       const csrfToken = getCookie('csrf-token');
-      
+
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       };
-      
+
       // Add CSRF token if available
       if (csrfToken) {
         headers['X-CSRF-Token'] = csrfToken;
       }
-      
+
       const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(inv)
       });
-      
+
       if (response.ok) {
         console.log('Invitation saved successfully!');
         alert('Changes saved successfully!');
@@ -160,6 +174,11 @@ const EditorPage: React.FC = () => {
     setInv({ ...inv, money_gift_details: { ...inv.money_gift_details, [field]: value } });
   };
 
+  const updateWishlist = (field: keyof Invitation['wishlist_details'], value: any) => {
+    if (!inv) return;
+    setInv({ ...inv, wishlist_details: { ...inv.wishlist_details, [field]: value } });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -184,6 +203,41 @@ const EditorPage: React.FC = () => {
     }
   };
 
+  const handleWishlistItemImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && currentWishlistItemIdx !== null) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        const newItems = [...(inv?.wishlist_details.items || [])];
+        newItems[currentWishlistItemIdx].item_image = base64String;
+        updateWishlist('items', newItems);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const updateRsvpSettings = (field: keyof RsvpSettings | string, value: any) => {
+    if (!inv) return;
+    const newSettings = { ...inv.rsvp_settings };
+
+    const fieldName = String(field);
+
+    if (fieldName.includes('.')) {
+      const [parent, child] = fieldName.split('.');
+      if (parent === 'fields') {
+        newSettings.fields = {
+          ...newSettings.fields,
+          [child]: value
+        };
+      }
+    } else {
+      (newSettings as any)[fieldName] = value;
+    }
+
+    updateField('rsvp_settings', newSettings);
+  };
+
   return (
     <div className="pt-16 h-screen bg-gray-50 flex flex-col md:flex-row overflow-hidden">
       {/* Sidebar Controls */}
@@ -200,13 +254,20 @@ const EditorPage: React.FC = () => {
             Save Changes
           </button>
         </div>
-        
+
         <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-gray-50/50 px-2 sticky top-0">
           <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Butiran" isActive={activeTab === 'butiran'} onClick={() => setActiveTab('butiran')} />
           <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
-          <TabButton label="Tetamu" isActive={activeTab === 'tetamu'} onClick={() => setActiveTab('tetamu')} />
-          <TabButton label="Hadiah" isActive={activeTab === 'hadiah'} onClick={() => setActiveTab('hadiah')} />
+          <TabButton label="Keluarga" isActive={activeTab === 'tetamu'} onClick={() => setActiveTab('tetamu')} />
+
+          {(user?.membership_tier === MembershipTier.PREMIUM || user?.membership_tier === MembershipTier.ELITE) && (
+            <>
+              <TabButton label="Hadiah" isActive={activeTab === 'hadiah'} onClick={() => setActiveTab('hadiah')} />
+              <TabButton label="Wishlist" isActive={activeTab === 'wishlist'} onClick={() => setActiveTab('wishlist')} />
+              <TabButton label="RSVP" isActive={activeTab === 'rsvp'} onClick={() => setActiveTab('rsvp')} />
+            </>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
@@ -297,11 +358,11 @@ const EditorPage: React.FC = () => {
                     <span className="text-sm font-bold text-rose-800 tracking-tight italic">Papar Undur Masa</span>
                     <span className="text-[9px] text-rose-300 uppercase font-bold tracking-widest">Show Countdown timer</span>
                   </div>
-                  <input 
-                    type="checkbox" 
-                    checked={inv.settings.show_countdown} 
-                    onChange={(e) => updateSettings('show_countdown', e.target.checked)} 
-                    className="w-6 h-6 accent-rose-600 cursor-pointer transition-transform hover:scale-110" 
+                  <input
+                    type="checkbox"
+                    checked={inv.settings.show_countdown}
+                    onChange={(e) => updateSettings('show_countdown', e.target.checked)}
+                    className="w-6 h-6 accent-rose-600 cursor-pointer transition-transform hover:scale-110"
                   />
                 </div>
               </section>
@@ -331,30 +392,30 @@ const EditorPage: React.FC = () => {
                     <span>Tarikh Majlis</span>
                     <input type="color" value={inv.settings.date_color || '#1F2937'} onChange={(e) => updateSettings('date_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
                   </label>
-                  <input 
-                    type="date" 
-                    value={inv.event_date} 
-                    onChange={(e) => updateField('event_date', e.target.value)} 
-                    className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none transition text-sm font-bold shadow-sm focus:border-rose-400 focus:ring-4 focus:ring-rose-50" 
+                  <input
+                    type="date"
+                    value={inv.event_date}
+                    onChange={(e) => updateField('event_date', e.target.value)}
+                    className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none transition text-sm font-bold shadow-sm focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jam Mula</label>
-                    <input 
-                      type="time" 
-                      value={inv.start_time} 
-                      onChange={(e) => updateField('start_time', e.target.value)} 
-                      className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50" 
+                    <input
+                      type="time"
+                      value={inv.start_time}
+                      onChange={(e) => updateField('start_time', e.target.value)}
+                      className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jam Tamat</label>
-                    <input 
-                      type="time" 
-                      value={inv.end_time} 
-                      onChange={(e) => updateField('end_time', e.target.value)} 
-                      className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50" 
+                    <input
+                      type="time"
+                      value={inv.end_time}
+                      onChange={(e) => updateField('end_time', e.target.value)}
+                      className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
                     />
                   </div>
                 </div>
@@ -372,7 +433,7 @@ const EditorPage: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    Google Maps URL 
+                    Google Maps URL
                     <span className="text-[8px] bg-rose-50 text-rose-400 px-2 py-0.5 rounded-full border border-rose-100 font-bold">Use Embed Link</span>
                   </label>
                   <input type="text" value={inv.google_maps_url} placeholder="https://www.google.com/maps/embed?..." onChange={(e) => updateField('google_maps_url', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[10px] font-mono outline-none transition-all focus:ring-2 focus:ring-rose-200" />
@@ -382,10 +443,10 @@ const EditorPage: React.FC = () => {
               <section className="space-y-8 pt-10 border-t border-gray-100">
                 <div className="flex justify-between items-center">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Atur Cara Majlis</h3>
-                  <button 
+                  <button
                     onClick={() => {
                       const newItem = { id: Date.now().toString(), time: '12:00 PM', activity: 'New Activity' };
-                      updateField('itinerary', [...inv.itinerary, newItem]);
+                      updateField('itinerary', [...(inv.itinerary || []), newItem]);
                     }}
                     className="text-[10px] bg-gray-100 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-gray-200 transition"
                   >
@@ -393,11 +454,11 @@ const EditorPage: React.FC = () => {
                   </button>
                 </div>
                 <div className="space-y-4">
-                  {inv.itinerary.map((item, index) => (
+                  {(inv.itinerary || []).map((item, index) => (
                     <div key={item.id} className="p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm space-y-4 group relative hover:shadow-md transition">
-                      <button 
+                      <button
                         onClick={() => {
-                          const newList = inv.itinerary.filter(i => i.id !== item.id);
+                          const newList = (inv.itinerary || []).filter(i => i.id !== item.id);
                           updateField('itinerary', newList);
                         }}
                         className="absolute top-4 right-4 text-gray-300 hover:text-rose-500 transition text-2xl"
@@ -407,11 +468,11 @@ const EditorPage: React.FC = () => {
                       <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waktu</label>
-                          <input 
-                            type="text" 
-                            value={item.time} 
+                          <input
+                            type="text"
+                            value={item.time}
                             onChange={(e) => {
-                              const newList = [...inv.itinerary];
+                              const newList = [...(inv.itinerary || [])];
                               newList[index].time = e.target.value;
                               updateField('itinerary', newList);
                             }}
@@ -421,11 +482,11 @@ const EditorPage: React.FC = () => {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Aktiviti / Acara</label>
-                          <input 
-                            type="text" 
-                            value={item.activity} 
+                          <input
+                            type="text"
+                            value={item.activity}
                             onChange={(e) => {
-                              const newList = [...inv.itinerary];
+                              const newList = [...(inv.itinerary || [])];
                               newList[index].activity = e.target.value;
                               updateField('itinerary', newList);
                             }}
@@ -444,35 +505,35 @@ const EditorPage: React.FC = () => {
           {activeTab === 'media' && (
             <div className="space-y-12">
               <section className="space-y-8">
-                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Aesthetics</h3>
-                 
-                 <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Template Layout</label>
-                    <div className="grid grid-cols-2 gap-4">
-                       {[
-                         { id: 'modern-classic', label: 'Modern Classic' },
-                         { id: 'minimal-light', label: 'Minimal Light' }
-                       ].map(t => (
-                         <button 
-                           key={t.id}
-                           onClick={() => updateField('template_id', t.id)}
-                           className={`p-5 rounded-[2rem] border-2 transition text-[10px] font-bold uppercase tracking-widest ${inv.template_id === t.id ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-xl' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
-                         >
-                           {t.label}
-                         </button>
-                       ))}
-                    </div>
-                 </div>
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Aesthetics</h3>
 
-                 <div className="space-y-6">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Template Layout</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { id: 'modern-classic', label: 'Modern Classic' },
+                      { id: 'minimal-light', label: 'Minimal Light' }
+                    ].map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => updateField('template_id', t.id)}
+                        className={`p-5 rounded-[2rem] border-2 transition text-[10px] font-bold uppercase tracking-widest ${inv.template_id === t.id ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-xl' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color</label>
                   <div className="flex flex-wrap gap-4">
                     {THEME_COLORS.map(color => (
-                      <button 
-                        key={color.value} 
-                        onClick={() => updateSettings('primary_color', color.value)} 
-                        style={{ backgroundColor: color.value }} 
-                        className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.primary_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`} 
+                      <button
+                        key={color.value}
+                        onClick={() => updateSettings('primary_color', color.value)}
+                        style={{ backgroundColor: color.value }}
+                        className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.primary_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
                       />
                     ))}
                   </div>
@@ -508,7 +569,7 @@ const EditorPage: React.FC = () => {
                       <span className="text-[10px] text-gray-400 font-bold uppercase">Show Gallery</span>
                       <input type="checkbox" checked={inv.settings.show_gallery} onChange={(e) => updateSettings('show_gallery', e.target.checked)} className="w-5 h-5 accent-rose-600" />
                     </div>
-                    <button 
+                    <button
                       onClick={() => fileInputRef.current?.click()}
                       className="text-[10px] bg-rose-50 text-rose-600 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-rose-100 transition"
                     >
@@ -517,23 +578,23 @@ const EditorPage: React.FC = () => {
                     <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-4">
-                   {(inv.gallery || []).map((img, idx) => (
-                     <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
-                        <img src={img} className="w-full h-full object-cover" />
-                        <button 
-                          onClick={() => {
-                            const newGallery = [...(inv.gallery || [])];
-                            newGallery.splice(idx, 1);
-                            updateField('gallery', newGallery);
-                          }}
-                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-                        >
-                          <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
-                        </button>
-                     </div>
-                   ))}
+                  {(inv.gallery || []).map((img, idx) => (
+                    <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
+                      <img src={img} className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => {
+                          const newGallery = [...(inv.gallery || [])];
+                          newGallery.splice(idx, 1);
+                          updateField('gallery', newGallery);
+                        }}
+                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                      >
+                        <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </section>
             </div>
@@ -544,10 +605,10 @@ const EditorPage: React.FC = () => {
               <section className="space-y-8">
                 <div className="flex justify-between items-center">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Hubungi Keluarga</h3>
-                  <button 
+                  <button
                     onClick={() => {
                       const newContact: ContactPerson = { id: Date.now().toString(), name: 'Nama Baru', relation: 'Hubungan', phone: '01XXXXXXXX' };
-                      updateField('contacts', [...inv.contacts, newContact]);
+                      updateField('contacts', [...(inv.contacts || []), newContact]);
                     }}
                     className="text-[10px] bg-gray-100 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-gray-200 transition"
                   >
@@ -555,11 +616,11 @@ const EditorPage: React.FC = () => {
                   </button>
                 </div>
                 <div className="space-y-6">
-                  {inv.contacts.map((contact, index) => (
+                  {(inv.contacts || []).map((contact, index) => (
                     <div key={contact.id} className="p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm space-y-4 group relative hover:shadow-md transition">
-                      <button 
+                      <button
                         onClick={() => {
-                          const newList = inv.contacts.filter(c => c.id !== contact.id);
+                          const newList = (inv.contacts || []).filter(c => c.id !== contact.id);
                           updateField('contacts', newList);
                         }}
                         className="absolute top-4 right-4 text-gray-300 hover:text-rose-500 transition text-2xl"
@@ -569,11 +630,11 @@ const EditorPage: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama</label>
-                          <input 
-                            type="text" 
-                            value={contact.name} 
+                          <input
+                            type="text"
+                            value={contact.name}
                             onChange={(e) => {
-                              const newList = [...inv.contacts];
+                              const newList = [...(inv.contacts || [])];
                               newList[index].name = e.target.value;
                               updateField('contacts', newList);
                             }}
@@ -582,11 +643,11 @@ const EditorPage: React.FC = () => {
                         </div>
                         <div className="space-y-2">
                           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Hubungan</label>
-                          <input 
-                            type="text" 
-                            value={contact.relation} 
+                          <input
+                            type="text"
+                            value={contact.relation}
                             onChange={(e) => {
-                              const newList = [...inv.contacts];
+                              const newList = [...(inv.contacts || [])];
                               newList[index].relation = e.target.value;
                               updateField('contacts', newList);
                             }}
@@ -595,11 +656,11 @@ const EditorPage: React.FC = () => {
                         </div>
                         <div className="space-y-2 md:col-span-2">
                           <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">No. Telefon</label>
-                          <input 
-                            type="text" 
-                            value={contact.phone} 
+                          <input
+                            type="text"
+                            value={contact.phone}
                             onChange={(e) => {
-                              const newList = [...inv.contacts];
+                              const newList = [...(inv.contacts || [])];
                               newList[index].phone = e.target.value;
                               updateField('contacts', newList);
                             }}
@@ -624,9 +685,20 @@ const EditorPage: React.FC = () => {
                   </div>
                   <input type="checkbox" checked={inv.money_gift_details.enabled} onChange={(e) => updateMoneyGift('enabled', e.target.checked)} className="w-7 h-7 accent-rose-600 cursor-pointer" />
                 </div>
-                
+
                 {inv.money_gift_details.enabled && (
                   <div className="space-y-8 animate-slide-up">
+                    <div className="space-y-4 pb-6 border-b border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Title</label>
+                        <input type="text" value={inv.money_gift_details.gift_title || 'Hadiah & Ingatan'} onChange={(e) => updateMoneyGift('gift_title', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Default: Hadiah & Ingatan" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Subtitle</label>
+                        <input type="text" value={inv.money_gift_details.gift_subtitle || 'Khas buat mempelai'} onChange={(e) => updateMoneyGift('gift_subtitle', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Default: Khas buat mempelai" />
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Bank Name</label>
                       <input type="text" value={inv.money_gift_details.bank_name} onChange={(e) => updateMoneyGift('bank_name', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" />
@@ -635,21 +707,21 @@ const EditorPage: React.FC = () => {
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Account No.</label>
                       <input type="text" value={inv.money_gift_details.account_no} onChange={(e) => updateMoneyGift('account_no', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-mono" />
                     </div>
-                    
+
                     <div className="space-y-4 pt-6 border-t border-gray-100">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">QR Code (DuitNow/TNG)</label>
                       {inv.money_gift_details.qr_url ? (
                         <div className="relative w-full aspect-square max-w-[200px] mx-auto rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm group">
                           <img src={inv.money_gift_details.qr_url} className="w-full h-full object-contain p-4 bg-white" />
-                          <button 
+                          <button
                             onClick={() => updateMoneyGift('qr_url', '')}
                             className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                           >
-                             <span className="text-white text-xs font-bold uppercase tracking-widest">Remove QR</span>
+                            <span className="text-white text-xs font-bold uppercase tracking-widest">Remove QR</span>
                           </button>
                         </div>
                       ) : (
-                        <button 
+                        <button
                           onClick={() => qrInputRef.current?.click()}
                           className="w-full py-10 border-2 border-dashed border-gray-200 rounded-[2.5rem] text-gray-400 hover:border-rose-200 hover:text-rose-400 transition flex flex-col items-center justify-center space-y-2"
                         >
@@ -658,6 +730,340 @@ const EditorPage: React.FC = () => {
                         </button>
                       )}
                       <input type="file" hidden ref={qrInputRef} accept="image/*" onChange={handleQrUpload} />
+                    </div>
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'wishlist' && (
+            <div className="space-y-10">
+              <section className="space-y-8">
+                <div className="flex items-center justify-between p-8 bg-rose-50 rounded-[3rem] border border-rose-100 shadow-inner">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-rose-800 tracking-tight italic">Physical Wishlist</span>
+                    <span className="text-[10px] text-rose-300 uppercase font-bold tracking-widest">Gifts requested</span>
+                  </div>
+                  <input type="checkbox" checked={inv.wishlist_details?.enabled || false} onChange={(e) => updateWishlist('enabled', e.target.checked)} className="w-7 h-7 accent-rose-600 cursor-pointer" />
+                </div>
+
+                {inv.wishlist_details?.enabled && (
+                  <div className="space-y-10 animate-slide-up">
+                    <div className="space-y-4 pb-6 border-b border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Title</label>
+                        <input type="text" value={inv.wishlist_details?.wishlist_title ?? ''} onChange={(e) => updateWishlist('wishlist_title', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Physical Wishlist" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Subtitle</label>
+                        <input type="text" value={inv.wishlist_details?.wishlist_subtitle ?? ''} onChange={(e) => updateWishlist('wishlist_subtitle', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Gifts requested" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-8 pt-4">
+                      <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Maklumat Penerima</h4>
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">No. Telefon Penerima</label>
+                          <input type="text" value={inv.wishlist_details?.receiver_phone || ''} onChange={(e) => updateWishlist('receiver_phone', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-mono" placeholder="Contoh: 0123456789" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Alamat Penghantaran</label>
+                          <textarea rows={3} value={inv.wishlist_details?.receiver_address || ''} onChange={(e) => updateWishlist('receiver_address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-medium leading-relaxed" placeholder="Alamat penuh untuk pengeposan hadiah..." />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-8 pt-6 border-t border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Permintaan Hadiah</h4>
+                        <button
+                          onClick={() => {
+                            const newItem = { id: Date.now().toString(), item_name: 'Barangan Baru', item_link: '', item_image: '' };
+                            updateWishlist('items', [...(inv.wishlist_details?.items || []), newItem]);
+                          }}
+                          className="text-[10px] bg-rose-50 text-rose-600 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-rose-100 transition"
+                        >
+                          + Tambah Item
+                        </button>
+                      </div>
+
+                      <div className="space-y-6">
+                        {(inv.wishlist_details?.items || []).map((item, idx) => (
+                          <div key={item.id} className="p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm space-y-4 group relative hover:shadow-md transition">
+                            <button
+                              onClick={() => {
+                                const newItems = (inv.wishlist_details.items || []).filter(i => i.id !== item.id);
+                                updateWishlist('items', newItems);
+                              }}
+                              className="absolute top-4 right-4 text-gray-300 hover:text-rose-500 transition text-2xl"
+                            >
+                              &times;
+                            </button>
+                            <div className="flex gap-6">
+                              <div className="w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 flex-shrink-0 group-item">
+                                {item.item_image ? (
+                                  <img src={item.item_image} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                  </div>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setCurrentWishlistItemIdx(idx);
+                                    wishlistItemInputRef.current?.click();
+                                  }}
+                                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                                >
+                                  <span className="text-white text-[8px] font-bold uppercase tracking-widest">Upload</span>
+                                </button>
+                              </div>
+                              <div className="flex-1 space-y-4">
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Barang</label>
+                                  <input
+                                    type="text"
+                                    value={item.item_name}
+                                    onChange={(e) => {
+                                      const newItems = [...(inv.wishlist_details.items || [])];
+                                      newItems[idx].item_name = e.target.value;
+                                      updateWishlist('items', newItems);
+                                    }}
+                                    className="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-xs font-bold outline-none"
+                                    placeholder="Contoh: Airfryer Philips"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Link (Shopee/Lazada)</label>
+                                  <input
+                                    type="text"
+                                    value={item.item_link}
+                                    onChange={(e) => {
+                                      const newItems = [...(inv.wishlist_details.items || [])];
+                                      newItems[idx].item_link = e.target.value;
+                                      updateWishlist('items', newItems);
+                                    }}
+                                    className="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-[9px] font-mono outline-none"
+                                    placeholder="https://shopee.com.my/..."
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <input type="file" hidden ref={wishlistItemInputRef} accept="image/*" onChange={handleWishlistItemImageUpload} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'rsvp' && (user?.membership_tier === MembershipTier.PREMIUM || user?.membership_tier === MembershipTier.ELITE) && (
+            <div className="space-y-10">
+              <section className="space-y-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tetapan RSVP</h3>
+                </div>
+
+                {/* Response Mode */}
+                <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Mod Pilihan RSVP</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { id: 'rsvp_and_wish', label: 'RSVP + Ucapan' },
+                        { id: 'wish_only', label: 'Ucapan Sahaja' },
+                        { id: 'external', label: 'Pihak Ketiga (Google Form dll)' },
+                        { id: 'none', label: 'Tiada RSVP' }
+                      ].map((mode) => (
+                        <button
+                          key={mode.id}
+                          onClick={() => updateRsvpSettings('response_mode', mode.id)}
+                          className={`px-4 py-3 rounded-xl text-xs font-bold transition text-left border ${(inv.rsvp_settings?.response_mode || 'rsvp_and_wish') === mode.id
+                            ? 'bg-rose-50 border-rose-200 text-rose-600'
+                            : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100'
+                            }`}
+                        >
+                          {mode.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {inv.rsvp_settings?.response_mode === 'external' && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Puktan Luar (URL)</label>
+                      <input
+                        type="text"
+                        value={inv.rsvp_settings?.external_url || ''}
+                        onChange={(e) => updateRsvpSettings('external_url', e.target.value)}
+                        placeholder="https://forms.google.com/..."
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-bold"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nota Tambahan RSVP (jika ada)</label>
+                    <textarea
+                      rows={2}
+                      value={inv.rsvp_settings?.note || ''}
+                      onChange={(e) => updateRsvpSettings('note', e.target.value)}
+                      placeholder="Contoh: Sila sahkan kehadiran selewat-lewatnya seminggu sebelum majlis."
+                      className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-medium"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tarikh Tutup RSVP</label>
+                    <input
+                      type="date"
+                      value={inv.rsvp_settings?.closing_date ? new Date(inv.rsvp_settings.closing_date).toISOString().split('T')[0] : ''}
+                      onChange={(e) => updateRsvpSettings('closing_date', e.target.value)}
+                      className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-bold text-gray-600"
+                    />
+                    <div className="flex justify-end">
+                      <button onClick={() => updateRsvpSettings('closing_date', null)} className="text-[9px] text-rose-400 font-bold uppercase hover:text-rose-600">Reset</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fields Configuration */}
+                {(inv.rsvp_settings?.response_mode || 'rsvp_and_wish') === 'rsvp_and_wish' && (
+                  <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Pilih Input Borang</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { id: 'name', label: 'Nama' },
+                        { id: 'phone', label: 'Telefon' },
+                        { id: 'email', label: 'Alamat Emel' },
+                        { id: 'address', label: 'Alamat Rumah' },
+                        { id: 'company', label: 'Nama Syarikat' },
+                        { id: 'job_title', label: 'Jawatan' },
+                        { id: 'car_plate', label: 'No. Plat Kenderaan' },
+                        { id: 'remarks', label: 'Catatan' },
+                        { id: 'wish', label: 'Ucapan' },
+                      ].map((field) => (
+                        <label key={field.id} className={`flex items-center space-x-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition ${field.id === 'name' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                          <input
+                            type="checkbox"
+                            checked={field.id === 'name' ? true : (inv.rsvp_settings?.fields?.[field.id as keyof typeof inv.rsvp_settings.fields] ?? (['name', 'phone', 'wish'].includes(field.id)))}
+                            onChange={(e) => field.id !== 'name' && updateRsvpSettings(`fields.${field.id}`, e.target.checked)}
+                            disabled={field.id === 'name'}
+                            className="w-4 h-4 accent-rose-600 rounded"
+                          />
+                          <span className="text-xs font-bold text-gray-600">{field.label} {field.id === 'name' && '(Wajib)'}</span>
+                        </label>
+                      ))}
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-gray-600">Asingkan Kehadiran Kanak-kanak</span>
+                        <input
+                          type="checkbox"
+                          checked={inv.rsvp_settings?.has_children_policy}
+                          onChange={(e) => updateRsvpSettings('has_children_policy', e.target.checked)}
+                          className="w-5 h-5 accent-rose-600"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Had Tetamu per RSVP</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={inv.rsvp_settings?.pax_limit_per_rsvp}
+                            onChange={(e) => updateRsvpSettings('pax_limit_per_rsvp', parseInt(e.target.value))}
+                            className="w-full px-5 py-3 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jumlah Keseluruhan</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={inv.rsvp_settings?.total_guest_limit}
+                            onChange={(e) => updateRsvpSettings('total_guest_limit', parseInt(e.target.value))}
+                            className="w-full px-5 py-3 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-gray-600">Slot / Kategori</span>
+                        <div className="flex bg-gray-100 rounded-lg p-1">
+                          <button
+                            onClick={() => updateRsvpSettings('has_slots', true)}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${inv.rsvp_settings?.has_slots ? 'bg-white shadow-sm text-rose-600' : 'text-gray-400'}`}
+                          >Ada</button>
+                          <button
+                            onClick={() => updateRsvpSettings('has_slots', false)}
+                            className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${!inv.rsvp_settings?.has_slots ? 'bg-white shadow-sm text-gray-600' : 'text-gray-400'}`}
+                          >Tiada</button>
+                        </div>
+                      </div>
+
+                      {inv.rsvp_settings?.has_slots && (
+                        <div className="bg-gray-50 p-4 rounded-2xl space-y-3 animate-fade-in">
+                          <p className="text-[10px] text-gray-400 italic">Tetamu perlu memilih satu daripada senarai ini:</p>
+                          <div className="flex gap-2">
+                            <input
+                              id="new-slot-input"
+                              placeholder="Cth: Keluarga Lelaki"
+                              className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-rose-300"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const val = e.currentTarget.value.trim();
+                                  if (val) {
+                                    const current = inv.rsvp_settings?.slots_options || [];
+                                    updateRsvpSettings('slots_options', [...current, val]);
+                                    e.currentTarget.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              onClick={() => {
+                                const input = document.getElementById('new-slot-input') as HTMLInputElement;
+                                if (input && input.value.trim()) {
+                                  const current = inv.rsvp_settings?.slots_options || [];
+                                  updateRsvpSettings('slots_options', [...current, input.value.trim()]);
+                                  input.value = '';
+                                }
+                              }}
+                              className="bg-rose-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700"
+                            >
+                              Tambah
+                            </button>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {(inv.rsvp_settings?.slots_options || []).map((slot, idx) => (
+                              <div key={idx} className="bg-white border border-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-2 group hover:border-red-200 transition">
+                                <span className="text-xs font-bold text-gray-600 group-hover:text-red-400">{slot}</span>
+                                <button
+                                  onClick={() => {
+                                    const current = inv.rsvp_settings?.slots_options || [];
+                                    updateRsvpSettings('slots_options', current.filter((_, i) => i !== idx));
+                                  }}
+                                  className="text-gray-300 hover:text-red-500 font-bold"
+                                >
+                                  &times;
+                                </button>
+                              </div>
+                            ))}
+                            {(inv.rsvp_settings?.slots_options || []).length === 0 && (
+                              <span className="text-[10px] text-gray-400 italic">Tiada slot ditambah.</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -676,7 +1082,7 @@ const EditorPage: React.FC = () => {
           </span>
           <span>Live Preview</span>
         </div>
-        
+
         <div className="w-full max-w-[393px] h-[852px] bg-white rounded-[4.5rem] border-[14px] border-gray-900 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative scale-90 md:scale-[0.82] lg:scale-[0.88] xl:scale-[0.95] transition-all duration-700 origin-center ring-8 ring-gray-100">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-3xl z-[110]"></div>
           <div className="absolute inset-0 overflow-y-auto no-scrollbar bg-white">
@@ -685,7 +1091,7 @@ const EditorPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

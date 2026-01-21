@@ -8,6 +8,7 @@ export class RSVP extends Model {
   public is_attending!: boolean;
   public phone_number!: string;
   public message?: string;
+  public slot?: string;
   public created_at!: Date;
 
   // Static method to initialize the model
@@ -48,6 +49,10 @@ export class RSVP extends Model {
         },
         message: {
           type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slot: {
+          type: DataTypes.STRING,
           allowNull: true,
         },
         created_at: {

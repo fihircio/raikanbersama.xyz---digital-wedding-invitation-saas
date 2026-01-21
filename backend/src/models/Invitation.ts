@@ -40,6 +40,9 @@ export class Invitation extends Model {
     hero_size?: string;
     invitation_color?: string;
     invitation_size?: string;
+    youtube_url?: string;
+    language_mode?: 'melayu' | 'english' | 'bilingual';
+    pdf_export_enabled?: boolean;
   };
   public money_gift_details!: {
     enabled: boolean;
@@ -47,6 +50,42 @@ export class Invitation extends Model {
     account_no: string;
     account_holder: string;
     qr_url: string;
+    gift_title?: string;
+    gift_subtitle?: string;
+  };
+  public wishlist_details!: {
+    enabled: boolean;
+    receiver_phone: string;
+    receiver_address: string;
+    items: {
+      id: string;
+      item_name: string;
+      item_link: string;
+      item_image: string;
+    }[];
+    wishlist_title?: string;
+    wishlist_subtitle?: string;
+  };
+  public rsvp_settings!: {
+    response_mode: 'rsvp_and_wish' | 'wish_only' | 'external' | 'none';
+    external_url?: string;
+    note?: string;
+    closing_date?: string;
+    fields: {
+      name: boolean;
+      phone: boolean;
+      email: boolean;
+      address: boolean;
+      company: boolean;
+      job_title: boolean;
+      car_plate: boolean;
+      remarks: boolean;
+      wish: boolean;
+    };
+    has_children_policy: boolean;
+    pax_limit_per_rsvp: number;
+    total_guest_limit: number;
+    has_slots: boolean;
   };
   public created_at!: Date;
   public updated_at!: Date;
@@ -153,7 +192,10 @@ export class Invitation extends Model {
             hero_color: '#FFFFFF',
             hero_size: '12',
             invitation_color: '#6B7280',
-            invitation_size: '14'
+            invitation_size: '14',
+            youtube_url: '',
+            language_mode: 'melayu',
+            pdf_export_enabled: false
           },
         },
         money_gift_details: {
@@ -164,7 +206,47 @@ export class Invitation extends Model {
             bank_name: '',
             account_no: '',
             account_holder: '',
-            qr_url: ''
+            qr_url: '',
+            gift_title: 'Hadiah & Ingatan',
+            gift_subtitle: 'Khas buat mempelai'
+          },
+        },
+        wishlist_details: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+          defaultValue: {
+            enabled: false,
+            receiver_phone: '',
+            receiver_address: '',
+            items: [],
+            wishlist_title: 'Physical Wishlist',
+            wishlist_subtitle: 'Gifts requested'
+          },
+        },
+        rsvp_settings: {
+          type: DataTypes.JSONB,
+          allowNull: false,
+          defaultValue: {
+            response_mode: 'rsvp_and_wish', // 'rsvp_and_wish' | 'wish_only' | 'external' | 'none'
+            external_url: '',
+            note: '',
+            closing_date: null,
+            fields: {
+              name: true,
+              phone: true,
+              email: false,
+              address: false,
+              company: false,
+              job_title: false,
+              car_plate: false,
+              remarks: false,
+              wish: true
+            },
+            has_children_policy: false,
+            pax_limit_per_rsvp: 10,
+            total_guest_limit: 500,
+            has_slots: false,
+            slots_options: []
           },
         },
         created_at: {

@@ -46,6 +46,44 @@ export class InvitationRepository extends BaseRepository<Invitation> {
   }
 
   /**
+   * Find an invitation by ID with all associations
+   */
+  async findById(id: string): Promise<Invitation | null> {
+    try {
+      return await this.findOne({
+        where: { id },
+        include: [
+          {
+            model: RSVP,
+            as: 'rsvps',
+          },
+          {
+            model: GuestWish,
+            as: 'guestWishes',
+            order: [['created_at', 'DESC']],
+          },
+          {
+            model: ItineraryItem,
+            as: 'itinerary',
+            order: [['time', 'ASC']],
+          },
+          {
+            model: ContactPerson,
+            as: 'contacts',
+          },
+          {
+            model: Gallery,
+            as: 'gallery',
+            order: [['display_order', 'ASC']],
+          },
+        ],
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Find invitations by user ID
    */
   async findByUserId(userId: string): Promise<Invitation[]> {
@@ -133,7 +171,7 @@ export class InvitationRepository extends BaseRepository<Invitation> {
       if (excludeId) {
         whereCondition.id = { [Op.ne]: excludeId };
       }
-      
+
       return await this.exists({
         where: whereCondition,
       });

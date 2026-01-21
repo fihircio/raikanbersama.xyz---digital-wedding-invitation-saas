@@ -40,7 +40,7 @@ const Countdown: React.FC<{ targetDate: string, color: string }> = ({ targetDate
 const SimpleCalendar: React.FC<{ date: string, color: string }> = ({ date, color }) => {
   const d = new Date(date);
   if (isNaN(d.getTime())) return <div className="p-10 text-center text-gray-400 font-serif italic">Sila pilih tarikh yang sah.</div>;
-  
+
   const month = d.getMonth();
   const year = d.getFullYear();
   const dayOfMonth = d.getDate();
@@ -66,8 +66,8 @@ const SimpleCalendar: React.FC<{ date: string, color: string }> = ({ date, color
           <div key={`blank-${b}`} className="w-8 h-8" />
         ))}
         {days.map(day => (
-          <div 
-            key={day} 
+          <div
+            key={day}
             className={`w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-bold transition-all ${day === dayOfMonth ? 'text-white shadow-xl scale-110 z-10' : 'text-gray-400'}`}
             style={day === dayOfMonth ? { backgroundColor: color } : {}}
           >
@@ -87,46 +87,136 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
     return !d || isNaN(d.getTime()) ? 'Tarikh Belum Ditetapkan' : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
   }, [invitation?.event_date]);
 
+  const layout = invitation.settings.layout_settings?.cover_layout || 'standard';
+  const overlayOpacity = invitation.settings.layout_settings?.overlay_opacity ?? 0.4;
+
+  const renderLayout = () => {
+    switch (layout) {
+      case 'centered-circle':
+        return (
+          <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in p-8">
+            <div className={`relative flex flex-col items-center justify-center w-[320px] h-[320px] rounded-full border-2 border-white/60 shadow-2xl backdrop-blur-md bg-white/20 p-10 text-center`}>
+              <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-gray-800 mb-6">
+                {invitation?.settings?.hero_title || 'Walimatulurus'}
+              </p>
+              <div className="space-y-2">
+                <h1 className="text-4xl font-cursive font-bold" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
+                <p className="text-xl font-serif italic text-gray-500">&</p>
+                <h1 className="text-4xl font-cursive font-bold" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
+              </div>
+              <div className="mt-6 pt-4 border-t border-gray-400/30 w-16 mx-auto">
+                <p className="text-[11px] font-serif font-bold text-gray-600 tracking-wide uppercase">{formattedDate}</p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'top-bordered':
+        return (
+          <div className="relative z-10 flex flex-col items-center justify-start pt-24 animate-fade-in px-8">
+            <div className="bg-white/80 backdrop-blur-md border-[1.5px] border-gray-200 p-10 rounded-[2.5rem] shadow-xl text-center max-w-sm">
+              <p className="uppercase tracking-[0.5em] text-[9px] font-bold text-rose-600 mb-8 border-b border-rose-100 pb-2 inline-block">
+                {invitation?.settings?.hero_title || 'Walimatulurus'}
+              </p>
+              <div className="space-y-4">
+                <h1 className="text-5xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
+                <p className="text-2xl font-serif italic text-gray-400">&</p>
+                <h1 className="text-5xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
+              </div>
+              <div className="mt-10 space-y-1">
+                <p className="text-sm font-serif font-bold text-gray-500">{formattedDate}</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{invitation.location_name}</p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'bottom-accent':
+        return (
+          <div className="relative z-10 flex flex-col items-center justify-end h-full pb-32 animate-fade-in px-8">
+            <div className="text-center space-y-6">
+              <div className="space-y-2">
+                <h1 className="text-6xl font-cursive font-bold text-white drop-shadow-lg" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
+                <p className="text-3xl font-serif italic text-white/80">&</p>
+                <h1 className="text-6xl font-cursive font-bold text-white drop-shadow-lg" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
+              </div>
+              <div className="bg-black/10 backdrop-blur-sm px-8 py-4 rounded-2xl border border-white/20 inline-block">
+                <p className="text-xs font-bold text-white uppercase tracking-[0.3em]">{formattedDate}</p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'glass-card':
+        return (
+          <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in px-6">
+            <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-[3rem] p-12 shadow-2xl text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+              <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-white/70 mb-10">
+                {invitation?.settings?.hero_title || 'Walimatulurus'}
+              </p>
+              <div className="space-y-6">
+                <h1 className="text-5xl font-cursive font-bold text-white" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
+                <div className="w-8 h-px bg-white/30 mx-auto"></div>
+                <h1 className="text-5xl font-cursive font-bold text-white" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
+              </div>
+              <div className="mt-12 text-white/80">
+                <p className="text-sm font-serif font-bold tracking-widest uppercase">{formattedDate}</p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'standard':
+      default:
+        return (
+          <div className="animate-fade-in space-y-10">
+            <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-gray-600 mb-2">
+              {invitation?.settings?.hero_title || 'Walimatulurus'}
+            </p>
+
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.groom_color }}>
+                {invitation.groom_name}
+              </h1>
+              <p className="text-3xl font-serif italic text-gray-400">&</p>
+              <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.bride_color }}>
+                {invitation.bride_name}
+              </h1>
+            </div>
+
+            <div className="space-y-2 pt-4">
+              <p className="text-sm font-serif font-bold text-gray-500 tracking-wide uppercase">{formattedDate}</p>
+              <div className="w-12 h-px bg-gray-300 mx-auto" />
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{invitation.location_name}</p>
+            </div>
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center text-center px-10 transition-all duration-1000 ease-in-out ${isClosing ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
+    <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center text-center transition-all duration-1000 ease-in-out ${isClosing ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
       {/* Background with Blur Overlay */}
-      <div 
+      <div
         className="absolute inset-0 z-[-1]"
-        style={{ 
+        style={{
           backgroundImage: `url(${invitation.settings.background_image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/60"></div>
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" style={{ backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})` }}></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/40"></div>
       </div>
 
-      <div className="animate-fade-in space-y-10">
-        <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-gray-600 mb-2">
-          {invitation?.settings?.hero_title || 'Walimatulurus'}
-        </p>
-        
-        <div className="space-y-4">
-          <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.groom_color }}>
-            {invitation.groom_name}
-          </h1>
-          <p className="text-3xl font-serif italic text-gray-400">&</p>
-          <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.bride_color }}>
-            {invitation.bride_name}
-          </h1>
-        </div>
-
-        <div className="space-y-2 pt-4">
-          <p className="text-sm font-serif font-bold text-gray-500 tracking-wide uppercase">{formattedDate}</p>
-          <div className="w-12 h-px bg-gray-300 mx-auto" />
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{invitation.location_name}</p>
-        </div>
+      <div className="w-full h-full flex flex-col items-center justify-center py-20 overflow-hidden">
+        {renderLayout()}
 
         {!isPreview ? (
           <button
             onClick={onOpen}
-            className="group mt-12 flex items-center justify-center space-x-4 px-10 py-4 bg-white/90 border border-gray-200 rounded-full shadow-2xl hover:bg-white transition-all transform active:scale-95 duration-500"
+            className="group mt-12 mb-10 shrink-0 flex items-center justify-center space-x-4 px-10 py-4 bg-white/90 border border-gray-200 rounded-full shadow-2xl hover:bg-white transition-all transform active:scale-95 duration-500 z-50"
           >
             <svg className="w-5 h-5 text-gray-400 group-hover:text-rose-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -137,7 +227,7 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
             </svg>
           </button>
         ) : (
-          <div className="mt-12 flex items-center justify-center">
+          <div className="mt-12 shrink-0 flex items-center justify-center z-50">
             <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400">Preview Mode - Invitation Opened</span>
           </div>
         )}
@@ -165,15 +255,15 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
     return (
       <div className="pt-24 pb-8 px-8 text-center bg-gray-50/50">
         <div className="max-w-[320px] mx-auto mb-10 animate-fade-in">
-           <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white">
-             <img src={invitation.settings.background_image} alt="Couple" className="w-full h-full object-cover" />
-           </div>
+          <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white">
+            <img src={invitation.settings.background_image} alt="Couple" className="w-full h-full object-cover" />
+          </div>
         </div>
         <div className="animate-slide-up space-y-4">
           <h2 className="font-serif italic font-bold leading-tight" style={greetingStyles}>
-             {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
-           </h2>
-           <p className="uppercase tracking-[0.4em] font-bold" style={heroStyles}>
+            {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
+          </h2>
+          <p className="uppercase tracking-[0.4em] font-bold" style={heroStyles}>
             {invitation.settings.hero_title || 'Raikan Cinta Kami'}
           </p>
         </div>
@@ -183,9 +273,9 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
 
   return (
     <div className="h-[60vh] relative flex items-center justify-center text-center p-8 overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 z-0 scale-105 brightness-75 transition-all duration-1000"
-        style={{ 
+        style={{
           backgroundImage: `url(${invitation.settings.background_image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
@@ -195,7 +285,7 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
       <div className="relative z-10 text-white animate-fade-in px-4">
         {guestName && (
           <div className="inline-block mb-8 animate-slide-up">
-             <p className="bg-white/20 backdrop-blur-md px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-white/30 shadow-2xl">
+            <p className="bg-white/20 backdrop-blur-md px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-white/30 shadow-2xl">
               Khas buat <span className="text-rose-200">{guestName}</span>
             </p>
           </div>
@@ -218,7 +308,7 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string }> = ({ wishes, 
   <div className="mt-24 text-center px-4 pb-48">
     <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Ucapan & Doa</h4>
     <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar py-4 px-2">
-      {wishes.length > 0 ? wishes.map((wish) => (
+      {(wishes || []).length > 0 ? (wishes || []).map((wish) => (
         <div key={wish.id} className="bg-white border border-gray-100 p-6 rounded-[2rem] shadow-sm text-left relative overflow-hidden group hover:shadow-md transition">
           <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: primaryColor }} />
           <p className="text-sm font-bold text-gray-800 mb-2 font-serif italic">{wish.name}</p>
@@ -234,13 +324,51 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string }> = ({ wishes, 
 
 // --- Template Renderer ---
 
-const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, isPreview?: boolean }> = ({ invitation, guestName, isPreview }) => {
+// Function to get CSRF token from server
+const getCsrfToken = async () => {
+  try {
+    console.log('🔄 Fetching CSRF token...');
+    const response = await fetch('http://localhost:3001/api/health', {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      // The CSRF token should be set in the cookie by the server
+      console.log('✅ CSRF token refreshed');
+      console.log('🍪 All cookies after health request:', document.cookie);
+
+      // Small delay to ensure cookie is set
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } else {
+      console.error('❌ Failed to refresh CSRF token');
+    }
+  } catch (error) {
+    console.error('❌ Error refreshing CSRF token:', error);
+  }
+};
+
+const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, isPreview?: boolean, setInv?: React.Dispatch<React.SetStateAction<Invitation | null>> }> = ({ invitation, guestName, isPreview, setInv }) => {
   const [showRsvp, setShowRsvp] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState<'map' | 'calendar' | 'contact' | null>(null);
-  const [formData, setFormData] = useState({ name: guestName || '', phone: '', pax: 1, attending: true, message: '' });
-  
+  const [activeModal, setActiveModal] = useState<'map' | 'calendar' | 'contact' | 'hadiah' | null>(null);
+  const [formData, setFormData] = useState({
+    name: guestName || '',
+    phone: '',
+    email: '',
+    address: '',
+    company: '',
+    job_title: '',
+    car_plate: '',
+    remarks: '',
+    pax: 1,
+    attending: true,
+    message: '',
+    slot: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Auto-scroll to cover when at top in preview mode
   useEffect(() => {
     if (isPreview && isOpen) {
@@ -250,12 +378,12 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           setIsOpen(false);
         }
       };
-      
+
       window.addEventListener('scroll', handleScroll);
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, [isPreview, isOpen]);
-  
+
   const primaryColor = invitation.settings.primary_color;
   const isMinimal = invitation.template_id === 'minimal-light';
 
@@ -266,12 +394,94 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
     }, 1000); // Duration matches animation
   };
 
-  const handleRsvpSubmit = () => {
-    setIsSuccess(true);
-    setTimeout(() => {
-      setShowRsvp(false);
-      setIsSuccess(false);
-    }, 2000);
+  const handleRsvpSubmit = async () => {
+    // Prevent multiple submissions
+    if (isSuccess || isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      // Get invitation ID from the invitation object
+      const invitationId = invitation.id;
+
+      // First, ensure we have a CSRF token by making a request to get one
+      await getCsrfToken();
+
+      // Prepare the RSVP data
+      const rsvpData = {
+        invitation_id: invitationId,
+        guest_name: formData.name,
+        phone_number: formData.phone,
+        pax: formData.pax,
+        is_attending: formData.attending,
+        message: formData.message
+      };
+
+      // Get CSRF token from cookie
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return undefined;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      // Prepare headers
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      // Add CSRF token if available
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
+      // Send the RSVP data to the backend
+      const response = await fetch('http://localhost:3001/api/rsvps', {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(rsvpData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ RSVP submitted successfully:', result);
+
+        // Update the invitation's wishes array with the new wish if there's a message
+        if (formData.message && formData.message.trim()) {
+          const newWish = {
+            id: Date.now().toString(), // Temporary ID
+            name: formData.name,
+            message: formData.message,
+            created_at: new Date().toISOString()
+          };
+
+          // Update the local state to show the new wish immediately
+          setInv({
+            ...invitation,
+            wishes: [...(invitation.wishes || []), newWish]
+          });
+        }
+
+        setIsSuccess(true);
+        setTimeout(() => {
+          setShowRsvp(false);
+          setIsSuccess(false);
+          setIsSubmitting(false);
+          // Reset form
+          setFormData({ name: guestName || '', phone: '', pax: 1, attending: true, message: '' });
+        }, 2000);
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Failed to submit RSVP:', errorData);
+        alert(`Failed to submit RSVP: ${errorData.error || 'Unknown error'}`);
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('❌ Error submitting RSVP:', error);
+      alert('Error submitting RSVP. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   const formattedDate = useMemo(() => {
@@ -287,24 +497,24 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
   return (
     <>
       {!isOpen && <CoverSection invitation={invitation} onOpen={handleOpenInvitation} isClosing={false} />}
-      
+
       <div className={`relative min-h-screen font-sans text-gray-900 bg-white transition-opacity duration-1000 ${activeModal ? 'overflow-hidden' : ''} ${isMinimal ? 'bg-gray-50/30' : ''} ${!isOpen ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100'}`}>
         <HeroSection invitation={invitation} guestName={guestName} />
-        
+
 
         <div className={`relative ${isMinimal ? 'bg-transparent' : '-mt-12 bg-white rounded-t-[3.5rem] shadow-2xl'} z-20 px-8 py-16 text-center transition-all duration-700`}>
           {/* Order: Nama Tuan Rumah -> Teks Jemputan -> Couple Names -> Date */}
-          
+
           <div className="mb-14 space-y-6">
             <p className="text-xl font-serif italic text-gray-700 font-bold" style={{ color: invitation.settings.host_color }}>
               {invitation.host_names}
             </p>
-            
+
             <p className="leading-relaxed font-light max-w-[300px] mx-auto italic" style={invitationTextStyles}>
               {invitation.settings.invitation_text || `Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput anda ke majlis perkahwinan anakanda kami yang tercinta:`}
             </p>
           </div>
-          
+
           <div className="space-y-4 mb-14 animate-fade-in">
             <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={{ color: invitation.settings.groom_color || primaryColor }}>
               {invitation.groom_name}
@@ -338,7 +548,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
               <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
             </div>
-            
+
             <div className="w-full h-px bg-gray-200/50" />
 
             <div className="flex flex-col items-center space-y-2">
@@ -350,15 +560,35 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 sticky bottom-8 z-30 px-2 drop-shadow-2xl">
-            <button
-              onClick={() => setShowRsvp(true)}
-              className="w-full py-5 text-white font-bold rounded-3xl shadow-2xl transition transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-xs uppercase"
-              style={{ backgroundColor: primaryColor }}
-            >
-              Sahkan Kehadiran
-            </button>
-          </div>
+          {(() => {
+            const rsvpSettings = invitation.rsvp_settings || { response_mode: 'rsvp_and_wish' };
+            if (rsvpSettings.response_mode === 'none') return null;
+
+            const isClosed = rsvpSettings.closing_date && new Date(rsvpSettings.closing_date) < new Date();
+
+            return (
+              <div className="flex flex-col gap-4 sticky bottom-8 z-30 px-2 drop-shadow-2xl">
+                <button
+                  onClick={() => {
+                    if (isClosed) {
+                      alert('RSVP telah ditutup.');
+                      return;
+                    }
+                    if (rsvpSettings.response_mode === 'external' && rsvpSettings.external_url) {
+                      window.open(rsvpSettings.external_url, '_blank');
+                    } else {
+                      setShowRsvp(true);
+                    }
+                  }}
+                  disabled={isClosed}
+                  className={`w-full py-5 text-white font-bold rounded-3xl shadow-2xl transition transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-xs uppercase ${isClosed ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
+                  style={{ backgroundColor: isClosed ? '#6B7280' : primaryColor }}
+                >
+                  {isClosed ? 'RSVP Ditutup' : 'Sahkan Kehadiran'}
+                </button>
+              </div>
+            );
+          })()}
 
           {invitation.settings.our_story && (
             <div className="mt-24 text-left">
@@ -374,18 +604,22 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           <div className="mt-24 text-left">
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-10 border-b pb-2">Atur Cara Majlis</h4>
             <div className="space-y-8">
-              {invitation?.itinerary.map((item, idx) => (
-                <div key={item.id} className="flex space-x-6">
-                  <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: primaryColor }} />
-                    {idx !== invitation.itinerary.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-2 mb-2" />}
+              {invitation?.itinerary && invitation.itinerary.length > 0 ? (
+                invitation.itinerary.map((item, idx) => (
+                  <div key={item.id} className="flex space-x-6">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: primaryColor }} />
+                      {idx !== invitation.itinerary.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-2 mb-2" />}
+                    </div>
+                    <div className="pb-4">
+                      <p className="text-sm font-bold text-gray-800 font-serif italic">{item.time}</p>
+                      <p className="text-sm text-gray-500 font-light">{item.activity}</p>
+                    </div>
                   </div>
-                  <div className="pb-4">
-                    <p className="text-sm font-bold text-gray-800 font-serif italic">{item.time}</p>
-                    <p className="text-sm text-gray-500 font-light">{item.activity}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
+              )}
             </div>
           </div>
 
@@ -393,7 +627,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
             <div className="mt-24 text-center">
               <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
               <div className="grid grid-cols-2 gap-4">
-                {invitation.gallery.map((img, idx) => (
+                {(invitation.gallery || []).map((img, idx) => (
                   <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
                     <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                   </div>
@@ -428,6 +662,17 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
               <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hubungi</span>
             </button>
+            {(invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
+              <>
+                <div className="w-px h-6 bg-gray-200/50" />
+                <button onClick={() => setActiveModal('hadiah')} className="flex flex-col items-center gap-1 group outline-none">
+                  <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                  </div>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hadiah</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -435,8 +680,8 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
         {activeModal && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
             <div className="bg-white w-full max-w-[400px] rounded-t-[3rem] sm:rounded-[3.5rem] p-10 shadow-2xl relative animate-slide-up max-h-[80vh] overflow-y-auto no-scrollbar">
-              <button 
-                onClick={() => setActiveModal(null)} 
+              <button
+                onClick={() => setActiveModal(null)}
                 className="absolute top-6 right-8 w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-rose-600 transition shadow-inner outline-none"
               >
                 &times;
@@ -450,13 +695,13 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                   </div>
                   <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
                     {invitation.google_maps_url ? (
-                      <iframe 
+                      <iframe
                         title="location-map"
-                        width="100%" 
-                        height="100%" 
-                        frameBorder="0" 
-                        style={{ border: 0 }} 
-                        src={invitation.google_maps_url.includes('embed') ? invitation.google_maps_url : `https://www.google.com/maps/embed/v1/place?key=MAPS_API_KEY&q=${encodeURIComponent(invitation.address)}`} 
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        style={{ border: 0 }}
+                        src={invitation.google_maps_url.includes('embed') ? invitation.google_maps_url : `https://www.google.com/maps/embed/v1/place?key=MAPS_API_KEY&q=${encodeURIComponent(invitation.address)}`}
                         allowFullScreen
                       ></iframe>
                     ) : (
@@ -490,7 +735,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                       <span className="text-sm font-bold text-gray-700">{invitation.end_time}</span>
                     </div>
                   </div>
-                  <button 
+                  <button
                     className="w-full py-5 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 uppercase text-[10px] tracking-widest"
                     style={{ backgroundColor: primaryColor }}
                   >
@@ -506,20 +751,127 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                     <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Pertanyaan & Bantuan</p>
                   </div>
                   <div className="space-y-4">
-                    {invitation.contacts.length > 0 ? invitation.contacts.map((contact) => (
+                    {(invitation.contacts || []).length > 0 ? (invitation.contacts || []).map((contact) => (
                       <a key={contact.id} href={`https://wa.me/${contact.phone}`} className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 hover:shadow-lg transition group">
-                          <div>
-                            <p className="text-sm font-bold text-gray-800">{contact.name}</p>
-                            <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{contact.relation}</p>
-                          </div>
-                          <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.274 1.507 4.99 1.508 5.403.002 9.802-4.398 9.804-9.802.002-5.402-4.398-9.803-9.805-9.803-5.404 0-9.803 4.399-9.805 9.803-.001 1.815.512 3.518 1.481 4.92l-.934 3.415 3.469-.911z"></path></svg>
-                          </div>
+                        <div>
+                          <p className="text-sm font-bold text-gray-800">{contact.name}</p>
+                          <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{contact.relation}</p>
+                        </div>
+                        <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.274 1.507 4.99 1.508 5.403.002 9.802-4.398 9.804-9.802.002-5.402-4.398-9.803-9.805-9.803-5.404 0-9.803 4.399-9.805 9.803-.001 1.815.512 3.518 1.481 4.92l-.934 3.415 3.469-.911z"></path></svg>
+                        </div>
                       </a>
                     )) : (
                       <div className="py-10 text-center text-gray-400 font-serif italic text-sm">Tiada kenalan ditetapkan.</div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {activeModal === 'hadiah' && (
+                <div className="space-y-12 py-4">
+                  {invitation.money_gift_details?.enabled && (
+                    <div className="text-center">
+                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.money_gift_details?.gift_title || 'Hadiah & Ingatan'}</h3>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.money_gift_details?.gift_subtitle || 'Khas buat mempelai'}</p>
+                    </div>
+                  )}
+
+                  {/* Hadiah Section (Money Gift) */}
+                  {invitation.money_gift_details?.enabled && (
+                    <div className="space-y-6">
+                      <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 flex flex-col items-center space-y-6">
+                        {invitation.money_gift_details?.qr_url && (
+                          <div className="w-48 h-48 bg-white p-4 rounded-3xl shadow-inner border border-gray-100">
+                            <img src={invitation.money_gift_details.qr_url} alt="QR Code" className="w-full h-full object-contain" />
+                          </div>
+                        )}
+                        <div className="text-center space-y-2">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.bank_name}</p>
+                          <p className="text-2xl font-bold tracking-tighter text-gray-800 font-mono">{invitation.money_gift_details?.account_no}</p>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.account_holder}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (invitation.money_gift_details?.account_no) {
+                              navigator.clipboard.writeText(invitation.money_gift_details.account_no);
+                              alert('Nombor akaun disalin!');
+                            }
+                          }}
+                          className="px-8 py-3 bg-white border border-gray-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition shadow-sm"
+                        >
+                          Salin No. Akaun
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Wishlist Section */}
+                  {invitation.wishlist_details?.enabled && (
+                    <div className="space-y-10">
+                      <div className="text-center" style={{ borderColor: primaryColor }}>
+                        <div>
+                          <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.wishlist_details?.wishlist_title || 'Physical Wishlist'}</h3>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.wishlist_details?.wishlist_subtitle || 'Gifts requested'}</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50 space-y-6">
+                        <div className="space-y-2">
+                          <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">No. Telefon Penerima</p>
+                          <p className="text-sm font-bold text-gray-700 font-mono">{invitation.wishlist_details?.receiver_phone || 'Belum disediakan'}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">Alamat Penghantaran</p>
+                          <p className="text-sm text-gray-600 leading-relaxed font-medium">{invitation.wishlist_details?.receiver_address || 'Belum disediakan'}</p>
+                        </div>
+                      </div>
+
+                      {/* Items Listing */}
+                      {invitation.wishlist_details?.items && invitation.wishlist_details.items.length > 0 && (
+                        <div className="space-y-6">
+                          <div className="flex items-center space-x-4 border-l-4 pl-4" style={{ borderColor: primaryColor }}>
+                            <div>
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Physical Gift Request</p>
+                              <p className="text-lg font-bold text-gray-800 font-serif italic">Permintaan Hadiah</p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-4">
+                            {invitation.wishlist_details.items.map((item) => (
+                              <div key={item.id} className="p-4 bg-white border border-gray-100 rounded-[2rem] shadow-sm flex items-center space-x-6 group hover:shadow-md transition">
+                                <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-100">
+                                  {item.item_image ? (
+                                    <img src={item.item_image} alt={item.item_name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-200">
+                                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 pr-4">
+                                  <p className="text-sm font-bold text-gray-800 mb-1">{item.item_name}</p>
+                                  {item.item_link && (
+                                    <a
+                                      href={item.item_link}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center text-[9px] font-bold uppercase tracking-widest text-rose-400 hover:text-rose-600 transition"
+                                    >
+                                      Beli Secara Online
+                                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+
                 </div>
               )}
             </div>
@@ -546,79 +898,218 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                     </button>
                   </div>
                   <div className="space-y-8">
+                    {/* Note from Host */}
+                    {invitation.rsvp_settings?.note && (
+                      <div className="bg-rose-50 p-4 rounded-xl text-xs text-rose-700 font-medium italic mb-4">
+                        Note: {invitation.rsvp_settings.note}
+                      </div>
+                    )}
+
                     <div className="space-y-4 text-left">
+                      {/* Always show Name if mode is not none */}
                       <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Tetamu</label>
-                        <input 
-                          placeholder="Masukkan nama penuh" 
-                          className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium" 
-                          value={formData.name} 
-                          onChange={e => setFormData({...formData, name: e.target.value})} 
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Tetamu*</label>
+                        <input
+                          placeholder="Masukkan nama penuh"
+                          className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                          value={formData.name}
+                          onChange={e => setFormData({ ...formData, name: e.target.value })}
                         />
                       </div>
-                      
-                      <div className="flex gap-2 p-1.5 bg-gray-100 rounded-[2rem] animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                        <button 
-                          onClick={() => setFormData({...formData, attending: true})} 
-                          className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${formData.attending ? 'bg-green-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
-                        >
-                          Hadir
-                        </button>
-                        <button 
-                          onClick={() => setFormData({...formData, attending: false})} 
-                          className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${!formData.attending ? 'bg-rose-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
-                        >
-                          Maaf
-                        </button>
-                      </div>
 
-                      <div className="overflow-hidden">
-                        {formData.attending ? (
-                          <div className="animate-scale-in pt-2">
-                            <div className="flex items-center bg-gray-50 border border-gray-100 rounded-[1.5rem] px-6 py-5 justify-between shadow-inner">
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bilangan Tetamu</span>
-                              <div className="flex items-center space-x-6">
-                                <button 
-                                  onClick={() => setFormData({...formData, pax: Math.max(1, formData.pax-1)})} 
-                                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
-                                >
-                                  -
-                                </button>
-                                <span className="font-bold text-lg w-6 text-center">{formData.pax}</span>
-                                <button 
-                                  onClick={() => setFormData({...formData, pax: formData.pax+1})} 
-                                  className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
-                                >
-                                  +
-                                </button>
+                      {/* Phone - Conditional */}
+                      {(invitation.rsvp_settings?.fields?.phone ?? true) && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Telefon</label>
+                          <input
+                            placeholder="No. telefon"
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.phone}
+                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Email - Conditional */}
+                      {invitation.rsvp_settings?.fields?.email && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Emel</label>
+                          <input
+                            type="email"
+                            placeholder="example@mail.com"
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.email}
+                            onChange={e => setFormData({ ...formData, email: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Address - Conditional */}
+                      {invitation.rsvp_settings?.fields?.address && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Rumah</label>
+                          <textarea
+                            rows={2}
+                            placeholder="Alamat penuh..."
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.address}
+                            onChange={e => setFormData({ ...formData, address: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Company - Conditional */}
+                      {invitation.rsvp_settings?.fields?.company && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Syarikat</label>
+                          <input
+                            type="text"
+                            placeholder="Nama Syarikat"
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.company}
+                            onChange={e => setFormData({ ...formData, company: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Job Title - Conditional */}
+                      {invitation.rsvp_settings?.fields?.job_title && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Jawatan</label>
+                          <input
+                            type="text"
+                            placeholder="Jawatan"
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.job_title}
+                            onChange={e => setFormData({ ...formData, job_title: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Car Plate - Conditional */}
+                      {invitation.rsvp_settings?.fields?.car_plate && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Plat Kenderaan</label>
+                          <input
+                            type="text"
+                            placeholder="ABC 1234"
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.car_plate}
+                            onChange={e => setFormData({ ...formData, car_plate: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Remarks - Conditional */}
+                      {invitation.rsvp_settings?.fields?.remarks && (
+                        <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Catatan</label>
+                          <textarea
+                            rows={2}
+                            placeholder="Catatan tambahan..."
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                            value={formData.remarks}
+                            onChange={e => setFormData({ ...formData, remarks: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {/* Attendance Toggle - Hide if wish_only */}
+                      {invitation.rsvp_settings?.response_mode !== 'wish_only' && (
+                        <>
+                          <div className="flex gap-2 p-1.5 bg-gray-100 rounded-[2rem] animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                            <button
+                              onClick={() => setFormData({ ...formData, attending: true })}
+                              className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${formData.attending ? 'bg-green-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                              Hadir
+                            </button>
+                            <button
+                              onClick={() => setFormData({ ...formData, attending: false })}
+                              className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${!formData.attending ? 'bg-rose-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                              Maaf
+                            </button>
+                          </div>
+
+                          <div className="overflow-hidden">
+                            {formData.attending ? (
+                              <div className="animate-scale-in pt-2 space-y-4">
+
+                                {(invitation.rsvp_settings?.has_slots && (invitation.rsvp_settings?.slots_options || []).length > 0) && (
+                                  <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Pilih Slot / Kategori</label>
+                                    <div className="relative">
+                                      <select
+                                        className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium appearance-none"
+                                        value={formData.slot || ''}
+                                        onChange={e => setFormData({ ...formData, slot: e.target.value })}
+                                      >
+                                        <option value="" disabled>Sila pilih satu...</option>
+                                        {(invitation.rsvp_settings?.slots_options || []).map((slot, i) => (
+                                          <option key={i} value={slot}>{slot}</option>
+                                        ))}
+                                      </select>
+                                      <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="flex items-center bg-gray-50 border border-gray-100 rounded-[1.5rem] px-6 py-5 justify-between shadow-inner">
+                                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bilangan Tetamu</span>
+                                  <div className="flex items-center space-x-6">
+                                    <button
+                                      onClick={() => setFormData({ ...formData, pax: Math.max(1, formData.pax - 1) })}
+                                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="font-bold text-lg w-6 text-center">{formData.pax}</span>
+                                    <button
+                                      onClick={() => setFormData({ ...formData, pax: Math.min(invitation.rsvp_settings?.pax_limit_per_rsvp || 10, formData.pax + 1) })}
+                                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                                <p className="text-[9px] text-gray-400 text-right px-2">Max {invitation.rsvp_settings?.pax_limit_per_rsvp || 10} orang</p>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="animate-fade-in pt-2">
+                                <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">Kami mendoakan yang terbaik untuk urusan anda.</p>
+                              </div>
+                            )}
                           </div>
-                        ) : (
-                          <div className="animate-fade-in pt-2">
-                            <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">Kami mendoakan yang terbaik untuk urusan anda.</p>
-                          </div>
-                        )}
-                      </div>
+                        </>
+                      )}
 
-                      <div className="relative pt-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">Titipkan Ucapan</label>
-                        <textarea 
-                          placeholder="Selamat pengantin baru..." 
-                          rows={3} 
-                          className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium leading-relaxed" 
-                          value={formData.message} 
-                          onChange={e => setFormData({...formData, message: e.target.value})} 
-                        />
-                      </div>
+                      {/* Wish / Message */}
+                      {(invitation.rsvp_settings?.fields?.wish ?? true) && (
+                        <div className="relative pt-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">Titipkan Ucapan</label>
+                          <textarea
+                            placeholder="Selamat pengantin baru..."
+                            rows={3}
+                            className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium italic"
+                            value={formData.message}
+                            onChange={e => setFormData({ ...formData, message: e.target.value })}
+                          />
+                        </div>
+                      )}
                     </div>
-                    
-                    <button 
-                      onClick={handleRsvpSubmit} 
-                      className="w-full py-5 text-white font-bold rounded-[1.5rem] shadow-2xl transition-all duration-500 transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-[10px] uppercase animate-slide-up shadow-rose-100" 
+
+                    <button
+                      onClick={handleRsvpSubmit}
+                      disabled={isSubmitting || isSuccess}
+                      className={`w-full py-5 text-white font-bold rounded-[1.5rem] shadow-2xl transition-all duration-500 transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-[10px] uppercase animate-slide-up shadow-rose-100 ${(isSubmitting || isSuccess) ? 'opacity-50 cursor-not-allowed' : ''}`}
                       style={{ backgroundColor: primaryColor, animationDelay: '0.4s' }}
                     >
-                      Hantar RSVP
+                      {isSubmitting ? 'Menghantar...' : isSuccess ? 'Terkirim!' : 'Hantar RSVP'}
                     </button>
                   </div>
                 </>
@@ -645,7 +1136,7 @@ const PublicInvitationPage: React.FC = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const guestName = searchParams.get('to');
-  
+
   // Handle hash routing - if there's a hash with edit or manage, redirect appropriately
   if (location.hash) {
     const hashPath = location.hash.substring(1); // Remove the # character
@@ -660,11 +1151,63 @@ const PublicInvitationPage: React.FC = () => {
       return null;
     }
   }
-  
-  const inv = MOCK_INVITATIONS.find(i => i.slug === slug);
+
+  const [inv, setInv] = useState<Invitation | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInvitation = async () => {
+      if (!slug) return;
+
+      try {
+        // First try to find by slug from API
+        const response = await fetch(`http://localhost:3001/api/invitations/slug/${slug}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Public: API Response received', data);
+          setInv(data.data);
+        } else {
+          console.error('❌ Public: Failed to fetch invitation by slug:', response.statusText);
+          // Fallback to mock data if API fails
+          const mockInv = MOCK_INVITATIONS.find(i => i.slug === slug);
+          if (mockInv) {
+            setInv(mockInv);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Public: Error fetching invitation:', error);
+        // Fallback to mock data if API fails
+        const mockInv = MOCK_INVITATIONS.find(i => i.slug === slug);
+        if (mockInv) {
+          setInv(mockInv);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvitation();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-serif italic text-gray-400 text-xl bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
+        <p className="mt-4">Loading invitation...</p>
+      </div>
+    );
+  }
+
   if (!inv) return <div className="min-h-screen flex items-center justify-center font-serif italic text-gray-400 text-xl bg-white">Undangan tidak dijumpai.</div>;
-  
-  return <InvitationContent invitation={inv} guestName={guestName || undefined} />;
+
+  return <InvitationContent invitation={inv} guestName={guestName || undefined} setInv={setInv} />;
 };
 
 export { InvitationContent };
