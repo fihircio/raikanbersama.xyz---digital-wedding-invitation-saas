@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
-import { BackgroundImage } from '../types/models';
-import mockDataService from '../services/mockDataService';
-import { getPaginationParams, calculatePagination, paginateArray, sortArray, searchArray } from '../utils/pagination';
+import { BackgroundImage } from '../models';
+import { getPaginationParams, calculatePagination } from '../utils/pagination';
 import logger from '../utils/logger';
+import { Op, WhereOptions } from 'sequelize';
 
 /**
  * Background Controller
@@ -17,47 +17,62 @@ import logger from '../utils/logger';
  */
 export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    // Get pagination and filter parameters
+    // Get pagination parameters
     const { page, limit } = getPaginationParams(req);
-    const { search, sortBy, sortOrder } = req.query;
-    const { category, isPremium } = req.query;
-    
-    // Get all backgrounds
-    let backgrounds = await mockDataService.getAllBackgrounds();
-    
-    // Apply category filter
+    const { search, sortBy, sortOrder, category, isPremium, sort } = req.query;
+
+    const where: any = {};
+
+    // Apply category filter (handle multiple categories comma separated)
     if (category) {
-      backgrounds = await mockDataService.getBackgroundsByCategory(category as string);
-    }
-    
-    // Apply premium filter
-    if (isPremium !== undefined) {
-      const premium = isPremium === 'true';
-      if (premium) {
-        backgrounds = await mockDataService.getPremiumBackgrounds();
+      const categoryList = (category as string).split(',');
+      if (categoryList.length > 1) {
+        where.category = { [Op.in]: categoryList };
       } else {
-        backgrounds = await mockDataService.getFreeBackgrounds();
+        where.category = categoryList[0];
       }
     }
-    
+
+    // Apply premium filter
+    if (isPremium !== undefined) {
+      where.isPremium = isPremium === 'true';
+    }
+
     // Apply search filter
     if (search) {
-      backgrounds = searchArray(backgrounds, search as string, ['name', 'category', 'tags']);
+      where[Op.or as any] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { category: { [Op.iLike]: `%${search}%` } },
+        // tags is JSONB, search within it if needed, but simple name/category is usually enough
+      ];
     }
-    
-    // Apply sorting
-    backgrounds = sortArray(backgrounds, (sortBy as string) || 'name', (sortOrder as 'asc' | 'desc') || 'asc');
-    
+
+    // Determine sorting
+    let order: any[] = [[(sortBy as string) || 'name', (sortOrder as string) || 'ASC']];
+
+    if (sort === 'latest') {
+      order = [['created_at', 'DESC']];
+    } else if (sort === 'popular') {
+      // For now we don't have popularity index, so let's just use name or id
+      order = [['name', 'ASC']];
+    } else if (sort === 'a-z') {
+      order = [['name', 'ASC']];
+    }
+
+    // Get backgrounds with pagination
+    const { count, rows: backgrounds } = await BackgroundImage.findAndCountAll({
+      where,
+      order,
+      limit: limit || 10,
+      offset: ((page || 1) - 1) * (limit || 10)
+    });
+
     // Calculate pagination
-    const total = backgrounds.length;
-    const pagination = calculatePagination(page || 1, limit || 10, total);
-    
-    // Apply pagination
-    const paginatedBackgrounds = paginateArray(backgrounds, page || 1, limit || 10);
-    
+    const pagination = calculatePagination(page || 1, limit || 10, count);
+
     res.status(200).json({
       success: true,
-      data: paginatedBackgrounds,
+      data: backgrounds,
       pagination
     } as ApiResponse);
   } catch (error) {
@@ -77,8 +92,8 @@ export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response
 export const getBackgroundById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    
-    const background = await mockDataService.getBackgroundById(id);
+
+    const background = await BackgroundImage.findByPk(id);
     if (!background) {
       res.status(404).json({
         success: false,
@@ -110,28 +125,25 @@ export const getBackgroundsByCategory = async (req: AuthenticatedRequest, res: R
     const { category } = req.params;
     const { page, limit } = getPaginationParams(req);
     const { search, sortBy, sortOrder } = req.query;
-    
-    // Get backgrounds by category
-    let backgrounds = await mockDataService.getBackgroundsByCategory(category);
-    
-    // Apply search filter
+
+    const where: WhereOptions = { category };
+
     if (search) {
-      backgrounds = searchArray(backgrounds, search as string, ['name', 'tags']);
+      where.name = { [Op.iLike]: `%${search}%` };
     }
-    
-    // Apply sorting
-    backgrounds = sortArray(backgrounds, (sortBy as string) || 'name', (sortOrder as 'asc' | 'desc') || 'asc');
-    
-    // Calculate pagination
-    const total = backgrounds.length;
-    const pagination = calculatePagination(page || 1, limit || 10, total);
-    
-    // Apply pagination
-    const paginatedBackgrounds = paginateArray(backgrounds, page || 1, limit || 10);
-    
+
+    const { count, rows: backgrounds } = await BackgroundImage.findAndCountAll({
+      where,
+      order: [[(sortBy as string) || 'name', (sortOrder as string) || 'ASC']],
+      limit: limit || 10,
+      offset: ((page || 1) - 1) * (limit || 10)
+    });
+
+    const pagination = calculatePagination(page || 1, limit || 10, count);
+
     res.status(200).json({
       success: true,
-      data: paginatedBackgrounds,
+      data: backgrounds,
       pagination
     } as ApiResponse);
   } catch (error) {
@@ -152,28 +164,25 @@ export const getPremiumBackgrounds = async (req: AuthenticatedRequest, res: Resp
   try {
     const { page, limit } = getPaginationParams(req);
     const { search, sortBy, sortOrder } = req.query;
-    
-    // Get premium backgrounds
-    let backgrounds = await mockDataService.getPremiumBackgrounds();
-    
-    // Apply search filter
+
+    const where: WhereOptions = { isPremium: true };
+
     if (search) {
-      backgrounds = searchArray(backgrounds, search as string, ['name', 'tags']);
+      where.name = { [Op.iLike]: `%${search}%` };
     }
-    
-    // Apply sorting
-    backgrounds = sortArray(backgrounds, (sortBy as string) || 'name', (sortOrder as 'asc' | 'desc') || 'asc');
-    
-    // Calculate pagination
-    const total = backgrounds.length;
-    const pagination = calculatePagination(page || 1, limit || 10, total);
-    
-    // Apply pagination
-    const paginatedBackgrounds = paginateArray(backgrounds, page || 1, limit || 10);
-    
+
+    const { count, rows: backgrounds } = await BackgroundImage.findAndCountAll({
+      where,
+      order: [[(sortBy as string) || 'name', (sortOrder as string) || 'ASC']],
+      limit: limit || 10,
+      offset: ((page || 1) - 1) * (limit || 10)
+    });
+
+    const pagination = calculatePagination(page || 1, limit || 10, count);
+
     res.status(200).json({
       success: true,
-      data: paginatedBackgrounds,
+      data: backgrounds,
       pagination
     } as ApiResponse);
   } catch (error) {
@@ -194,28 +203,25 @@ export const getFreeBackgrounds = async (req: AuthenticatedRequest, res: Respons
   try {
     const { page, limit } = getPaginationParams(req);
     const { search, sortBy, sortOrder } = req.query;
-    
-    // Get free backgrounds
-    let backgrounds = await mockDataService.getFreeBackgrounds();
-    
-    // Apply search filter
+
+    const where: WhereOptions = { isPremium: false };
+
     if (search) {
-      backgrounds = searchArray(backgrounds, search as string, ['name', 'tags']);
+      where.name = { [Op.iLike]: `%${search}%` };
     }
-    
-    // Apply sorting
-    backgrounds = sortArray(backgrounds, (sortBy as string) || 'name', (sortOrder as 'asc' | 'desc') || 'asc');
-    
-    // Calculate pagination
-    const total = backgrounds.length;
-    const pagination = calculatePagination(page || 1, limit || 10, total);
-    
-    // Apply pagination
-    const paginatedBackgrounds = paginateArray(backgrounds, page || 1, limit || 10);
-    
+
+    const { count, rows: backgrounds } = await BackgroundImage.findAndCountAll({
+      where,
+      order: [[(sortBy as string) || 'name', (sortOrder as string) || 'ASC']],
+      limit: limit || 10,
+      offset: ((page || 1) - 1) * (limit || 10)
+    });
+
+    const pagination = calculatePagination(page || 1, limit || 10, count);
+
     res.status(200).json({
       success: true,
-      data: paginatedBackgrounds,
+      data: backgrounds,
       pagination
     } as ApiResponse);
   } catch (error) {

@@ -5,9 +5,16 @@ export class BackgroundImage extends Model {
   public name!: string;
   public url!: string;
   public thumbnail!: string;
-  public category!: 'popular' | 'minimalist' | 'elegant' | 'floral';
+  public category!: string;
   public isPremium!: boolean;
   public tags!: string[];
+  public layout_settings!: {
+    cover_layout?: string;
+    font_family?: string;
+    overlay_opacity?: number;
+  };
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 
   // Static method to initialize the model
   public static initialize(sequelize: Sequelize): typeof BackgroundImage {
@@ -31,7 +38,7 @@ export class BackgroundImage extends Model {
           allowNull: false,
         },
         category: {
-          type: DataTypes.ENUM('popular', 'minimalist', 'elegant', 'floral'),
+          type: DataTypes.STRING,
           allowNull: false,
         },
         isPremium: {
@@ -44,12 +51,17 @@ export class BackgroundImage extends Model {
           allowNull: false,
           defaultValue: [],
         },
+        layout_settings: {
+          type: DataTypes.JSON,
+          allowNull: true,
+          defaultValue: {},
+        },
       },
       {
         sequelize,
         modelName: 'BackgroundImage',
         tableName: 'background_images',
-        timestamps: false,
+        timestamps: true,
         underscored: true,
         indexes: [
           {
