@@ -1,9 +1,35 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Invitation } from '../../types';
-import { MOCK_INVITATIONS } from '../../constants';
+import { MOCK_INVITATIONS, FONT_FAMILIES } from '../../constants';
+import CoverLayout from '../../components/Invitation/CoverLayout';
+
+
+// --- Font Loading ---
+const GoogleFontLoader: React.FC<{ settings: any }> = ({ settings }) => {
+  const fontsToLoad = useMemo(() => {
+    const fonts = new Set<string>();
+    if (settings.groom_font) fonts.add(settings.groom_font);
+    if (settings.bride_font) fonts.add(settings.bride_font);
+    if (settings.host_font) fonts.add(settings.host_font);
+    if (settings.greeting_font) fonts.add(settings.greeting_font);
+    if (settings.hero_font) fonts.add(settings.hero_font);
+    if (settings.invitation_font) fonts.add(settings.invitation_font);
+    if (settings.date_font) fonts.add(settings.date_font);
+    if (settings.location_font) fonts.add(settings.location_font);
+    return Array.from(fonts);
+  }, [settings]);
+
+  if (fontsToLoad.length === 0) return null;
+
+  const fontString = fontsToLoad.map(f => f.replace(/ /g, '+')).join('|');
+  const url = `https://fonts.googleapis.com/css?family=${fontString}&display=swap`;
+
+  return <style dangerouslySetInnerHTML={{ __html: `@import url('${url}');` }} />;
+};
 
 // --- Shared Utility Components ---
+
 
 const Countdown: React.FC<{ targetDate: string, color: string }> = ({ targetDate, color }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -87,154 +113,43 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
     return !d || isNaN(d.getTime()) ? 'Tarikh Belum Ditetapkan' : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
   }, [invitation?.event_date]);
 
-  const layout = invitation.settings.layout_settings?.cover_layout || 'standard';
   const overlayOpacity = invitation.settings.layout_settings?.overlay_opacity ?? 0.4;
-
-  const renderLayout = () => {
-    switch (layout) {
-      case 'centered-circle':
-        return (
-          <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in p-8">
-            <div className={`relative flex flex-col items-center justify-center w-[320px] h-[320px] rounded-full border-2 border-white/60 shadow-2xl backdrop-blur-md bg-white/20 p-10 text-center`}>
-              <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-gray-800 mb-6">
-                {invitation?.settings?.hero_title || 'Walimatulurus'}
-              </p>
-              <div className="space-y-2">
-                <h1 className="text-4xl font-cursive font-bold" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
-                <p className="text-xl font-serif italic text-gray-500">&</p>
-                <h1 className="text-4xl font-cursive font-bold" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
-              </div>
-              <div className="mt-6 pt-4 border-t border-gray-400/30 w-16 mx-auto">
-                <p className="text-[11px] font-serif font-bold text-gray-600 tracking-wide uppercase">{formattedDate}</p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'top-bordered':
-        return (
-          <div className="relative z-10 flex flex-col items-center justify-start pt-24 animate-fade-in px-8">
-            <div className="bg-white/80 backdrop-blur-md border-[1.5px] border-gray-200 p-10 rounded-[2.5rem] shadow-xl text-center max-w-sm">
-              <p className="uppercase tracking-[0.5em] text-[9px] font-bold text-rose-600 mb-8 border-b border-rose-100 pb-2 inline-block">
-                {invitation?.settings?.hero_title || 'Walimatulurus'}
-              </p>
-              <div className="space-y-4">
-                <h1 className="text-5xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
-                <p className="text-2xl font-serif italic text-gray-400">&</p>
-                <h1 className="text-5xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
-              </div>
-              <div className="mt-10 space-y-1">
-                <p className="text-sm font-serif font-bold text-gray-500">{formattedDate}</p>
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{invitation.location_name}</p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'bottom-accent':
-        return (
-          <div className="relative z-10 flex flex-col items-center justify-end h-full pb-32 animate-fade-in px-8">
-            <div className="text-center space-y-6">
-              <div className="space-y-2">
-                <h1 className="text-6xl font-cursive font-bold text-white drop-shadow-lg" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
-                <p className="text-3xl font-serif italic text-white/80">&</p>
-                <h1 className="text-6xl font-cursive font-bold text-white drop-shadow-lg" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
-              </div>
-              <div className="bg-black/10 backdrop-blur-sm px-8 py-4 rounded-2xl border border-white/20 inline-block">
-                <p className="text-xs font-bold text-white uppercase tracking-[0.3em]">{formattedDate}</p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'glass-card':
-        return (
-          <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in px-6">
-            <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl border border-white/20 rounded-[3rem] p-12 shadow-2xl text-center relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
-              <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-white/70 mb-10">
-                {invitation?.settings?.hero_title || 'Walimatulurus'}
-              </p>
-              <div className="space-y-6">
-                <h1 className="text-5xl font-cursive font-bold text-white" style={{ color: invitation.settings.groom_color }}>{invitation.groom_name}</h1>
-                <div className="w-8 h-px bg-white/30 mx-auto"></div>
-                <h1 className="text-5xl font-cursive font-bold text-white" style={{ color: invitation.settings.bride_color }}>{invitation.bride_name}</h1>
-              </div>
-              <div className="mt-12 text-white/80">
-                <p className="text-sm font-serif font-bold tracking-widest uppercase">{formattedDate}</p>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'standard':
-      default:
-        return (
-          <div className="animate-fade-in space-y-10">
-            <p className="uppercase tracking-[0.4em] text-[10px] font-bold text-gray-600 mb-2">
-              {invitation?.settings?.hero_title || 'Walimatulurus'}
-            </p>
-
-            <div className="space-y-4">
-              <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.groom_color }}>
-                {invitation.groom_name}
-              </h1>
-              <p className="text-3xl font-serif italic text-gray-400">&</p>
-              <h1 className="text-5xl md:text-6xl font-cursive font-bold text-gray-800" style={{ color: invitation.settings.bride_color }}>
-                {invitation.bride_name}
-              </h1>
-            </div>
-
-            <div className="space-y-2 pt-4">
-              <p className="text-sm font-serif font-bold text-gray-500 tracking-wide uppercase">{formattedDate}</p>
-              <div className="w-12 h-px bg-gray-300 mx-auto" />
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">{invitation.location_name}</p>
-            </div>
-          </div>
-        );
-    }
-  };
 
   return (
     <div className={`fixed inset-0 z-[200] flex flex-col items-center justify-center text-center transition-all duration-1000 ease-in-out ${isClosing ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
       {/* Background with Blur Overlay */}
       <div
-        className="absolute inset-0 z-[-1]"
-        style={{
-          backgroundImage: `url(${invitation.settings.background_image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] scale-110"
+        style={{ backgroundImage: `url(${invitation.settings.background_image})` }}
       >
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" style={{ backgroundColor: `rgba(255, 255, 255, ${overlayOpacity})` }}></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white/40"></div>
+        <div className="absolute inset-0 backdrop-blur-[2px] bg-black" style={{ opacity: overlayOpacity }}></div>
       </div>
 
-      <div className="w-full h-full flex flex-col items-center justify-center py-20 overflow-hidden">
-        {renderLayout()}
+      <CoverLayout invitation={invitation} formattedDate={formattedDate} />
 
-        {!isPreview ? (
+      {!isPreview ? (
+        <div className="relative z-10 mt-12 animate-bounce-subtle">
           <button
             onClick={onOpen}
-            className="group mt-12 mb-10 shrink-0 flex items-center justify-center space-x-4 px-10 py-4 bg-white/90 border border-gray-200 rounded-full shadow-2xl hover:bg-white transition-all transform active:scale-95 duration-500 z-50"
+            className="px-10 py-4 bg-white/20 backdrop-blur-md border border-white/40 text-white rounded-full font-bold text-sm hover:bg-white hover:text-gray-900 transition-all duration-500 shadow-2xl flex items-center gap-3 group"
           >
-            <svg className="w-5 h-5 text-gray-400 group-hover:text-rose-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-700">Buka</span>
-            <svg className="w-5 h-5 text-gray-400 group-hover:text-rose-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+            Buka Jemputan
+            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-rose-500 transform transition-transform group-hover:rotate-12">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
           </button>
-        ) : (
-          <div className="mt-12 shrink-0 flex items-center justify-center z-50">
-            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400">Preview Mode - Invitation Opened</span>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="mt-12 shrink-0 flex items-center justify-center z-50">
+          <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400">Preview Mode - Invitation Opened</span>
+        </div>
+      )}
     </div>
   );
 };
+
 
 // --- Invitation Content Sections ---
 
@@ -243,13 +158,16 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
 
   const greetingStyles = {
     color: invitation.settings.greeting_color || '#FFFFFF',
+    fontFamily: invitation.settings.greeting_font || 'inherit',
     fontSize: invitation.settings.greeting_size ? `${invitation.settings.greeting_size}px` : undefined,
   };
 
   const heroStyles = {
     color: invitation.settings.hero_color || '#FFFFFF',
+    fontFamily: invitation.settings.hero_font || 'inherit',
     fontSize: invitation.settings.hero_size ? `${invitation.settings.hero_size}px` : undefined,
   };
+
 
   if (isMinimal) {
     return (
@@ -492,10 +410,42 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
   const invitationTextStyles = {
     color: invitation.settings.invitation_color || '#6B7280',
     fontSize: invitation.settings.invitation_size ? `${invitation.settings.invitation_size}px` : undefined,
+    fontFamily: invitation.settings.invitation_font || 'inherit',
+  };
+
+  const groomStyleBody = {
+    color: invitation.settings.groom_color || primaryColor,
+    fontFamily: invitation.settings.groom_font || 'inherit',
+    fontSize: invitation.settings.groom_size ? `${invitation.settings.groom_size}px` : undefined,
+  };
+
+  const brideStyleBody = {
+    color: invitation.settings.bride_color || primaryColor,
+    fontFamily: invitation.settings.bride_font || 'inherit',
+    fontSize: invitation.settings.bride_size ? `${invitation.settings.bride_size}px` : undefined,
+  };
+
+  const hostStyle = {
+    color: invitation.settings.host_color || '#374151',
+    fontFamily: invitation.settings.host_font || 'inherit',
+    fontSize: invitation.settings.host_size ? `${invitation.settings.host_size}px` : undefined,
+  };
+
+  const dateStyle = {
+    color: invitation.settings.date_color || primaryColor,
+    fontFamily: invitation.settings.date_font || 'inherit',
+    fontSize: invitation.settings.date_size ? `${invitation.settings.date_size}px` : undefined,
+  };
+
+  const locationStyle = {
+    color: invitation.settings.location_color || '#1F2937',
+    fontFamily: invitation.settings.location_font || 'inherit',
+    fontSize: invitation.settings.location_size ? `${invitation.settings.location_size}px` : undefined,
   };
 
   return (
     <>
+      <GoogleFontLoader settings={invitation.settings} />
       {!isOpen && <CoverSection invitation={invitation} onOpen={handleOpenInvitation} isClosing={false} />}
 
       <div className={`relative min-h-screen font-sans text-gray-900 bg-white transition-opacity duration-1000 ${activeModal ? 'overflow-hidden' : ''} ${isMinimal ? 'bg-gray-50/30' : ''} ${!isOpen ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100'}`}>
@@ -506,7 +456,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           {/* Order: Nama Tuan Rumah -> Teks Jemputan -> Couple Names -> Date */}
 
           <div className="mb-14 space-y-6">
-            <p className="text-xl font-serif italic text-gray-700 font-bold" style={{ color: invitation.settings.host_color }}>
+            <p className="text-xl font-serif italic text-gray-700 font-bold" style={hostStyle}>
               {invitation.host_names}
             </p>
 
@@ -515,24 +465,25 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
             </p>
           </div>
 
-          <div className="space-y-4 mb-14 animate-fade-in">
-            <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={{ color: invitation.settings.groom_color || primaryColor }}>
+          <div className="space-y-4 mb-14 animate-fade-in px-4">
+            <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={groomStyleBody}>
               {invitation.groom_name}
             </h3>
             <p className="text-gray-300 font-serif italic text-xl">&</p>
-            <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={{ color: invitation.settings.bride_color || primaryColor }}>
+            <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={brideStyleBody}>
               {invitation.bride_name}
             </h3>
           </div>
 
           <div className="mb-16">
-            <p className="text-2xl font-serif italic mb-4 font-bold" style={{ color: invitation.settings.date_color || primaryColor }}>
+            <p className="text-2xl font-serif italic mb-4 font-bold" style={dateStyle}>
               {formattedDate}
             </p>
             {invitation.settings.show_countdown && (
               <Countdown targetDate={invitation.event_date} color={invitation.settings.date_color || primaryColor} />
             )}
           </div>
+
 
           {invitation.settings.pantun && (
             <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] italic text-gray-500 font-serif leading-relaxed text-sm mb-16 border border-gray-100 shadow-inner">
@@ -555,7 +506,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
               </div>
-              <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.location_name}</span>
+              <span className="font-bold text-gray-800 text-lg tracking-tight" style={locationStyle}>{invitation.location_name}</span>
               <p className="text-[10px] text-gray-400 font-medium px-4">{invitation.address}</p>
             </div>
           </div>

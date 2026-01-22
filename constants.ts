@@ -23,6 +23,25 @@ export const MOCK_INVITATIONS: Invitation[] = [
       { id: 'w1', name: 'Zulkhairi', message: 'Selamat pengantin baru! Semoga kekal ke anak cucu.', created_at: '2024-05-14T10:00:00Z' },
       { id: 'w2', name: 'Farah & Family', message: 'Alhamdulillah, cantiknya kad! See you there!', created_at: '2024-05-15T08:00:00Z' }
     ],
+    rsvps: [],
+    rsvp_settings: {
+      response_mode: 'rsvp_and_wish',
+      fields: {
+        name: true,
+        phone: true,
+        email: false,
+        address: false,
+        company: false,
+        job_title: false,
+        car_plate: false,
+        remarks: false,
+        wish: true
+      },
+      has_children_policy: false,
+      pax_limit_per_rsvp: 10,
+      total_guest_limit: 1000,
+      has_slots: false
+    },
     itinerary: [
       { id: '1', time: '11:00', activity: 'Ketibaan Tetamu' },
       { id: '2', time: '13:00', activity: 'Ketibaan Pengantin & Jamuan Makan' },
@@ -66,6 +85,12 @@ export const MOCK_INVITATIONS: Invitation[] = [
       account_no: '123456789012',
       account_holder: 'Siti Hawa binti Ahmad',
       qr_url: ''
+    },
+    wishlist_details: {
+      enabled: false,
+      receiver_phone: '',
+      receiver_address: '',
+      items: []
     }
   }
 ];
@@ -85,4 +110,11 @@ export const THEME_COLORS = [
   { name: 'Dusty Rose', value: '#DCAE96' },
   { name: 'Sage Green', value: '#9C9F84' },
   { name: 'Pure Black', value: '#1A1A1A' },
+];
+
+export const FONT_FAMILIES = [
+  { group: 'Serif (Formal & Elegant)', fonts: ['Playfair Display', 'Cinzel', 'Spectral', 'Cormorant Garamond', 'Lora'] },
+  { group: 'Cursive (Wedding & Party)', fonts: ['Great Vibes', 'Dancing Script', 'Alex Brush', 'Pacifico', 'Pinyon Script', 'Parisienne'] },
+  { group: 'Sans-Serif (Modern & Clean)', fonts: ['Montserrat', 'Outfit', 'Inter', 'Quicksand', 'Raleway'] },
+  { group: 'Malay Traditional Style', fonts: ['Kurale', 'Aaltonen', 'Samyak Malayalam'] }
 ];

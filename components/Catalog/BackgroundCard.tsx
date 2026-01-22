@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BackgroundImage } from '../../types';
+import { BackgroundImage, Invitation } from '../../types';
+import CoverLayout from '../Invitation/CoverLayout';
 
 interface BackgroundCardProps {
   background: BackgroundImage;
@@ -23,6 +24,28 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
     onToggleFavorite();
   };
 
+  // Create a mock invitation for preview
+  const mockInvitation: Partial<Invitation> = {
+    groom_name: 'Adam Malik',
+    bride_name: 'Siti Hawa',
+    location_name: 'Dewan Banquet Melati',
+    event_date: '2025-12-25',
+    settings: {
+      music_url: '',
+      primary_color: '#8B4513',
+      show_countdown: true,
+      show_gallery: true,
+      is_published: true,
+      hero_title: 'Walimatulurus',
+      background_image: background.url,
+      layout_settings: background.layout_settings,
+      // Use styles from layout settings or defaults
+      groom_font: background.layout_settings?.font_family,
+      bride_font: background.layout_settings?.font_family,
+    }
+  };
+
+
   return (
     <div
       className="relative group cursor-pointer"
@@ -36,18 +59,34 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
           {/* Inner Screen */}
           <div className="relative w-full h-full rounded-[2.2rem] overflow-hidden bg-white">
             {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-2xl z-20"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-2xl z-[60]"></div>
 
-            {/* Thumbnail Image */}
-            <img
-              src={background.thumbnail}
-              alt={background.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              onClick={onSelect}
-            />
+            {/* Background Image with Overlay */}
+
+            <div className="absolute inset-0">
+              <img
+                src={background.thumbnail}
+                alt={background.name}
+                className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
+                onClick={onSelect}
+              />
+              <div
+                className="absolute inset-0 bg-black transition-opacity duration-300 pointer-events-none"
+                style={{ opacity: background.layout_settings?.overlay_opacity ?? 0.4 }}
+              ></div>
+            </div>
+
+            {/* Design Preview (CoverLayout) scaled down */}
+            <div className={`absolute left-0 top-0 pointer-events-none origin-top-left scale-[0.333] w-[300%] h-[300%] transition-opacity duration-500 ${isHovered ? 'opacity-40' : 'opacity-100'}`}>
+              <CoverLayout invitation={mockInvitation} formattedDate="25 Disember 2025" />
+            </div>
+
+
+
 
             {/* Overlay on Hover */}
-            <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-300 z-30 ${isHovered ? 'opacity-100' : 'opacity-0'} pointer-events-none`}>
+            <div className={`absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-300 z-30 ${isHovered ? 'opacity-100' : 'opacity-0'} pointer-events-none`}>
+
               <div className="text-center pointer-events-auto scale-90">
                 <button
                   onClick={onSelect}

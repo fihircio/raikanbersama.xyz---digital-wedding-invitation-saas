@@ -257,15 +257,21 @@ const CatalogPage: React.FC = () => {
         }
       };
 
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+      if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
       const response = await fetch('http://localhost:3001/api/invitations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(newInvitation)
       });
+
+      const newToken = response.headers.get('X-CSRF-Token');
+      if (newToken) setCsrfToken(newToken);
 
       if (response.ok) {
         const data = await response.json();

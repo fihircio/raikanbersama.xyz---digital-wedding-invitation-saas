@@ -114,14 +114,28 @@ export interface Invitation {
     story_title?: string;
     // New individual color & size overrides
     groom_color?: string;
+    groom_font?: string;
+    groom_size?: string;
     bride_color?: string;
+    bride_font?: string;
+    bride_size?: string;
     host_color?: string;
+    host_font?: string;
+    host_size?: string;
     date_color?: string;
+    date_font?: string;
+    date_size?: string;
     greeting_color?: string;
+    greeting_font?: string;
     greeting_size?: string;
     hero_color?: string;
+    hero_font?: string;
     hero_size?: string;
+    location_color?: string;
+    location_font?: string;
+    location_size?: string;
     invitation_color?: string;
+    invitation_font?: string;
     invitation_size?: string;
     layout_settings?: {
       cover_layout?: string;
