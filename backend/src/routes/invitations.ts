@@ -85,7 +85,7 @@ const createInvitationSchema = {
   },
   google_maps_url: {
     type: 'string',
-    required: true,
+    required: false,
     custom: (value: string) => {
       if (!value) return true;
       try {
@@ -98,7 +98,7 @@ const createInvitationSchema = {
   },
   waze_url: {
     type: 'string',
-    required: true,
+    required: false,
     custom: (value: string) => {
       if (!value) return true;
       try {

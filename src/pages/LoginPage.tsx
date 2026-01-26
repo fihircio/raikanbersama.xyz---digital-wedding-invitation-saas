@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,8 +9,10 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const redirect = searchParams.get('redirect');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +21,10 @@ const LoginPage: React.FC = () => {
 
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
-        // Redirect to dashboard
-        navigate('/dashboard');
+        // Redirect to dashboard or requested page
+        navigate(redirect || '/dashboard');
       } else {
         setError(result.error || 'Login failed');
       }

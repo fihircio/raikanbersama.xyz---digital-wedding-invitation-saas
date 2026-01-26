@@ -123,17 +123,12 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
+              <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">Login</Link>
               <Link
-                to="/login"
+                to="/catalog"
                 className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
               >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
-              >
-                Register
+                Mula Bina Kad
               </Link>
             </div>
           )}

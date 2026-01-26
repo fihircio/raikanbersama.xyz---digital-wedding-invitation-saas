@@ -156,11 +156,11 @@ export class Invitation extends Model {
         },
         google_maps_url: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         waze_url: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         views: {
           type: DataTypes.INTEGER,

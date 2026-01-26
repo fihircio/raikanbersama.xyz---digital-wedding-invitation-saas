@@ -64,6 +64,54 @@ const EditorPage: React.FC = () => {
 
   useEffect(() => {
     const fetchInvitation = async () => {
+      // HANDLE GUEST-TO-MEMBER CONVERSION
+      if (id === 'demo' && token && sessionStorage.getItem('pending_guest_invitation')) {
+        try {
+          console.log('🔄 Handoff: Converting guest data to user invitation...');
+          const cachedRaw = sessionStorage.getItem('pending_guest_invitation');
+          sessionStorage.removeItem('pending_guest_invitation'); // Clear early to prevent loops
+
+          if (!cachedRaw) return;
+          const cachedData = JSON.parse(cachedRaw);
+
+          // Prepare for POST request
+          const { id: _, ...payload } = cachedData; // Explicitly remove id if present
+          const newInvitation = {
+            ...payload,
+            slug: `invitation-${Date.now()}`
+          };
+
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          };
+
+          const response = await fetch('http://localhost:3001/api/invitations', {
+            method: 'POST',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify(newInvitation)
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Handoff: Conversion successful!', data);
+            navigate(`/edit/${data.data.id}`, { replace: true });
+            return;
+          } else {
+            const errorData = await response.json();
+            console.error('❌ Handoff: Conversion failed', errorData);
+            alert('Draft digital anda gagal disimpan ke akaun anda. Sila bina baru di Catalog.');
+            navigate('/catalog', { replace: true });
+            return;
+          }
+        } catch (error) {
+          console.error('❌ Handoff: Error during conversion:', error);
+          navigate('/catalog', { replace: true });
+          return;
+        }
+      }
+
       if (id === 'demo' || !token) {
         if (id === 'demo') {
           // Initialize demo data from URL or defaults
@@ -221,6 +269,13 @@ const EditorPage: React.FC = () => {
 
   // Save invitation data to backend
   const saveInvitation = async () => {
+    if (isDemo) {
+      // For guests, cache data to sessionStorage and redirect to login
+      sessionStorage.setItem('pending_guest_invitation', JSON.stringify(inv));
+      navigate(`/login?redirect=${encodeURIComponent('/edit/demo')}`);
+      return;
+    }
+
     try {
       // Get CSRF token from cookie
       const getCookie = (name: string) => {
@@ -396,17 +451,11 @@ const EditorPage: React.FC = () => {
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Crafting perfection</p>
           </div>
           <button
-            onClick={() => {
-              if (isDemo) {
-                navigate('/login');
-                return;
-              }
-              saveInvitation();
-            }}
+            onClick={saveInvitation}
             disabled={isDemo ? false : (!id || !token)}
             className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-rose-100 hover:bg-rose-700 transition transform active:scale-95 disabled:opacity-50"
           >
-            {isDemo ? 'Save Card (Login Required)' : 'Save Changes'}
+            {isDemo ? 'Save & Unlock All (Login)' : 'Save Changes'}
           </button>
         </div>
 

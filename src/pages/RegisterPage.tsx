@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -14,8 +14,10 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { register } = useAuth();
+  const redirect = searchParams.get('redirect');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,19 +31,19 @@ const RegisterPage: React.FC = () => {
 
     // Basic validation
     const newErrors: { [key: string]: string } = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Nama diperlukan';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email diperlukan';
     }
-    
+
     if (!formData.password.trim()) {
       newErrors.password = 'Kata laluan diperlukan';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Kata laluan tidak sepadan';
     }
@@ -54,10 +56,10 @@ const RegisterPage: React.FC = () => {
 
     try {
       const result = await register(formData.name, formData.email, formData.password);
-      
+
       if (result.success) {
-        // Redirect to dashboard
-        navigate('/dashboard');
+        // Redirect to dashboard or requested page
+        navigate(redirect || '/dashboard');
       } else {
         setErrors({ general: result.error || 'Pendaftaran gagal' });
       }
