@@ -79,9 +79,8 @@ const DashboardPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-10">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Design Studio</h2>
+            <p className="text-2xl font-bold text-gray-900 font-serif italic tracking-tight">Selamat datang, {user?.name}!</p>
             <p className="text-gray-500 text-sm">Uruskan semua jemputan digital anda di sini.</p>
-            <p className="text-gray-400 text-xs mt-1">Selamat datang kembali, {user?.name}!</p>
           </div>
           <Link to="/catalog" className="bg-rose-600 text-white px-8 py-3.5 rounded-full font-bold flex items-center space-x-2 hover:bg-rose-700 shadow-2xl shadow-rose-200 transition transform active:scale-95 uppercase text-[10px] tracking-widest">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>

@@ -18,6 +18,7 @@ import FavoritesPage from './src/pages/FavoritesPage';
 import FAQPage from './src/pages/FAQPage';
 import TutorialPage from './src/pages/TutorialPage';
 import ContactPage from './src/pages/ContactPage';
+import AffiliatePage from './src/pages/AffiliatePage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -51,6 +52,7 @@ const App: React.FC = () => {
             <Route path="/faq" element={<><Navbar /><FAQPage /><Footer /></>} />
             <Route path="/tutorial" element={<><Navbar /><TutorialPage /><Footer /></>} />
             <Route path="/contact" element={<><Navbar /><ContactPage /><Footer /></>} />
+            <Route path="/affiliates" element={<><Navbar /><AffiliatePage /><Footer /></>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/i/:slug" element={<PublicInvitationPage />} />
