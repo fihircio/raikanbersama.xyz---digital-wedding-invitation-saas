@@ -137,11 +137,21 @@ export interface Invitation {
     invitation_color?: string;
     invitation_font?: string;
     invitation_size?: string;
+    package_plan?: string;
+    opening_type?: 'window' | 'slide' | 'open-letter' | 'blur' | 'slide-up' | 'none';
+    opening_color?: string;
+    effect_style?: 'none' | 'bubble' | 'snow' | 'stars';
+    effect_color?: string;
     layout_settings?: {
       cover_layout?: string;
       font_family?: string;
       overlay_opacity?: number;
     };
+    youtube_url?: string;
+    youtube_start_time?: string;
+    youtube_show?: boolean;
+    youtube_autoplay?: boolean;
+    auto_scroll_delay?: number;
   };
   money_gift_details: {
     enabled: boolean;

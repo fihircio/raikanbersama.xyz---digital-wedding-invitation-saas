@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .rotate-x-90 {
+    transform: rotateX(90deg);
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+/* Animations */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) translateX(-10px);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes bubble {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+    transform: translateY(-10vh) scale(1);
+  }
+
+  100% {
+    transform: translateY(-120vh) scale(1.2) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.8) translate(0, 0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2) translate(5px, 5px);
+  }
+
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8) translate(0, 0);
+  }
+}
+
+@keyframes bounceSubtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Base Classes */
+.animate-snowfall {
+  animation: snowfall linear infinite;
+}
+
+.animate-bubble {
+  animation: bubble linear infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2s ease-in-out infinite;
+}

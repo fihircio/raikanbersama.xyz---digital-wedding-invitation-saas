@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TabButton from '../../components/Editor/TabButton';
 import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings } from '../../types';
-import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES } from '../../constants';
+import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES, PACKAGE_PLANS, OPENING_TYPES, EFFECT_STYLES } from '../../constants';
 import { generatePantun, generateStory } from '../../services/geminiService';
 
 const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, label: string }> = ({ value, onChange, label }) => (
@@ -36,6 +36,7 @@ const EditorPage: React.FC = () => {
   const [inv, setInv] = useState<Invitation | null>(null);
   const [activeTab, setActiveTab] = useState('utama');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
@@ -188,7 +189,24 @@ const EditorPage: React.FC = () => {
 
   const updateSettings = (field: keyof Invitation['settings'], value: any) => {
     if (!inv) return;
-    setInv({ ...inv, settings: { ...inv.settings, [field]: value } });
+    setInv({
+      ...inv,
+      settings: {
+        ...inv.settings,
+        [field]: value
+      }
+    });
+  };
+
+  const getYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url?.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const getYoutubeThumbnail = (url: string) => {
+    const id = getYoutubeId(url);
+    return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null;
   };
 
   const updateMoneyGift = (field: keyof Invitation['money_gift_details'], value: any) => {
@@ -278,9 +296,10 @@ const EditorPage: React.FC = () => {
         </div>
 
         <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-gray-50/50 px-2 sticky top-0">
+          <TabButton label="Pembukaan" isActive={activeTab === 'pembukaan'} onClick={() => setActiveTab('pembukaan')} />
+          <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
           <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Butiran" isActive={activeTab === 'butiran'} onClick={() => setActiveTab('butiran')} />
-          <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
           <TabButton label="Keluarga" isActive={activeTab === 'tetamu'} onClick={() => setActiveTab('tetamu')} />
 
           {(user?.membership_tier === MembershipTier.PREMIUM || user?.membership_tier === MembershipTier.ELITE) && (
@@ -293,6 +312,321 @@ const EditorPage: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
+          {activeTab === 'pembukaan' && (
+            <div className="space-y-10">
+              <section className="space-y-8">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Pakej & Konsep</h3>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Pakej</label>
+                  <div className="relative">
+                    {/* Trigger Button */}
+                    <button
+                      onClick={() => setIsPackageDropdownOpen(!isPackageDropdownOpen)}
+                      className="w-full bg-white border-2 border-rose-100 rounded-3xl p-5 flex items-center justify-between hover:border-rose-300 transition-all shadow-sm group"
+                    >
+                      <div className="text-left">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pelan Semasa</span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Basic (Free)'}</span>
+                        </div>
+                        <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">Tukar Pakej</span>
+                      </div>
+                      <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isPackageDropdownOpen ? 'rotate-180' : ''}`}>
+                        <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
+                    </button>
+
+                    {/* Dropdown Content */}
+                    {isPackageDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-4 z-50 bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-4 max-h-[600px] overflow-y-auto no-scrollbar space-y-4 animate-scale-in origin-top">
+                        {[
+                          {
+                            id: 'lite',
+                            name: 'Lite',
+                            price: 'RM29',
+                            description: 'The essential wedding invitation',
+                            features: ['Tiada Had Pelawat', 'Lifetime Access', 'Gallery (1 Image)'],
+                            isPopular: false
+                          },
+                          {
+                            id: 'pro',
+                            name: 'Pro',
+                            price: 'RM49',
+                            description: 'The preferred choice',
+                            features: ['Maklumat Boleh Tukar (120 Hari)', 'Gallery (5 Images)', 'Money Gift (E-Angpow)'],
+                            isPopular: true
+                          },
+                          {
+                            id: 'elite',
+                            name: 'Elite',
+                            price: 'RM69',
+                            description: 'The ultimate experience',
+                            features: ['Lifetime Edit', 'Unlimited Gallery', 'Video Embed', 'Physical Wishlist'],
+                            isPopular: false
+                          }
+                        ].map(plan => (
+                          <button
+                            key={plan.id}
+                            onClick={() => {
+                              updateSettings('package_plan', plan.id);
+                              setIsPackageDropdownOpen(false);
+                            }}
+                            className={`w-full relative p-6 rounded-3xl border text-left transition-all group ${inv.settings.package_plan === plan.id
+                              ? 'border-rose-500 bg-rose-50 shadow-md ring-1 ring-rose-200'
+                              : 'border-gray-100 bg-white hover:border-rose-300 hover:shadow-md'
+                              }`}
+                          >
+                            {plan.isPopular && (
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                <span className="bg-rose-600 text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                                  Most Popular
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <span className={`text-xs font-bold uppercase tracking-widest ${inv.settings.package_plan === plan.id ? 'text-rose-600' : 'text-gray-500'}`}>
+                                  {plan.name}
+                                </span>
+                                <div className="mt-1 flex items-baseline gap-1">
+                                  <span className="text-xl font-bold text-gray-900">{plan.price}</span>
+                                </div>
+                              </div>
+                              {inv.settings.package_plan === plan.id && (
+                                <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                              )}
+                            </div>
+
+                            <p className="text-[10px] text-gray-400 mb-4 font-medium italic">{plan.description}</p>
+
+                            <ul className="space-y-1.5 border-t border-dashed border-gray-200 pt-3 mt-3">
+                              {plan.features.map((feature, i) => (
+                                <li key={i} className="flex items-start text-[10px] text-gray-600">
+                                  <svg className="w-3 h-3 text-green-500 mr-1.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Design Katalog</label>
+                    <button onClick={() => navigate('/catalog')} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline">Browse All</button>
+                  </div>
+                  <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl text-center">
+                    <p className="text-xs text-gray-400 font-medium mb-3">Tukar design kad anda dari koleksi kami.</p>
+                    <button
+                      onClick={() => navigate('/catalog')}
+                      className="px-6 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 shadow-sm hover:bg-gray-50 transition"
+                    >
+                      Pilih Design Baru
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Jenis Animasi</span>
+                      <input
+                        type="color"
+                        value={inv.settings.opening_color || '#ffffff'}
+                        onChange={(e) => updateSettings('opening_color', e.target.value)}
+                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                      />
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {OPENING_TYPES.map(type => (
+                        <button
+                          key={type.id}
+                          onClick={() => updateSettings('opening_type', type.id)}
+                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
+                            ? 'border-rose-400 bg-rose-50 text-rose-600'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                            }`}
+                        >
+                          <span className="text-xs font-bold">{type.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Jenis Effect</span>
+                      <input
+                        type="color"
+                        value={inv.settings.effect_color || '#ffffff'}
+                        onChange={(e) => updateSettings('effect_color', e.target.value)}
+                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                      />
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {EFFECT_STYLES.map(style => (
+                        <button
+                          key={style.id}
+                          onClick={() => updateSettings('effect_style', style.id)}
+                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
+                            ? 'border-rose-400 bg-rose-50 text-rose-600'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                            }`}
+                        >
+                          <span className="text-xs font-bold">{style.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'media' && (
+            <div className="space-y-10">
+              <section className="space-y-8">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Video & Muzik Youtube</h3>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pautan Lagu Youtube (jika ada)</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        value={inv.settings.youtube_url || ''}
+                        onChange={(e) => updateSettings('youtube_url', e.target.value)}
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium"
+                      />
+                      {inv.settings.youtube_url && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                          <button
+                            onClick={() => window.open(inv.settings.youtube_url, '_blank')}
+                            className="p-2 bg-white rounded-full shadow-sm text-rose-500 hover:text-rose-600 transition active:scale-90"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Mula Dari (mm:ss.ms)</label>
+                      <input
+                        type="text"
+                        placeholder="00:58"
+                        value={inv.settings.youtube_start_time || ''}
+                        onChange={(e) => updateSettings('youtube_start_time', e.target.value)}
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tunjukkan & Autoplay</label>
+                      <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border border-transparent hover:border-rose-100 transition">
+                        <button
+                          onClick={() => updateSettings('youtube_show', !inv.settings.youtube_show)}
+                          className={`w-12 h-6 rounded-full transition-colors relative ${inv.settings.youtube_show ? 'bg-rose-500' : 'bg-gray-300'}`}
+                        >
+                          <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${inv.settings.youtube_show ? 'translate-x-6' : ''}`} />
+                        </button>
+                        <span className="text-[10px] font-bold text-gray-500 uppercase">Aktifkan</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {inv.settings.youtube_url && (
+                    <div className="p-6 bg-rose-50/30 rounded-[2.5rem] border border-rose-100/50 space-y-4">
+                      <div className="aspect-video rounded-2xl overflow-hidden bg-gray-200 shadow-inner relative group">
+                        {getYoutubeThumbnail(inv.settings.youtube_url) ? (
+                          <img
+                            src={getYoutubeThumbnail(inv.settings.youtube_url)!}
+                            alt="Youtube Thumbnail"
+                            className="w-full h-full object-cover"
+                            onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/480x270?text=Thumbnail+Not+Available')}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-100">
+                            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Video Tidak Sah</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <span className="bg-white/90 backdrop-blur px-4 py-2 rounded-full text-[10px] font-bold text-rose-600 uppercase tracking-widest flex items-center gap-2">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"></path></svg>
+                            Pratonton Thumbnail
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="p-4 bg-white/80 rounded-2xl border border-rose-100/30">
+                          <p className="text-[10px] text-gray-500 leading-relaxed italic">
+                            <b>Nota:</b> Isu thumbnail tidak keluar terjadi jika YouTube player diakses terlalu kerap. Tunggu beberapa minit atau log masuk ke akaun Google.
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2 p-4 bg-gray-50/50 rounded-2xl">
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Sokongan Autoplay:</span>
+                          <span className="text-[9px] text-gray-500 leading-relaxed font-medium">
+                            Menyokong peranti terkini (Chrome, Safari, Edge, dll.). Tidak menyokong In-App Browser (FB/IG/Telegram).
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tetapan Navigasi</h3>
+
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-gray-800 tracking-tight">Delay Auto Skrol (saat)</label>
+                      <p className="text-[9px] text-gray-400 font-medium">Auto-skrol dari Paparan Utama selepas dibuka.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center bg-gray-50 rounded-full px-4 py-2 border border-rose-100/50">
+                        <input
+                          type="number"
+                          min="0"
+                          max="60"
+                          value={inv.settings.auto_scroll_delay || 0}
+                          onChange={(e) => updateSettings('auto_scroll_delay', parseInt(e.target.value))}
+                          className="w-12 bg-transparent text-center font-bold text-rose-600 outline-none"
+                        />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">Saat</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          )}
+
           {activeTab === 'utama' && (
             <div className="space-y-10">
               <section className="space-y-8">
@@ -432,6 +766,22 @@ const EditorPage: React.FC = () => {
                     onChange={(e) => updateSettings('show_countdown', e.target.checked)}
                     className="w-6 h-6 accent-rose-600 cursor-pointer transition-transform hover:scale-110"
                   />
+                </div>
+              </section>
+
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Kisah Cinta Kita</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Kisah</label>
+                    <input type="text" placeholder="Contoh: Kisah Cinta Kami" value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kandungan Kisah</label>
+                    <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-3xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium italic leading-relaxed" />
+                  </div>
                 </div>
               </section>
 
@@ -639,21 +989,6 @@ const EditorPage: React.FC = () => {
                 </div>
               </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Kisah Cinta (Our Story)</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Story Title</label>
-                    <input type="text" placeholder="Contoh: Kisah Cinta Kami" value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Story Subtext / Description</label>
-                    <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-3xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium italic leading-relaxed" />
-                  </div>
-                </div>
-              </section>
 
               <section className="space-y-8 pt-10 border-t border-gray-100">
                 <div className="flex justify-between items-center">

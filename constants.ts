@@ -118,3 +118,25 @@ export const FONT_FAMILIES = [
   { group: 'Sans-Serif (Modern & Clean)', fonts: ['Montserrat', 'Outfit', 'Inter', 'Quicksand', 'Raleway'] },
   { group: 'Malay Traditional Style', fonts: ['Kurale', 'Aaltonen', 'Samyak Malayalam'] }
 ];
+
+export const PACKAGE_PLANS = [
+  { id: 'lite', label: 'Lite (RM29)' },
+  { id: 'pro', label: 'Pro (RM49)' },
+  { id: 'elite', label: 'Elite (RM69)' }
+];
+
+export const OPENING_TYPES = [
+  { id: 'none', label: 'Tiada (None)' },
+  { id: 'window', label: 'Window Effect' },
+  { id: 'slide', label: 'Slide Door' },
+  { id: 'open-letter', label: 'Open Letter' },
+  { id: 'blur', label: 'Blur Reveal' },
+  { id: 'slide-up', label: 'Slide Up' }
+];
+
+export const EFFECT_STYLES = [
+  { id: 'none', label: 'Tiada (None)' },
+  { id: 'bubble', label: 'Floating Bubbles' },
+  { id: 'snow', label: 'Snow Fall' },
+  { id: 'stars', label: 'Shining Stars' }
+];
