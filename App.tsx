@@ -55,18 +55,8 @@ const App: React.FC = () => {
                 <DashboardPage />
               </ProtectedRoute>
             } />
-            <Route path="/edit/:id" element={
-              <ProtectedRoute>
-                <Navbar />
-                <EditorPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/create" element={
-              <ProtectedRoute>
-                <Navbar />
-                <EditorPage />
-              </ProtectedRoute>
-            } />
+            <Route path="/edit/:id" element={<><Navbar /><EditorPage /></>} />
+            <Route path="/create" element={<><Navbar /><EditorPage /></>} />
             <Route path="/manage/:id" element={
               <ProtectedRoute>
                 <Navbar />

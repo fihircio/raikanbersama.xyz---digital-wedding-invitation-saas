@@ -171,7 +171,7 @@ const CatalogPage: React.FC = () => {
 
   const handleBackgroundSelect = async (background: BackgroundImage) => {
     if (!state.isAuthenticated) {
-      navigate('/login?redirect=/catalog&bg=' + background.id);
+      navigate(`/edit/demo?bg_url=${encodeURIComponent(background.url)}&layout=${background.layout_settings?.cover_layout || 'standard'}&font=${background.layout_settings?.font_family || 'serif'}`);
       return;
     }
 

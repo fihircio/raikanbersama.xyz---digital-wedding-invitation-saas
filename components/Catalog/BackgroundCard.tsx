@@ -92,7 +92,7 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
                   onClick={onSelect}
                   className="bg-white text-gray-900 px-5 py-2.5 rounded-full font-bold text-xs mb-2 hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-lg"
                 >
-                  {isAuthenticated ? 'Guna Sekarang' : 'Log Masuk'}
+                  {isAuthenticated ? 'Guna Sekarang' : 'Bina Kad'}
                 </button>
               </div>
             </div>

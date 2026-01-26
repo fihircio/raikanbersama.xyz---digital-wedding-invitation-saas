@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import TabButton from '../../components/Editor/TabButton';
 import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings } from '../../types';
 import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES, PACKAGE_PLANS, OPENING_TYPES, EFFECT_STYLES } from '../../constants';
@@ -29,8 +29,26 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
 
+const LockedOverlay: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-center p-8 rounded-3xl animate-fade-in">
+      <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-6 ring-4 ring-white/5 shadow-2xl">
+        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      </div>
+      <h3 className="text-xl font-bold text-white mb-2 font-serif italic">Fungsi Terhad (Demo)</h3>
+      <p className="text-gray-300 text-sm mb-8 max-w-[240px] leading-relaxed">Sila log masuk atau daftar akaun percuma untuk mengubah suai bahagian ini & simpan kad anda.</p>
+      <div className="flex flex-col gap-3 w-full max-w-[200px]">
+        <button onClick={() => navigate('/login')} className="w-full py-3 bg-rose-600 text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-rose-700 transition shadow-lg">Log Masuk</button>
+        <button onClick={() => navigate('/register')} className="w-full py-3 bg-white/10 text-white border border-white/20 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition">Daftar Sekarang</button>
+      </div>
+    </div>
+  );
+};
+
 const EditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { token, user } = useAuth();
   const [inv, setInv] = useState<Invitation | null>(null);
@@ -42,9 +60,86 @@ const EditorPage: React.FC = () => {
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
   const [currentWishlistItemIdx, setCurrentWishlistItemIdx] = useState<number | null>(null);
 
+  const isDemo = id === 'demo' || !user;
+
   useEffect(() => {
     const fetchInvitation = async () => {
-      if (!id || !token) return;
+      if (id === 'demo' || !token) {
+        if (id === 'demo') {
+          // Initialize demo data from URL or defaults
+          const bg_url = searchParams.get('bg_url') || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80';
+          const layout = searchParams.get('layout') || 'standard';
+          const font = searchParams.get('font') || 'serif';
+
+          const demoInv: Invitation = {
+            id: 'demo',
+            user_id: 'guest',
+            slug: 'demo-invitation',
+            template_id: 'modern-classic',
+            event_type: 'Walimatulurus',
+            bride_name: 'Pengantin Perempuan',
+            groom_name: 'Pengantin Lelaki',
+            host_names: 'Keluarga Pengantin',
+            event_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            start_time: '11:00',
+            end_time: '16:00',
+            location_name: 'Dewan Majlis',
+            address: 'Alamat Majlis, Bandar Baru, Kuala Lumpur',
+            google_maps_url: '',
+            waze_url: '',
+            settings: {
+              music_url: '',
+              background_image: bg_url,
+              primary_color: '#8B4513',
+              show_countdown: true,
+              show_gallery: true,
+              is_published: false,
+              layout_settings: {
+                cover_layout: layout as any,
+                font_family: font
+              },
+              hero_title: 'Raikan Cinta Kami',
+              greeting_text: 'Assalammualaikum W.B.T',
+              invitation_text: 'Dengan penuh kesyukuran, kami menjemput anda ke majlis perkahwinan kami:',
+              story_title: 'Kisah Cinta Kita',
+              our_story: 'Kisah cinta kami bermula di sebuah perpustakaan lama...',
+              pantun: 'Tuai padi antara nampak, Esok jangan layu-layuan; Intai kami antara nampak, Esok jangan rindu-rinduan.',
+              groom_color: '#8B4513',
+              bride_color: '#8B4513',
+              host_color: '#4B5563',
+              date_color: '#1F2937',
+              greeting_color: '#FFFFFF',
+              greeting_size: '36',
+              hero_color: '#FFFFFF',
+              hero_size: '12',
+              invitation_color: '#6B7280',
+              invitation_size: '14',
+            },
+            money_gift_details: { enabled: false, bank_name: '', account_no: '', account_holder: '', qr_url: '', gift_title: 'Hadiah & Ingatan', gift_subtitle: 'Khas buat mempelai' },
+            wishlist_details: { enabled: false, receiver_phone: '', receiver_address: '', items: [] },
+            rsvp_settings: {
+              response_mode: 'rsvp_and_wish',
+              fields: { name: true, phone: true, email: false, address: false, company: false, job_title: false, car_plate: false, remarks: true, wish: true },
+              has_children_policy: false,
+              pax_limit_per_rsvp: 10,
+              total_guest_limit: 500,
+              has_slots: false,
+              slots_options: []
+            },
+            contacts: [],
+            itinerary: [],
+            gallery: [],
+            wishes: [],
+            views: 0,
+            rsvps: []
+          };
+          setInv(demoInv);
+        } else if (!token) {
+          // If trying to access a real ID but no token, guest can only use demo.
+          navigate('/catalog');
+        }
+        return;
+      }
 
       try {
         const getCookie = (name: string) => {
@@ -277,6 +372,19 @@ const EditorPage: React.FC = () => {
 
     updateField('rsvp_settings', newSettings);
   };
+  if (!inv) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white z-[300]">
+        <div className="text-center space-y-6">
+          <div className="relative w-20 h-20 mx-auto">
+            <div className="absolute inset-0 border-4 border-rose-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-rose-600 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p className="text-lg font-serif italic text-gray-500 animate-pulse">Menghidupkan Studio Rekaan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-16 h-screen bg-gray-50 flex flex-col md:flex-row overflow-hidden">
@@ -288,10 +396,17 @@ const EditorPage: React.FC = () => {
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Crafting perfection</p>
           </div>
           <button
-            onClick={saveInvitation}
-            className="bg-rose-600 text-white px-8 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 transition shadow-lg shadow-rose-100"
+            onClick={() => {
+              if (isDemo) {
+                navigate('/login');
+                return;
+              }
+              saveInvitation();
+            }}
+            disabled={isDemo ? false : (!id || !token)}
+            className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-rose-100 hover:bg-rose-700 transition transform active:scale-95 disabled:opacity-50"
           >
-            Save Changes
+            {isDemo ? 'Save Card (Login Required)' : 'Save Changes'}
           </button>
         </div>
 
@@ -313,7 +428,8 @@ const EditorPage: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
           {activeTab === 'pembukaan' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Pakej & Konsep</h3>
 
@@ -504,7 +620,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'media' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Video & Muzik Youtube</h3>
 
@@ -629,6 +746,7 @@ const EditorPage: React.FC = () => {
 
           {activeTab === 'utama' && (
             <div className="space-y-10">
+              {/* Couple Names Section - Public */}
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Utama</h3>
                 <div className="space-y-4">
@@ -754,7 +872,8 @@ const EditorPage: React.FC = () => {
                 </div>
               </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
+              <section className="space-y-8 pt-10 border-t border-gray-100 relative">
+                {isDemo && <LockedOverlay />}
                 <div className="flex items-center justify-between p-6 bg-rose-50 rounded-[2.5rem] border border-rose-100 shadow-inner group transition-all hover:shadow-md">
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-rose-800 tracking-tight italic">Papar Undur Masa</span>
@@ -802,7 +921,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'butiran' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Masa & Tarikh Majlis</h3>
                 <div className="space-y-2">
@@ -1030,7 +1150,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'tetamu' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <div className="flex justify-between items-center">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Hubungi Keluarga</h3>
@@ -1105,7 +1226,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'hadiah' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <div className="flex items-center justify-between p-8 bg-rose-50 rounded-[3rem] border border-rose-100 shadow-inner">
                   <div className="flex flex-col">
@@ -1167,7 +1289,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'wishlist' && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <div className="flex items-center justify-between p-8 bg-rose-50 rounded-[3rem] border border-rose-100 shadow-inner">
                   <div className="flex flex-col">
@@ -1292,7 +1415,8 @@ const EditorPage: React.FC = () => {
           )}
 
           {activeTab === 'rsvp' && (user?.membership_tier === MembershipTier.PREMIUM || user?.membership_tier === MembershipTier.ELITE) && (
-            <div className="space-y-10">
+            <div className="space-y-10 relative">
+              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tetapan RSVP</h3>
