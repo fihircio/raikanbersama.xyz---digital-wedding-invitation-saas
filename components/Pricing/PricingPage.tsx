@@ -12,14 +12,11 @@ const PricingPage: React.FC = () => {
       period: 'per invitation',
       description: 'The essential wedding invitation',
       features: [
-        'Tiada Had Pelawat (Unlimited Visitors)',
-        'Tiada Tarikh Luput Link (Lifetime Access)',
-        'Maklumat Boleh Tukar (60 Hari)',
-        'Gallery (1 Image)',
+        'Calendar',
+        'Contact',
+        'Countdown',
         'Location (Google Maps/Waze)',
-        'Muzik Latar',
-        'RSVP System',
-        'Guestbook (Ucapan)'
+        'Muzik Latar'
       ],
       isPopular: false
     },
@@ -30,14 +27,15 @@ const PricingPage: React.FC = () => {
       period: 'per invitation',
       description: 'The preferred choice for couples',
       features: [
-        'Tiada Had Pelawat (Unlimited Visitors)',
-        'Tiada Tarikh Luput Link (Lifetime Access)',
-        'Maklumat Boleh Tukar (120 Hari)',
-        'Gallery (5 Images)',
-        'Money Gift (E-Angpow)',
-        'RSVP System (Advanced)',
+        'Calendar',
+        'Contact',
+        'Countdown',
+        'Location (Google Maps/Waze)',
+        'Muzik Latar',
+        'RSVP System',
+        'Attendance',
+        'Effect',
         'Guestbook (Ucapan)',
-        'Priority support'
       ],
       isPopular: true
     },
@@ -48,35 +46,24 @@ const PricingPage: React.FC = () => {
       period: 'per invitation',
       description: 'The ultimate digital experience',
       features: [
-        'Tiada Had Pelawat (Unlimited Visitors)',
-        'Tiada Tarikh Luput Link (Lifetime Access)',
-        'Maklumat Boleh Tukar (Lifetime Edit)',
-        'Video Youtube Embed',
-        'Unlimited Gallery Images',
-        'Money Gift (E-Angpow)',
-        'Physical Wishlist (Gift Registry)',
-        'Bilingual Support (Melayu/English)',
-        'Custom Design Requests',
-        'PDF Invitation (BETA)'
+        'Calendar',
+        'Contact',
+        'Countdown',
+        'Location (Google Maps/Waze)',
+        'Muzik Latar',
+        'RSVP System',
+        'Attendance',
+        'Effect',
+        'Guestbook (Ucapan)',
+        'Gallery Gambar',
+        'Money Gift',
+        'Wish List',
+        'Custom link'
       ],
       isPopular: false
     }
   ];
 
-  const faqs = [
-    {
-      question: 'Berapa lama link jemputan saya akan aktif?',
-      answer: 'Link jemputan anda aktif selama-lamanya (Lifetime Access). Ia boleh dijadikan kenang-kenangan digital untuk anda dan tetamu.'
-    },
-    {
-      question: 'Bolehkah saya menukar maklumat selepas membeli?',
-      answer: 'Boleh. Setiap pelan mempunyai tempoh "Edit Window" (60, 120, atau Tanpa Had) untuk anda mengemaskini maklumat majlis.'
-    },
-    {
-      question: 'Apa itu Money Gift (E-Angpow)?',
-      answer: 'Ciri yang membolehkan tetamu memberikan sumbangan secara digital terus ke akaun bank anda melalui paparan yang elegan.'
-    }
-  ];
 
   return (
     <div className="pt-24 min-h-screen bg-white">
@@ -101,20 +88,6 @@ const PricingPage: React.FC = () => {
         {/* Feature Comparison */}
         <FeatureComparison plans={plans} />
 
-        {/* FAQ Section */}
-        <div className="mt-20">
-          <h2 className="text-3xl font-serif font-bold text-center text-gray-900 mb-12">
-            Frequently Asked Questions
-          </h2>
-          <div className="max-w-3xl mx-auto space-y-6">
-            {faqs.map((faq, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

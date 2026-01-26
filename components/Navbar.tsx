@@ -37,6 +37,9 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Cara Guna</Link>
+              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
               <Link to="/dashboard" className="text-gray-600 hover:text-rose-600 font-medium transition">Dashboard</Link>
               <Link
                 to="/create"
@@ -123,6 +126,9 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Cara Guna</Link>
+              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
               <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">Login</Link>
               <Link
                 to="/catalog"

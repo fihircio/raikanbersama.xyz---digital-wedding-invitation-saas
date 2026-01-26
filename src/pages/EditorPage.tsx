@@ -3,7 +3,6 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import TabButton from '../../components/Editor/TabButton';
 import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings } from '../../types';
 import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES, PACKAGE_PLANS, OPENING_TYPES, EFFECT_STYLES } from '../../constants';
-import { generatePantun, generateStory } from '../../services/geminiService';
 
 const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, label: string }> = ({ value, onChange, label }) => (
   <div className="space-y-2">
@@ -53,7 +52,6 @@ const EditorPage: React.FC = () => {
   const { token, user } = useAuth();
   const [inv, setInv] = useState<Invitation | null>(null);
   const [activeTab, setActiveTab] = useState('utama');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
@@ -329,20 +327,6 @@ const EditorPage: React.FC = () => {
   };
 
   if (!inv) return <div className="pt-32 text-center font-serif italic text-gray-400 text-xl">Loading Studio...</div>;
-
-  const handleAiPantun = async () => {
-    setIsGenerating(true);
-    const result = await generatePantun(inv.bride_name, inv.groom_name);
-    setInv({ ...inv, settings: { ...inv.settings, pantun: result } });
-    setIsGenerating(false);
-  };
-
-  const handleAiStory = async () => {
-    setIsGenerating(true);
-    const result = await generateStory(inv.bride_name, inv.groom_name, "Romantic & Modern");
-    setInv({ ...inv, settings: { ...inv.settings, our_story: result } });
-    setIsGenerating(false);
-  };
 
   const updateField = (field: keyof Invitation, value: any) => {
     if (!inv) return;
@@ -965,19 +949,6 @@ const EditorPage: React.FC = () => {
                 </div>
               </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">AI Assistant</h3>
-                  <div className="flex space-x-2">
-                    <button onClick={handleAiPantun} disabled={isGenerating} className="text-[9px] bg-rose-50 text-rose-600 px-4 py-2 rounded-full font-bold hover:bg-rose-100 transition disabled:opacity-50 uppercase tracking-tighter">Magic Pantun</button>
-                    <button onClick={handleAiStory} disabled={isGenerating} className="text-[9px] bg-rose-50 text-rose-600 px-4 py-2 rounded-full font-bold hover:bg-rose-100 transition disabled:opacity-50 uppercase tracking-tighter">Magic Story</button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pantun / Kata Aluan</label>
-                  <textarea rows={4} value={inv.settings.pantun} onChange={(e) => updateSettings('pantun', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-3xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium italic leading-relaxed" />
-                </div>
-              </section>
             </div>
           )}
 

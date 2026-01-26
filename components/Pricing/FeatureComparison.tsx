@@ -7,20 +7,22 @@ interface FeatureComparisonProps {
 
 const FeatureComparison: React.FC<FeatureComparisonProps> = ({ plans }) => {
   const allFeatures = [
-    { name: 'Sistem RSVP & Guestbook', lite: true, pro: true, elite: true },
+    { name: 'Link Aktif Selamanya (Lifetime Access)', lite: true, pro: true, elite: true },
     { name: 'Tiada Had Pelawat (Unlimited)', lite: true, pro: true, elite: true },
-    { name: 'Link Aktif Selamanya (Lifetime)', lite: true, pro: true, elite: true },
-    { name: 'Lokasi (Google Maps / Waze)', lite: true, pro: true, elite: true },
-    { name: 'Lagu Latar (MP3)', lite: true, pro: true, elite: true },
-    { name: 'Countdown Timer Majlis', lite: true, pro: true, elite: true },
     { name: 'Edit Maklumat (Edit Window)', lite: '60 Hari', pro: '120 Hari', elite: 'Tanpa Had' },
-    { name: 'Gambar Galeri', lite: '1 Keping', pro: '5 Keping', elite: 'Tanpa Had' },
-    { name: 'Money Gift (E-Angpow)', lite: false, pro: true, elite: true },
-    { name: 'Video YouTube Embed', lite: false, pro: false, elite: true },
-    { name: 'Wishlist (Hadiah Fizikal)', lite: false, pro: false, elite: true },
-    { name: 'Dwi-Bahasa (BM/BI)', lite: false, pro: false, elite: true },
-    { name: 'Download PDF Jemputan', lite: false, pro: false, elite: true },
-    { name: 'Keutamaan Sokongan (Priority)', lite: false, pro: 'Standard', elite: 'High' },
+    { name: 'Calendar / Add to Calendar', lite: true, pro: true, elite: true },
+    { name: 'Contact', lite: true, pro: true, elite: true },
+    { name: 'Countdown Timer Majlis', lite: true, pro: true, elite: true },
+    { name: 'Lokasi (Google Maps / Waze)', lite: true, pro: true, elite: true },
+    { name: 'Muzik Latar', lite: true, pro: true, elite: true },
+    { name: 'Sistem RSVP', lite: false, pro: true, elite: true },
+    { name: 'Attendance Management', lite: false, pro: true, elite: true },
+    { name: 'Visual Effects', lite: false, pro: true, elite: true },
+    { name: 'Guestbook (Ucapan Tetamu)', lite: false, pro: true, elite: true },
+    { name: 'Gallery Gambar', lite: false, pro: false, elite: true },
+    { name: 'Money Gift', lite: false, pro: false, elite: true },
+    { name: 'Wish List', lite: false, pro: false, elite: true },
+    { name: 'Custom Domain/Slug Link', lite: false, pro: false, elite: true },
   ];
 
   return (

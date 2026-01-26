@@ -2,6 +2,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import CatalogPage from './components/Catalog/CatalogPage';
 import PricingPage from './components/Pricing/PricingPage';
 import HomePage from './src/pages/HomePage';
@@ -14,6 +15,9 @@ import PublicInvitationPage from './src/pages/PublicInvitationPage';
 import ProfilePage from './src/pages/ProfilePage';
 import OrdersPage from './src/pages/OrdersPage';
 import FavoritesPage from './src/pages/FavoritesPage';
+import FAQPage from './src/pages/FAQPage';
+import TutorialPage from './src/pages/TutorialPage';
+import ContactPage from './src/pages/ContactPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,9 +45,12 @@ const App: React.FC = () => {
         <div className="min-h-screen">
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<><Navbar /><HomePage /></>} />
-            <Route path="/catalog" element={<><Navbar /><CatalogPage /></>} />
-            <Route path="/pricing" element={<><Navbar /><PricingPage /></>} />
+            <Route path="/" element={<><Navbar /><HomePage /><Footer /></>} />
+            <Route path="/catalog" element={<><Navbar /><CatalogPage /><Footer /></>} />
+            <Route path="/pricing" element={<><Navbar /><PricingPage /><Footer /></>} />
+            <Route path="/faq" element={<><Navbar /><FAQPage /><Footer /></>} />
+            <Route path="/tutorial" element={<><Navbar /><TutorialPage /><Footer /></>} />
+            <Route path="/contact" element={<><Navbar /><ContactPage /><Footer /></>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/i/:slug" element={<PublicInvitationPage />} />
@@ -53,6 +60,7 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Navbar />
                 <DashboardPage />
+                <Footer />
               </ProtectedRoute>
             } />
             <Route path="/edit/:id" element={<><Navbar /><EditorPage /></>} />
@@ -67,18 +75,21 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Navbar />
                 <ProfilePage />
+                <Footer />
               </ProtectedRoute>
             } />
             <Route path="/orders" element={
               <ProtectedRoute>
                 <Navbar />
                 <OrdersPage />
+                <Footer />
               </ProtectedRoute>
             } />
             <Route path="/favorites" element={
               <ProtectedRoute>
                 <Navbar />
                 <FavoritesPage />
+                <Footer />
               </ProtectedRoute>
             } />
           </Routes>
