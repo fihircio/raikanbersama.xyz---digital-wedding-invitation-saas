@@ -328,6 +328,26 @@ const EditorPage: React.FC = () => {
 
   if (!inv) return <div className="pt-32 text-center font-serif italic text-gray-400 text-xl">Loading Studio...</div>;
 
+  const currentTier = inv.settings.package_plan || 'free';
+
+  const canAccess = (feature: string) => {
+    if (isDemo) return true; // Guests see everything (locked)
+
+    switch (feature) {
+      case 'rsvp':
+      case 'wishes':
+        return ['pro', 'elite'].includes(currentTier);
+      case 'visual_effects':
+      case 'gallery':
+      case 'money_gift':
+      case 'wish_list':
+      case 'custom_link':
+        return currentTier === 'elite';
+      default:
+        return true; // Core features (including Youtube Media for Lite)
+    }
+  };
+
   const updateField = (field: keyof Invitation, value: any) => {
     if (!inv) return;
     setInv({ ...inv, [field]: value });
@@ -456,19 +476,15 @@ const EditorPage: React.FC = () => {
         </div>
 
         <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-gray-50/50 px-2 sticky top-0">
+          <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Pembukaan" isActive={activeTab === 'pembukaan'} onClick={() => setActiveTab('pembukaan')} />
           <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
-          <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Butiran" isActive={activeTab === 'butiran'} onClick={() => setActiveTab('butiran')} />
           <TabButton label="Keluarga" isActive={activeTab === 'tetamu'} onClick={() => setActiveTab('tetamu')} />
 
-          {(user?.membership_tier === MembershipTier.PREMIUM || user?.membership_tier === MembershipTier.ELITE) && (
-            <>
-              <TabButton label="Hadiah" isActive={activeTab === 'hadiah'} onClick={() => setActiveTab('hadiah')} />
-              <TabButton label="Wishlist" isActive={activeTab === 'wishlist'} onClick={() => setActiveTab('wishlist')} />
-              <TabButton label="RSVP" isActive={activeTab === 'rsvp'} onClick={() => setActiveTab('rsvp')} />
-            </>
-          )}
+          {canAccess('money_gift') && <TabButton label="Hadiah" isActive={activeTab === 'hadiah'} onClick={() => setActiveTab('hadiah')} />}
+          {canAccess('wish_list') && <TabButton label="Wishlist" isActive={activeTab === 'wishlist'} onClick={() => setActiveTab('wishlist')} />}
+          {canAccess('rsvp') && <TabButton label="RSVP" isActive={activeTab === 'rsvp'} onClick={() => setActiveTab('rsvp')} />}
         </div>
 
         <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
@@ -598,75 +614,78 @@ const EditorPage: React.FC = () => {
                 </div>
               </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
+              {canAccess('visual_effects') && (
+                <>
+                  <section className="space-y-8 pt-10 border-t border-gray-100">
+                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Jenis Animasi</span>
-                      <input
-                        type="color"
-                        value={inv.settings.opening_color || '#ffffff'}
-                        onChange={(e) => updateSettings('opening_color', e.target.value)}
-                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                      />
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {OPENING_TYPES.map(type => (
-                        <button
-                          key={type.id}
-                          onClick={() => updateSettings('opening_type', type.id)}
-                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
-                            ? 'border-rose-400 bg-rose-50 text-rose-600'
-                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                            }`}
-                        >
-                          <span className="text-xs font-bold">{type.label}</span>
-                        </button>
-                      ))}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                          <span>Jenis Animasi</span>
+                          <input
+                            type="color"
+                            value={inv.settings.opening_color || '#ffffff'}
+                            onChange={(e) => updateSettings('opening_color', e.target.value)}
+                            className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                          />
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {OPENING_TYPES.map(type => (
+                            <button
+                              key={type.id}
+                              onClick={() => updateSettings('opening_type', type.id)}
+                              className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
+                                ? 'border-rose-400 bg-rose-50 text-rose-600'
+                                : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                                }`}
+                            >
+                              <span className="text-xs font-bold">{type.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </section>
+                  </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
+                  <section className="space-y-8 pt-10 border-t border-gray-100">
+                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Jenis Effect</span>
-                      <input
-                        type="color"
-                        value={inv.settings.effect_color || '#ffffff'}
-                        onChange={(e) => updateSettings('effect_color', e.target.value)}
-                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                      />
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {EFFECT_STYLES.map(style => (
-                        <button
-                          key={style.id}
-                          onClick={() => updateSettings('effect_style', style.id)}
-                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
-                            ? 'border-rose-400 bg-rose-50 text-rose-600'
-                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                            }`}
-                        >
-                          <span className="text-xs font-bold">{style.label}</span>
-                        </button>
-                      ))}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                          <span>Jenis Effect</span>
+                          <input
+                            type="color"
+                            value={inv.settings.effect_color || '#ffffff'}
+                            onChange={(e) => updateSettings('effect_color', e.target.value)}
+                            className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                          />
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {EFFECT_STYLES.map(style => (
+                            <button
+                              key={style.id}
+                              onClick={() => updateSettings('effect_style', style.id)}
+                              className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
+                                ? 'border-rose-400 bg-rose-50 text-rose-600'
+                                : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                                }`}
+                            >
+                              <span className="text-xs font-bold">{style.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </section>
+                  </section>
+                </>
+              )}
             </div>
           )}
 
           {activeTab === 'media' && (
             <div className="space-y-10 relative">
-              {isDemo && <LockedOverlay />}
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Video & Muzik Youtube</h3>
 
@@ -1142,42 +1161,44 @@ const EditorPage: React.FC = () => {
               </section>
 
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gallery Images</h3>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2 mr-4">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase">Show Gallery</span>
-                      <input type="checkbox" checked={inv.settings.show_gallery} onChange={(e) => updateSettings('show_gallery', e.target.checked)} className="w-5 h-5 accent-rose-600" />
-                    </div>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="text-[10px] bg-rose-50 text-rose-600 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-rose-100 transition"
-                    >
-                      + Add Photo
-                    </button>
-                    <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {(inv.gallery || []).map((img, idx) => (
-                    <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
-                      <img src={img} className="w-full h-full object-cover" />
+              {canAccess('gallery') && (
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gallery Images</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2 mr-4">
+                        <span className="text-[10px] text-gray-400 font-bold uppercase">Show Gallery</span>
+                        <input type="checkbox" checked={inv.settings.show_gallery} onChange={(e) => updateSettings('show_gallery', e.target.checked)} className="w-5 h-5 accent-rose-600" />
+                      </div>
                       <button
-                        onClick={() => {
-                          const newGallery = [...(inv.gallery || [])];
-                          newGallery.splice(idx, 1);
-                          updateField('gallery', newGallery);
-                        }}
-                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-[10px] bg-rose-50 text-rose-600 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-rose-100 transition"
                       >
-                        <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
+                        + Add Photo
                       </button>
+                      <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileChange} />
                     </div>
-                  ))}
-                </div>
-              </section>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    {(inv.gallery || []).map((img, idx) => (
+                      <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
+                        <img src={img} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => {
+                            const newGallery = [...(inv.gallery || [])];
+                            newGallery.splice(idx, 1);
+                            updateField('gallery', newGallery);
+                          }}
+                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                        >
+                          <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           )}
 

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { Invitation } from '../../types';
 import { MOCK_INVITATIONS, FONT_FAMILIES } from '../../constants';
 import CoverLayout from '../../components/Invitation/CoverLayout';
@@ -421,6 +421,24 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const currentTier = invitation?.settings?.package_plan || 'free';
+
+  const canAccess = (feature: string) => {
+    switch (feature) {
+      case 'rsvp':
+      case 'wishes':
+        return ['pro', 'elite'].includes(currentTier);
+      case 'visual_effects':
+      case 'gallery':
+      case 'money_gift':
+      case 'wish_list':
+      case 'custom_link':
+        return currentTier === 'elite';
+      default:
+        return true;
+    }
+  };
+
   // Auto-scroll to cover when at top in preview mode
   useEffect(() => {
     if (isPreview && isOpen) {
@@ -616,15 +634,13 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
 
       {/* Cover Section - Always rendered but hidden/animated out when open */}
       <div className={`fixed inset-0 z-[200] transition-all duration-1000 ${isOpen ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'}`}>
-        {!isOpen && <CoverSection invitation={invitation} onOpen={handleOpenInvitation} isClosing={isClosing} />}
-        {(isOpen || isClosing) ? null : null}
+        {!isOpen && <CoverSection invitation={{ ...invitation, settings: { ...invitation.settings, effect_style: canAccess('visual_effects') ? invitation.settings.effect_style : 'none' } }} onOpen={handleOpenInvitation} isClosing={isClosing} />}
       </div>
 
       {/* Explicit closing state for cover */}
       {(!isOpen || isClosing) && (
-        <CoverSection invitation={invitation} onOpen={handleOpenInvitation} isClosing={isClosing} />
+        <CoverSection invitation={{ ...invitation, settings: { ...invitation.settings, effect_style: canAccess('visual_effects') ? invitation.settings.effect_style : 'none' } }} onOpen={handleOpenInvitation} isClosing={isClosing} />
       )}
-
 
       {/* Main Content Wrapper */}
       <div id="main-invitation-content" className={`relative min-h-screen bg-white transition-opacity duration-1000 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
@@ -703,7 +719,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
             </div>
 
-            {(() => {
+            {canAccess('rsvp') && (() => {
               const rsvpSettings = invitation.rsvp_settings || { response_mode: 'rsvp_and_wish' };
               if (rsvpSettings.response_mode === 'none') return null;
 
@@ -766,7 +782,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
             </div>
 
-            {invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
+            {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
               <div className="mt-24 text-center">
                 <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -779,7 +795,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
             )}
 
-            <Guestbook wishes={invitation.wishes} primaryColor={primaryColor} />
+            {canAccess('wishes') && <Guestbook wishes={invitation.wishes} primaryColor={primaryColor} />}
           </div>
 
           {/* Floating Bottom Nav */}
@@ -805,7 +821,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                 </div>
                 <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hubungi</span>
               </button>
-              {(invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
+              {canAccess('gallery') && (invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
                 <>
                   <div className="w-px h-6 bg-gray-200/50" />
                   <button onClick={() => setActiveModal('hadiah')} className="flex flex-col items-center gap-1 group outline-none">
@@ -1264,9 +1280,18 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           <div className="py-24 text-center bg-gray-50">
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] mb-4">Ikhlas Daripada</p>
             <p className="text-xl font-serif italic text-gray-600 px-10">{invitation.host_names}</p>
-            <div className="mt-16 opacity-40 hover:opacity-100 transition duration-500">
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Powered by</p>
-              <p className="text-sm font-serif font-bold text-rose-600">RaikanBersama.xyz</p>
+            <div className="mt-16 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Powered by</p>
+              <Link to="/" className="group relative">
+                <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
+                  <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>
+                  <img
+                    src="/logo.png"
+                    alt="RaikanBersama Logo"
+                    className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+              </Link>
             </div>
           </div>
         </div>

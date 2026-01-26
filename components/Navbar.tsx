@@ -26,8 +26,16 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-rose-600 font-serif">
-              RaikanBersama<span className="text-gray-400">.xyz</span>
+            <Link to="/" className="flex items-center group relative">
+              <div className="relative h-12 w-12 rounded-full overflow-hidden border border-gray-100 shadow-inner">
+                {/* Vignette Overlay */}
+                <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.15)] rounded-full"></div>
+                <img
+                  src="/logo.png"
+                  alt="RaikanBersama Logo"
+                  className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                />
+              </div>
             </Link>
           </div>
 
@@ -37,7 +45,7 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
-              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Cara Guna</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Tutorial</Link>
               <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
               <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
               <Link to="/dashboard" className="text-gray-600 hover:text-rose-600 font-medium transition">Dashboard</Link>
@@ -126,7 +134,7 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
               <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
-              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Cara Guna</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Tutorial</Link>
               <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
               <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
               <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">Login</Link>

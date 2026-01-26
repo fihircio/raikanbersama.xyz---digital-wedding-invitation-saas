@@ -8,8 +8,15 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     {/* Brand section */}
                     <div className="col-span-1 md:col-span-1">
-                        <Link to="/" className="text-2xl font-bold text-rose-600 font-serif mb-4 block">
-                            RaikanBersama<span className="text-gray-400">.xyz</span>
+                        <Link to="/" className="inline-block group relative mb-6">
+                            <div className="relative h-16 w-16 rounded-full overflow-hidden border border-gray-100 shadow-inner">
+                                <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.15)] rounded-full"></div>
+                                <img
+                                    src="/logo.png"
+                                    alt="RaikanBersama Logo"
+                                    className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                />
+                            </div>
                         </Link>
                         <p className="text-gray-500 text-sm leading-relaxed">
                             Platform jemputan digital premium untuk majlis perkahwinan dan pelbagai acara. Bina kad digital anda dengan mudah dan pantas.
@@ -22,7 +29,7 @@ const Footer: React.FC = () => {
                         <ul className="space-y-4">
                             <li><Link to="/catalog" className="text-gray-500 hover:text-rose-600 transition text-sm">Catalog Design</Link></li>
                             <li><Link to="/pricing" className="text-gray-500 hover:text-rose-600 transition text-sm">Pakej & Harga</Link></li>
-                            <li><Link to="/tutorial" className="text-gray-500 hover:text-rose-600 transition text-sm">Cara Guna</Link></li>
+                            <li><Link to="/tutorial" className="text-gray-500 hover:text-rose-600 transition text-sm">Tutorial</Link></li>
                         </ul>
                     </div>
 

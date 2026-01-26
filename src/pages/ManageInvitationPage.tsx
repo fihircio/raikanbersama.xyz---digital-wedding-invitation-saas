@@ -156,6 +156,20 @@ const ManageInvitationPage: React.FC = () => {
     }
   }, [activeTab, id, token, invitation]);
 
+  const currentTier = invitation?.settings?.package_plan || 'free';
+
+  const canAccess = (feature: string) => {
+    switch (feature) {
+      case 'rsvp':
+      case 'wishes':
+        return ['pro', 'elite'].includes(currentTier);
+      case 'magic_link':
+        return currentTier === 'elite';
+      default:
+        return true;
+    }
+  };
+
   const stats = useMemo(() => {
     const totalPax = (rsvps || []).reduce((acc, curr) => acc + (curr.is_attending ? curr.pax : 0), 0);
     const attendingCount = (rsvps || []).filter(r => r.is_attending).length;
@@ -209,37 +223,87 @@ const ManageInvitationPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Analytics Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-          {[
-            { label: 'Kad Dibuka', value: invitation.views, icon: '👁️', color: 'bg-blue-50 text-blue-600' },
-            { label: 'Jumlah Pax', value: stats.totalPax, icon: '👥', color: 'bg-green-50 text-green-600' },
-            { label: 'Hadir', value: stats.attendingCount, icon: '✅', color: 'bg-emerald-50 text-emerald-600' },
-            { label: 'Ucapan', value: (invitation.wishes || []).length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 ${stat.color}`}>{stat.icon}</div>
-              <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{stat.label}</p>
+          <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 bg-blue-50 text-blue-600`}>👁️</div>
+            <p className="text-3xl font-bold text-gray-900 mb-1">{invitation.views || 0}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Kad Dibuka</p>
+          </div>
+
+          {!canAccess('rsvp') ? (
+            <div className="col-span-1 md:col-span-3 bg-rose-50/50 border border-dashed border-rose-200 rounded-[2rem] flex flex-col items-center justify-center p-6 text-center">
+              <span className="text-[10px] font-bold text-rose-400 uppercase tracking-[0.2em] mb-2 border border-rose-200 px-3 py-1 rounded-full">Premium Feature</span>
+              <p className="text-sm font-bold text-rose-800 italic">Upgrade ke pelan PRO untuk <br /> menggunakan Sistem RSVP & Ucapan.</p>
+              <Link to="/pricing" className="mt-4 text-xs font-bold text-white bg-rose-600 px-6 py-2 rounded-full shadow-lg shadow-rose-100 hover:bg-rose-700 transition">Upgrade Sekarang</Link>
             </div>
-          ))}
+          ) : (
+            <>
+              {[
+                { label: 'Jumlah Pax', value: stats.totalPax, icon: '👥', color: 'bg-green-50 text-green-600' },
+                { label: 'Hadir', value: stats.attendingCount, icon: '✅', color: 'bg-emerald-50 text-emerald-600' },
+                { label: 'Ucapan', value: (invitation.wishes || []).length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
+              ].map((stat, i) => (
+                <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 ${stat.color}`}>{stat.icon}</div>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{stat.label}</p>
+                </div>
+              ))}
+            </>
+          )}
         </div>
 
-        {/* Dashboard Tabs */}
-        <div className="flex border-b border-gray-200 mb-8 space-x-10">
-          <button onClick={() => setActiveTab('guests')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'guests' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Guest List</button>
-          <button onClick={() => setActiveTab('wishes')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'wishes' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Wishes</button>
-          <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Magic Generator</button>
-        </div>
+        {/* Dashboard Tabs - Only for Pro+ */}
+        {canAccess('rsvp') && (
+          <div className="flex border-b border-gray-200 mb-8 space-x-10">
+            <button onClick={() => setActiveTab('guests')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'guests' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Guest List</button>
+            <button onClick={() => setActiveTab('wishes')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'wishes' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Wishes</button>
+            {canAccess('magic_link') && <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Magic Generator</button>}
+          </div>
+        )}
+
+        {!canAccess('magic_link') && (
+          <div className="mb-12">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">Kongsi Kad Anda</span>
+                <h3 className="text-xl font-serif italic font-bold text-gray-800">Sedia untuk dikongsi?</h3>
+                <p className="text-sm text-gray-400 mt-2 italic max-w-md">Salin pautan di bawah untuk jemput tetamu anda. Pautan ini boleh dikongsi terus ke WhatsApp, Telegram, atau Media Sosial.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    const baseUrl = window.location.origin + window.location.pathname;
+                    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+                    const link = `${cleanBase}#/i/${invitation.slug}`;
+                    navigator.clipboard.writeText(link);
+                    alert('Pautan disalin!');
+                  }}
+                  className="bg-white text-gray-700 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-sm border border-gray-100 hover:bg-gray-50 transition"
+                >
+                  Salin Pautan
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent('Assalamualaikum! Ini kad jemputan perkahwinan kami: ' + window.location.origin + window.location.pathname + '#/i/' + invitation.slug)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-green-500 text-white px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tab Content: Guest List */}
-        {activeTab === 'guests' && (
+        {canAccess('rsvp') && activeTab === 'guests' && (
           <div className="flex flex-col lg:flex-row gap-8 animate-fade-in">
             <div className="flex-1 bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-8 border-b border-gray-50 flex justify-between items-center">
                 <h3 className="font-serif italic font-bold text-xl">Senarai RSVP</h3>
                 <div className="flex space-x-2">
-                   <button className="text-[10px] font-bold text-rose-600 bg-rose-50 px-4 py-2 rounded-full hover:bg-rose-100 transition">Export CSV</button>
+                  <button className="text-[10px] font-bold text-rose-600 bg-rose-50 px-4 py-2 rounded-full hover:bg-rose-100 transition">Export CSV</button>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -281,22 +345,22 @@ const ManageInvitationPage: React.FC = () => {
             <div className="w-full lg:w-[350px] space-y-6">
               <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                 <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-2">
-                   <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Recent Activity
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Recent Activity
                 </h4>
                 <div className="space-y-6">
-                   {(rsvps || []).slice(0, 4).map((r, i) => (
-                     <div key={i} className="flex gap-4 items-start">
-                        <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${r.is_attending ? 'bg-green-50 text-green-600' : 'bg-rose-50 text-rose-600'}`}>
-                          {r.guest_name.charAt(0)}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs font-bold text-gray-800 leading-tight">
-                            <span className="text-rose-600">{r.guest_name}</span> has RSVP'd {r.is_attending ? 'Yes' : 'No'}
-                          </p>
-                          <p className="text-[9px] text-gray-400 font-bold uppercase mt-1">Recently</p>
-                        </div>
-                     </div>
-                   ))}
+                  {(rsvps || []).slice(0, 4).map((r, i) => (
+                    <div key={i} className="flex gap-4 items-start">
+                      <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${r.is_attending ? 'bg-green-50 text-green-600' : 'bg-rose-50 text-rose-600'}`}>
+                        {r.guest_name.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-bold text-gray-800 leading-tight">
+                          <span className="text-rose-600">{r.guest_name}</span> has RSVP'd {r.is_attending ? 'Yes' : 'No'}
+                        </p>
+                        <p className="text-[9px] text-gray-400 font-bold uppercase mt-1">Recently</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -304,42 +368,42 @@ const ManageInvitationPage: React.FC = () => {
         )}
 
         {/* Tab Content: Wishes */}
-        {activeTab === 'wishes' && (
+        {canAccess('rsvp') && activeTab === 'wishes' && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-             {(invitation.wishes || []).length > 0 ? (invitation.wishes || []).map((wish) => (
-               <div key={wish.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative group hover:shadow-md transition">
-                  <p className="text-sm font-bold text-gray-800 mb-3 font-serif italic">{wish.name}</p>
-                  <p className="text-sm text-gray-500 leading-relaxed italic">"{wish.message}"</p>
-                  <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mt-6">{new Date(wish.created_at).toLocaleDateString()}</p>
-               </div>
-             )) : (
-               <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-gray-200">
-                  <p className="text-gray-400 italic">Belum ada ucapan lagi.</p>
-               </div>
-             )}
+            {(invitation.wishes || []).length > 0 ? (invitation.wishes || []).map((wish) => (
+              <div key={wish.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative group hover:shadow-md transition">
+                <p className="text-sm font-bold text-gray-800 mb-3 font-serif italic">{wish.name}</p>
+                <p className="text-sm text-gray-500 leading-relaxed italic">"{wish.message}"</p>
+                <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mt-6">{new Date(wish.created_at).toLocaleDateString()}</p>
+              </div>
+            )) : (
+              <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-gray-200">
+                <p className="text-gray-400 italic">Belum ada ucapan lagi.</p>
+              </div>
+            )}
           </div>
         )}
 
         {/* Tab Content: Magic Invite Tool */}
-        {activeTab === 'magic' && (
+        {canAccess('rsvp') && activeTab === 'magic' && (
           <div className="max-w-2xl animate-fade-in">
             <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
               <h3 className="font-serif italic font-bold text-2xl mb-4">Magic Link Laboratory</h3>
               <p className="text-gray-400 text-sm mb-12 leading-relaxed">
                 Hasilkan link khas untuk setiap tetamu. Nama mereka akan terpapar secara automatik apabila mereka membuka kad jemputan.
               </p>
-              
+
               <div className="space-y-8">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Nama Penuh Tetamu</label>
                   <div className="flex gap-3">
-                    <input 
-                      placeholder="E.g. Ahmad Suhairi" 
+                    <input
+                      placeholder="E.g. Ahmad Suhairi"
                       className="flex-1 px-8 py-5 bg-gray-50 border-none rounded-3xl outline-none focus:ring-2 focus:ring-rose-200 transition text-sm font-bold"
                       value={magicGuest}
                       onChange={e => setMagicGuest(e.target.value)}
                     />
-                    <button 
+                    <button
                       onClick={handleGenerateMagic}
                       className="bg-rose-600 text-white px-10 py-5 rounded-3xl font-bold text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-700 transition"
                     >
@@ -353,9 +417,9 @@ const ManageInvitationPage: React.FC = () => {
                     <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 relative">
                       <label className="text-[10px] font-bold text-rose-300 uppercase tracking-widest absolute -top-2 left-6 px-2 bg-white rounded-full border border-gray-50">Link Sedia Dikongsi</label>
                       <p className="text-[11px] font-mono text-gray-400 break-all mb-8 leading-loose">{magicLink}</p>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
-                        <button 
+                        <button
                           onClick={() => { navigator.clipboard.writeText(magicLink); alert('Link disalin!'); }}
                           className="bg-white text-gray-700 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-sm border border-gray-100 hover:bg-gray-50 transition"
                         >
