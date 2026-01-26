@@ -81,10 +81,22 @@ const EditorPage: React.FC = () => {
             slug: `invitation-${Date.now()}`
           };
 
+          const getCookie = (name: string) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop()?.split(';').shift();
+            return null;
+          };
+          const csrfToken = getCookie('csrf-token');
+
           const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           };
+
+          if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+          }
 
           const response = await fetch('http://localhost:3001/api/invitations', {
             method: 'POST',
