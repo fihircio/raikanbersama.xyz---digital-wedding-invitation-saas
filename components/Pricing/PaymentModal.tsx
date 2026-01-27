@@ -1,31 +1,53 @@
 import React, { useState } from 'react';
 import { Plan } from '../../types';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 interface PaymentModalProps {
   plan: Plan;
+  invitationId?: string;
   onClose: () => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose }) => {
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: (user as any)?.phone_number || '',
     paymentMethod: 'card'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
-    // Simulate payment processing
-    setTimeout(() => {
+
+    try {
+      const response = await fetch('http://localhost:3001/api/payments/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          planId: plan.id,
+          invitationId: invitationId
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        alert('Failed to initiate payment: ' + (data.error || 'Unknown error'));
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Payment Error:', error);
+      alert('Network error. Please try again.');
       setIsProcessing(false);
-      alert('Payment successful! Redirecting to dashboard...');
-      onClose();
-      // Navigate to dashboard or success page
-    }, 2000);
+    }
   };
 
   return (
@@ -40,12 +62,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
             ×
           </button>
         </div>
-        
+
         <div className="bg-gray-50 rounded-2xl p-6 mb-6">
           <h3 className="font-bold text-lg text-gray-900">{plan.name} Plan</h3>
           <p className="text-3xl font-bold text-rose-600 mt-2">{plan.price}</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -56,10 +78,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email
@@ -69,10 +91,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Phone Number
@@ -82,10 +104,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
               value={formData.phone}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Method
@@ -93,14 +115,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, onClose }) => {
             <select
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
               value={formData.paymentMethod}
-              onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
             >
               <option value="card">Credit/Debit Card</option>
               <option value="online">Online Banking</option>
               <option value="ewallet">E-Wallet</option>
             </select>
           </div>
-          
+
           <button
             type="submit"
             disabled={isProcessing}

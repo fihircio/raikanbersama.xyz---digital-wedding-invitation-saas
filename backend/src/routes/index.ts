@@ -12,6 +12,7 @@ import fileRoutes from './files';
 import favoriteRoutes from './favorites';
 import profileRoutes from './profile';
 import orderRoutes from './orders';
+import paymentRoutes from './payments';
 import docsRoutes from './docs';
 
 const router = Router();
@@ -29,6 +30,7 @@ router.use('/backgrounds', backgroundRoutes);
 router.use('/favorites', favoriteRoutes);
 router.use('/profile', profileRoutes);
 router.use('/orders', orderRoutes);
+router.use('/payments', paymentRoutes);
 router.use('/files', fileRoutes);
 
 // API version and info

@@ -3,7 +3,11 @@ import PricingCard from './PricingCard';
 import FeatureComparison from './FeatureComparison';
 import { Plan } from '../../types';
 
+import { useSearchParams } from 'react-router-dom';
+
 const PricingPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const invitationId = searchParams.get('invitationId');
   const plans: Plan[] = [
     {
       id: 'lite',
@@ -81,7 +85,7 @@ const PricingPage: React.FC = () => {
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 mb-20">
           {plans.map((plan) => (
-            <PricingCard key={plan.id} plan={plan} />
+            <PricingCard key={plan.id} plan={plan} invitationId={invitationId || undefined} />
           ))}
         </div>
 

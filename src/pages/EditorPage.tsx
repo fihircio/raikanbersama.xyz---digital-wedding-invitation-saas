@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import TabButton from '../../components/Editor/TabButton';
-import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings } from '../../types';
+import PaymentModal from '../../components/Pricing/PaymentModal';
+import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings, Plan } from '../../types';
 import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES, PACKAGE_PLANS, OPENING_TYPES, EFFECT_STYLES } from '../../constants';
 
 const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, label: string }> = ({ value, onChange, label }) => (
@@ -57,6 +58,8 @@ const EditorPage: React.FC = () => {
   const qrInputRef = useRef<HTMLInputElement>(null);
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
   const [currentWishlistItemIdx, setCurrentWishlistItemIdx] = useState<number | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null);
 
   const isDemo = id === 'demo' || !user;
 
@@ -461,20 +464,48 @@ const EditorPage: React.FC = () => {
     <div className="pt-16 h-screen bg-gray-50 flex flex-col md:flex-row overflow-hidden">
       {/* Sidebar Controls */}
       <div className="w-full md:w-[480px] bg-white border-r border-gray-200 flex flex-col h-full shadow-2xl z-20">
-        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white">
-          <div>
-            <h2 className="text-xl font-bold font-serif italic text-gray-800 tracking-tight">Design Studio</h2>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Crafting perfection</p>
+        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-white gap-4">
+          <div className="flex-1">
+            {inv.settings.package_plan && inv.settings.package_plan !== 'free' ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] shadow-sm border ${inv.settings.is_published ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    {inv.settings.is_published ? '🔥 Live' : 'Draft'}
+                  </div>
+                  <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">{inv.settings.package_plan} Plan</span>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50/50 p-2 rounded-2xl border border-gray-100 pr-5">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-3">Status Publis</span>
+                  <button
+                    onClick={() => updateSettings('is_published', !inv.settings.is_published)}
+                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 focus:outline-none ring-2 ring-offset-2 ${inv.settings.is_published ? 'bg-emerald-500 ring-emerald-100' : 'bg-gray-200 ring-gray-50'}`}
+                  >
+                    <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-sm ${inv.settings.is_published ? 'right-1' : 'left-1'}`}></div>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold font-serif italic text-gray-800 tracking-tight">Design Studio</h2>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Crafting perfection</p>
+              </>
+            )}
           </div>
           <button
             onClick={saveInvitation}
             disabled={isDemo ? false : (!id || !token)}
-            className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-rose-100 hover:bg-rose-700 transition transform active:scale-95 disabled:opacity-50"
+            className="flex-1 max-w-[140px] py-4 bg-rose-600 text-white rounded-2xl font-bold text-[10px] shadow-xl shadow-rose-100 hover:bg-rose-700 transition transform active:scale-95 disabled:opacity-50 uppercase tracking-widest"
           >
-            {isDemo ? 'Save & Unlock All (Login)' : 'Save Changes'}
+            {isDemo ? 'Save & Unlock' : 'Save Changes'}
           </button>
         </div>
-
+        {showPaymentModal && selectedPlanForPayment && (
+          <PaymentModal
+            plan={selectedPlanForPayment}
+            invitationId={id}
+            onClose={() => setShowPaymentModal(false)}
+          />
+        )}
         <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-gray-50/50 px-2 sticky top-0">
           <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Pembukaan" isActive={activeTab === 'pembukaan'} onClick={() => setActiveTab('pembukaan')} />
@@ -505,7 +536,7 @@ const EditorPage: React.FC = () => {
                       <div className="text-left">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pelan Semasa</span>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Basic (Free)'}</span>
+                          <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Free'}</span>
                         </div>
                         <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">Tukar Pakej</span>
                       </div>
@@ -546,7 +577,10 @@ const EditorPage: React.FC = () => {
                           <button
                             key={plan.id}
                             onClick={() => {
-                              updateSettings('package_plan', plan.id);
+                              if (inv.settings.package_plan !== plan.id) {
+                                setSelectedPlanForPayment(plan as any);
+                                setShowPaymentModal(true);
+                              }
                               setIsPackageDropdownOpen(false);
                             }}
                             className={`w-full relative p-6 rounded-3xl border text-left transition-all group ${inv.settings.package_plan === plan.id

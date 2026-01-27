@@ -239,8 +239,8 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
     const daysSinceCreation = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
 
     let editWindow = 30; // Default for Free
-    if (tier === MembershipTier.BASIC) editWindow = 60;
-    else if (tier === MembershipTier.PREMIUM) editWindow = 120;
+    if (tier === MembershipTier.LITE) editWindow = 60;
+    else if (tier === MembershipTier.PRO) editWindow = 120;
     else if (tier === MembershipTier.ELITE) editWindow = 99999; // Practically lifetime
 
     if (daysSinceCreation > editWindow) {
@@ -270,21 +270,21 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
     }
 
     // Wishlist available for Premium and Elite
-    if (updateData.wishlist_details && tier !== MembershipTier.PREMIUM && tier !== MembershipTier.ELITE) {
+    if (updateData.wishlist_details && tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
       delete (updateData as any).wishlist_details;
       logger.warn(`Stripped wishlist_details from update by ${tier} user ${userId}`);
     }
 
     // Pro / Elite only features (e.g., Money Gift)
     if (updateData.money_gift_details && updateData.money_gift_details.enabled) {
-      if (tier !== MembershipTier.PREMIUM && tier !== MembershipTier.ELITE) {
+      if (tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
         updateData.money_gift_details.enabled = false;
         logger.warn(`Disabled money gift for unauthorized ${tier} user ${userId}`);
       }
     }
 
     // RSVP Settings available for Premium and Elite
-    if (updateData.rsvp_settings && tier !== MembershipTier.PREMIUM && tier !== MembershipTier.ELITE) {
+    if (updateData.rsvp_settings && tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
       delete (updateData as any).rsvp_settings;
       logger.warn(`Stripped rsvp_settings from update by ${tier} user ${userId}`);
     }

@@ -84,11 +84,21 @@ const OrdersPage: React.FC = () => {
                                                 #{order.id.substring(0, 8).toUpperCase()}
                                             </td>
                                             <td className="px-8 py-6 text-sm text-gray-500">
-                                                {new Date(order.created_at).toLocaleDateString('ms-MY', {
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric'
-                                                })}
+                                                {(() => {
+                                                    try {
+                                                        const date = new Date(order.created_at);
+                                                        if (isNaN(date.getTime())) {
+                                                            return 'Date unavailable';
+                                                        }
+                                                        return date.toLocaleDateString('en-MY', {
+                                                            day: 'numeric',
+                                                            month: 'long',
+                                                            year: 'numeric'
+                                                        });
+                                                    } catch {
+                                                        return 'Date unavailable';
+                                                    }
+                                                })()}
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="text-sm font-bold text-gray-900 uppercase">
@@ -101,7 +111,7 @@ const OrdersPage: React.FC = () => {
                                                 )}
                                             </td>
                                             <td className="px-8 py-6 text-sm font-bold text-gray-900">
-                                                RM {parseFloat(order.amount).toFixed(2)}
+                                                RM {Number(order.amount).toFixed(2)}
                                             </td>
                                             <td className="px-8 py-6">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getStatusColor(order.status)}`}>

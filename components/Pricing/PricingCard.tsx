@@ -4,9 +4,10 @@ import { Plan } from '../../types';
 
 interface PricingCardProps {
   plan: Plan;
+  invitationId?: string;
 }
 
-const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
+const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   return (
@@ -43,8 +44,8 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
         <button
           onClick={() => setShowPaymentModal(true)}
           className={`w-full py-4 rounded-full font-bold text-lg transition ${plan.isPopular
-              ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg'
-              : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+            ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg'
+            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
             }`}
         >
           Pilih Sekarang
@@ -54,6 +55,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
       {showPaymentModal && (
         <PaymentModal
           plan={plan}
+          invitationId={invitationId}
           onClose={() => setShowPaymentModal(false)}
         />
       )}

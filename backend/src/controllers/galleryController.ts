@@ -86,8 +86,8 @@ export const addGalleryImage = async (req: AuthenticatedRequest, res: Response):
 
     // 2. Enforce Gallery Limits
     let galleryLimit = 0; // Default for Free
-    if (tier === MembershipTier.BASIC) galleryLimit = 1;
-    else if (tier === MembershipTier.PREMIUM) galleryLimit = 5;
+    if (tier === MembershipTier.LITE) galleryLimit = 1;
+    else if (tier === MembershipTier.PRO) galleryLimit = 5;
     else if (tier === MembershipTier.ELITE) galleryLimit = 999;
 
     if (tier !== MembershipTier.ELITE) {

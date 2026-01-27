@@ -175,8 +175,8 @@ export const requireMembershipTier = (requiredTier: MembershipTier) => {
 
     const tierHierarchy = {
       [MembershipTier.FREE]: 0,
-      [MembershipTier.BASIC]: 1,
-      [MembershipTier.PREMIUM]: 2,
+      [MembershipTier.LITE]: 1,
+      [MembershipTier.PRO]: 2,
       [MembershipTier.ELITE]: 3
     };
 
