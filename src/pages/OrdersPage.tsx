@@ -86,7 +86,8 @@ const OrdersPage: React.FC = () => {
                                             <td className="px-8 py-6 text-sm text-gray-500">
                                                 {(() => {
                                                     try {
-                                                        const date = new Date(order.created_at);
+                                                        const dateStr = order.created_at || (order as any).createdAt;
+                                                        const date = new Date(dateStr);
                                                         if (isNaN(date.getTime())) {
                                                             return 'Date unavailable';
                                                         }

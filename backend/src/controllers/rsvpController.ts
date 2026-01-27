@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
 import { RSVP } from '../types/models';
-import { rsvpRepository, invitationRepository } from '../repositories';
+import { rsvpRepository, invitationRepository, guestWishRepository } from '../repositories';
 import { getPaginationParams, getFilterParams, calculatePagination } from '../utils/pagination';
 import logger from '../utils/logger';
 
@@ -219,6 +219,21 @@ export const createRSVP = async (req: AuthenticatedRequest, res: Response): Prom
     }
 
     const newRSVP = await rsvpRepository.createRSVP(rsvpData);
+
+    // If RSVP has a message, create a guest wish automatically
+    if (rsvpData.message && rsvpData.message.trim().length > 0) {
+      try {
+        await guestWishRepository.createGuestWish({
+          invitation_id: rsvpData.invitation_id,
+          name: rsvpData.guest_name,
+          message: rsvpData.message
+        });
+        logger.info(`Auto-created guest wish for RSVP: ${newRSVP.id}`);
+      } catch (wishError) {
+        // Log error but don't fail the request since RSVP was successful
+        logger.error('Failed to auto-create guest wish:', wishError);
+      }
+    }
 
     logger.info(`New RSVP created: ${newRSVP.id} for invitation: ${rsvpData.invitation_id}`);
 

@@ -1339,7 +1339,10 @@ const PublicInvitationPage: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setInv(data.data);
+          setInv({
+            ...data.data,
+            wishes: data.data.guestWishes || data.data.wishes || []
+          });
         } else {
           const mockInv = MOCK_INVITATIONS.find(i => i.slug === slug);
           if (mockInv) setInv(mockInv);

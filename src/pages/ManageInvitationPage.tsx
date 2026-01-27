@@ -47,7 +47,10 @@ const ManageInvitationPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           console.log('✅ Manage: API Response received', data);
-          setInvitation(data.data);
+          setInvitation({
+            ...data.data,
+            wishes: data.data.guestWishes || data.data.wishes || []
+          });
         } else {
           console.error('❌ Manage: Failed to fetch invitation:', response.statusText);
         }
@@ -140,7 +143,9 @@ const ManageInvitationPage: React.FC = () => {
         const data = await response.json();
         console.log('✅ Manage: Wishes API Response received', data);
         // Update the invitation with the fetched wishes
-        setInvitation(prev => prev ? { ...prev, wishes: data.data } : null);
+        // The backend might return data.data as the array of wishes directly, or wrapped
+        const wishesData = Array.isArray(data.data) ? data.data : (data.data.guestWishes || []);
+        setInvitation(prev => prev ? { ...prev, wishes: wishesData } : null);
       } else {
         console.error('❌ Manage: Failed to fetch wishes:', response.statusText);
       }
