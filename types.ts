@@ -152,6 +152,7 @@ export interface Invitation {
     youtube_show?: boolean;
     youtube_autoplay?: boolean;
     auto_scroll_delay?: number;
+    is_paid?: boolean;
   };
   money_gift_details: {
     enabled: boolean;
@@ -201,6 +202,7 @@ export interface CatalogState {
 export interface Plan {
   id: string;
   name: string;
+  label: string;
   price: string;
   period: string;
   description: string;

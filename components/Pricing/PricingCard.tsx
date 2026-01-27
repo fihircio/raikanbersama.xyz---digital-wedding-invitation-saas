@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PaymentModal from './PaymentModal';
 import { Plan } from '../../types';
 
@@ -9,6 +10,15 @@ interface PricingCardProps {
 
 const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handlePilih = () => {
+    if (!invitationId) {
+      navigate(`/catalog?plan=${plan.id}`);
+    } else {
+      setShowPaymentModal(true);
+    }
+  };
 
   return (
     <>
@@ -42,7 +52,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
         </ul>
 
         <button
-          onClick={() => setShowPaymentModal(true)}
+          onClick={handlePilih}
           className={`w-full py-4 rounded-full font-bold text-lg transition ${plan.isPopular
             ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg'
             : 'bg-gray-100 text-gray-900 hover:bg-gray-200'

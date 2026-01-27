@@ -130,6 +130,8 @@ export interface Invitation {
       font_family?: string;
       overlay_opacity?: number;
     };
+    package_plan?: string;
+    is_paid?: boolean;
   };
   money_gift_details: {
     enabled: boolean;

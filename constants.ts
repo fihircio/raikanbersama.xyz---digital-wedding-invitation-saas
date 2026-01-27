@@ -1,5 +1,4 @@
-
-import { Invitation, RSVP } from './types';
+import { Invitation, RSVP, Plan } from './types';
 
 export const MOCK_INVITATIONS: Invitation[] = [
   {
@@ -119,10 +118,37 @@ export const FONT_FAMILIES = [
   { group: 'Malay Traditional Style', fonts: ['Kurale', 'Aaltonen', 'Samyak Malayalam'] }
 ];
 
-export const PACKAGE_PLANS = [
-  { id: 'lite', label: 'Lite (RM29)' },
-  { id: 'pro', label: 'Pro (RM49)' },
-  { id: 'elite', label: 'Elite (RM69)' }
+export const PACKAGE_PLANS: Plan[] = [
+  {
+    id: 'lite',
+    name: 'Lite',
+    label: 'Lite (RM29)',
+    price: '29',
+    period: 'Seumur Hidup',
+    description: 'The essential wedding invitation',
+    features: ['Tiada Had Pelawat', 'Lifetime Access', 'Gallery (1 Image)'],
+    isPopular: false
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    label: 'Pro (RM49)',
+    price: '49',
+    period: 'Seumur Hidup',
+    description: 'The preferred choice',
+    features: ['Maklumat Boleh Tukar (120 Hari)', 'Gallery (5 Images)', 'Money Gift (E-Angpow)', 'RSVP & Guest Wishes'],
+    isPopular: true
+  },
+  {
+    id: 'elite',
+    name: 'Elite',
+    label: 'Elite (RM69)',
+    price: '69',
+    period: 'Seumur Hidup',
+    description: 'The ultimate experience',
+    features: ['Lifetime Edit', 'Unlimited Gallery', 'Video Embed', 'Physical Wishlist', 'Custom URL'],
+    isPopular: false
+  }
 ];
 
 export const OPENING_TYPES = [

@@ -169,9 +169,11 @@ const CatalogPage: React.FC = () => {
     setState(prev => ({ ...prev, isAuthenticated: !!user }));
   };
 
+  const planParam = searchParams.get('plan');
+
   const handleBackgroundSelect = async (background: BackgroundImage) => {
     if (!state.isAuthenticated) {
-      navigate(`/edit/demo?bg_url=${encodeURIComponent(background.url)}&layout=${background.layout_settings?.cover_layout || 'standard'}&font=${background.layout_settings?.font_family || 'serif'}`);
+      navigate(`/edit/demo?bg_url=${encodeURIComponent(background.url)}&layout=${background.layout_settings?.cover_layout || 'standard'}&font=${background.layout_settings?.font_family || 'serif'}${planParam ? `&plan=${planParam}` : ''}`);
       return;
     }
 
@@ -199,6 +201,8 @@ const CatalogPage: React.FC = () => {
           show_countdown: true,
           show_gallery: true,
           is_published: false,
+          package_plan: planParam || 'free',
+          is_paid: false,
           background_image: background.url,
           layout_settings: background.layout_settings || {
             cover_layout: 'standard',

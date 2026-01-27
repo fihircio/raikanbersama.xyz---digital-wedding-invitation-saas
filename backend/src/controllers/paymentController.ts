@@ -118,9 +118,9 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
             if (order.invitation_id) {
                 const invitation = await Invitation.findByPk(order.invitation_id);
                 if (invitation) {
-                    const settings = { ...invitation.settings, package_plan: order.plan_tier };
+                    const settings = { ...invitation.settings, package_plan: order.plan_tier, is_paid: true };
                     await invitation.update({ settings });
-                    logger.info(`Invitation ${order.invitation_id} upgraded to ${order.plan_tier}`);
+                    logger.info(`Invitation ${order.invitation_id} upgraded to ${order.plan_tier} and marked as PAID`);
                 }
             }
         } else if (status === 'failed' || status === 'cancelled') {
