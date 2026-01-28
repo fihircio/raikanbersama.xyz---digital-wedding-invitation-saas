@@ -1,5 +1,6 @@
 import { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery, BackgroundImage, Order } from '../models';
 import { MembershipTier, OrderStatus } from '../types/models';
+import { seedSampleInvitations } from './sampleInvitations';
 import bcrypt from 'bcrypt';
 import logger from '../utils/logger';
 
@@ -37,6 +38,9 @@ export const seedDatabase = async (): Promise<void> => {
 
     // Seed orders
     await seedOrders();
+
+    // Seed sample invitations for pricing page
+    await seedSampleInvitations();
 
     logger.info('Database seeding completed successfully!');
   } catch (error) {
