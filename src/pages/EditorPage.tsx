@@ -4,6 +4,7 @@ import TabButton from '../../components/Editor/TabButton';
 import PaymentModal from '../../components/Pricing/PaymentModal';
 import { Invitation, ContactPerson, MembershipTier, RSVP, RsvpSettings, Plan } from '../../types';
 import { MOCK_INVITATIONS, THEME_COLORS, FONT_FAMILIES, PACKAGE_PLANS, OPENING_TYPES, EFFECT_STYLES } from '../../constants';
+import { buildApiUrl } from '../config';
 
 const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, label: string }> = ({ value, onChange, label }) => (
   <div className="space-y-2">
@@ -100,7 +101,7 @@ const EditorPage: React.FC = () => {
             headers['X-CSRF-Token'] = csrfToken;
           }
 
-          const response = await fetch('http://localhost:3001/api/invitations', {
+          const response = await fetch(buildApiUrl('/invitations'), {
             method: 'POST',
             headers,
             credentials: 'include',
@@ -224,7 +225,7 @@ const EditorPage: React.FC = () => {
           headers['X-CSRF-Token'] = csrfToken;
         }
 
-        const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
+        const response = await fetch(buildApiUrl(`/invitations/${id}`), {
           method: 'GET',
           headers,
           credentials: 'include'
@@ -316,7 +317,7 @@ const EditorPage: React.FC = () => {
         headers['X-CSRF-Token'] = csrfToken;
       }
 
-      const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
+      const response = await fetch(buildApiUrl(`/invitations/${id}`), {
         method: 'PUT',
         headers,
         body: JSON.stringify(inv)
@@ -416,7 +417,7 @@ const EditorPage: React.FC = () => {
         };
         if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-        const response = await fetch('http://localhost:3001/api/files/gallery', {
+        const response = await fetch(buildApiUrl('/files/gallery'), {
           method: 'POST',
           headers,
           body: formData
@@ -464,7 +465,7 @@ const EditorPage: React.FC = () => {
         };
         if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-        const response = await fetch('http://localhost:3001/api/files/qr-code', {
+        const response = await fetch(buildApiUrl('/files/qr-code'), {
           method: 'POST',
           headers,
           body: formData
@@ -510,7 +511,7 @@ const EditorPage: React.FC = () => {
         };
         if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-        const response = await fetch('http://localhost:3001/api/files/gallery', { // Reuse gallery endpoint for wishlist items
+        const response = await fetch(buildApiUrl('/files/gallery'), { // Reuse gallery endpoint for wishlist items
           method: 'POST',
           headers,
           body: formData

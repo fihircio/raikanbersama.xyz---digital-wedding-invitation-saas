@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import BackgroundCard from '../../components/Catalog/BackgroundCard';
 import { useNavigate } from 'react-router-dom';
 import { BackgroundImage } from '../../types';
+import { buildApiUrl } from '../config';
 
 const FavoritesPage: React.FC = () => {
     const { user, token } = useAuth();
@@ -22,7 +23,7 @@ const FavoritesPage: React.FC = () => {
     const fetchFavorites = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/favorites', {
+            const response = await fetch(buildApiUrl('/favorites'), {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -55,7 +56,7 @@ const FavoritesPage: React.FC = () => {
             };
             if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-            const response = await fetch(`http://localhost:3001/api/favorites/${backgroundId}`, {
+            const response = await fetch(buildApiUrl(`/favorites/${backgroundId}`), {
                 method: 'DELETE',
                 headers,
                 credentials: 'include'

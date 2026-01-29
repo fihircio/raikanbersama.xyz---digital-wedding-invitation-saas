@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { buildApiUrl } from '../config';
 
 const ProfilePage: React.FC = () => {
     const { user, token } = useAuth();
@@ -28,7 +29,7 @@ const ProfilePage: React.FC = () => {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/profile', {
+            const response = await fetch(buildApiUrl('/profile'), {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -66,7 +67,7 @@ const ProfilePage: React.FC = () => {
             };
             if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-            const response = await fetch('http://localhost:3001/api/profile', {
+            const response = await fetch(buildApiUrl('/profile'), {
                 method: 'PUT',
                 headers,
                 credentials: 'include',
@@ -107,7 +108,7 @@ const ProfilePage: React.FC = () => {
             };
             if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-            const response = await fetch('http://localhost:3001/api/profile/password', {
+            const response = await fetch(buildApiUrl('/profile/password'), {
                 method: 'PUT',
                 headers,
                 credentials: 'include',

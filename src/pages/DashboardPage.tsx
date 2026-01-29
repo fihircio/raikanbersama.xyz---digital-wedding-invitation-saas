@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { MOCK_INVITATIONS } from '../../constants';
 import { UserIcon, CogIcon, CreditCardIcon, PhotoIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { buildApiUrl } from '../config';
 import { Invitation } from '../../types';
 
 // Import the existing Dashboard component from App.tsx
@@ -36,7 +37,7 @@ const DashboardPage: React.FC = () => {
           headers['X-CSRF-Token'] = csrfToken;
         }
 
-        const response = await fetch('http://localhost:3001/api/invitations', {
+        const response = await fetch(buildApiUrl('/invitations'), {
           method: 'GET',
           headers,
           credentials: 'include'

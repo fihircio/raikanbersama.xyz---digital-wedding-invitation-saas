@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { Invitation } from '../../types';
 import { MOCK_INVITATIONS, FONT_FAMILIES } from '../../constants';
 import CoverLayout from '../../components/Invitation/CoverLayout';
+import { buildApiUrl } from '../config';
 
 
 // --- Font Loading ---
@@ -380,7 +381,7 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string }> = ({ wishes, 
 const getCsrfToken = async () => {
   try {
     console.log('🔄 Fetching CSRF token...');
-    const response = await fetch('http://localhost:3001/api/health', {
+    const response = await fetch(buildApiUrl('/health'), {
       method: 'GET',
       credentials: 'include'
     });
@@ -516,7 +517,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
       }
 
       // Send the RSVP data to the backend
-      const response = await fetch('http://localhost:3001/api/rsvps', {
+      const response = await fetch(buildApiUrl('/rsvps'), {
         method: 'POST',
         headers,
         credentials: 'include',
@@ -1334,7 +1335,7 @@ const PublicInvitationPage: React.FC = () => {
       if (!slug) return;
 
       try {
-        const response = await fetch(`http://localhost:3001/api/invitations/slug/${slug}`, {
+        const response = await fetch(buildApiUrl(`/invitations/slug/${slug}`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

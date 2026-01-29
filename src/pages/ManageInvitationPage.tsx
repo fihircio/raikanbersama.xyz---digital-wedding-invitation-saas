@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Invitation, RSVP } from '../../types';
 import { MOCK_RSVPS } from '../../constants';
 import { useAuth } from '../contexts/AuthContext';
+import { buildApiUrl } from '../config';
 
 const ManageInvitationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +39,7 @@ const ManageInvitationPage: React.FC = () => {
           headers['X-CSRF-Token'] = csrfToken;
         }
 
-        const response = await fetch(`http://localhost:3001/api/invitations/${id}`, {
+        const response = await fetch(buildApiUrl(`/invitations/${id}`), {
           method: 'GET',
           headers,
           credentials: 'include'
@@ -84,7 +85,7 @@ const ManageInvitationPage: React.FC = () => {
           headers['X-CSRF-Token'] = csrfToken;
         }
 
-        const response = await fetch(`http://localhost:3001/api/rsvps/invitation/${id}`, {
+        const response = await fetch(buildApiUrl(`/rsvps/invitation/${id}`), {
           method: 'GET',
           headers,
           credentials: 'include'
@@ -133,7 +134,7 @@ const ManageInvitationPage: React.FC = () => {
         headers['X-CSRF-Token'] = csrfToken;
       }
 
-      const response = await fetch(`http://localhost:3001/api/guest-wishes/invitation/${id}`, {
+      const response = await fetch(buildApiUrl(`/guest-wishes/invitation/${id}`), {
         method: 'GET',
         headers,
         credentials: 'include'

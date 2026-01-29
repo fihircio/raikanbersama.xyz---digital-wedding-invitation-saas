@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Order, OrderStatus } from '../../types';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../config';
 
 const OrdersPage: React.FC = () => {
     const { user, token } = useAuth();
@@ -20,7 +21,7 @@ const OrdersPage: React.FC = () => {
     const fetchOrders = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:3001/api/orders', {
+            const response = await fetch(buildApiUrl('/orders'), {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
