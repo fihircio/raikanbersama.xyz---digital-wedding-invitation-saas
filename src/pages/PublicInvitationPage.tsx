@@ -786,11 +786,16 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               <div className="mt-24 text-center">
                 <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
                 <div className="grid grid-cols-2 gap-4">
-                  {(invitation.gallery || []).map((img, idx) => (
-                    <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
-                      <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
+                  {(invitation.gallery || []).map((img, idx) => {
+                    const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
+                    if (!imgSrc) return null;
+
+                    return (
+                      <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
+                        <img src={imgSrc} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

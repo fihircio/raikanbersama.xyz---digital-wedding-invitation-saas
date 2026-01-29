@@ -48,15 +48,15 @@ const applyOtherSecurityChecks = (
     fileUpload = { enabled: false },
     requireAuth = true
   } = options;
-    
+
   // 3. CSRF protection for state-changing requests
   if (requireCSRF && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
-    const validationResult = validateCSRFToken()(req, res, () => {});
+    const validationResult = validateCSRFToken()(req, res, () => { });
     if (res.headersSent) {
       return; // CSRF validation failed
     }
   }
-  
+
   // 4. Input validation and sanitization
   if (req.body && Object.keys(req.body).length > 0) {
     // Use a basic validation schema for general requests
@@ -64,29 +64,29 @@ const applyOtherSecurityChecks = (
       // Limit size of all string inputs
       '*': {
         type: 'string',
-        max: 10000, // 10KB max for any field
+        max: 1000000, // 1MB max for any field (increased for large JSON data)
         custom: (value: any) => {
-          if (typeof value === 'string' && value.length > 10000) {
+          if (typeof value === 'string' && value.length > 1000000) {
             return 'Input too large';
           }
           return true;
         }
       }
     };
-    
+
     const validator = validateAndSanitizeBody(basicSchema);
-    validator(req, res, () => {});
+    validator(req, res, () => { });
     if (res.headersSent) {
       return; // Validation failed
     }
   }
-  
+
   // 5. Content moderation
   if (contentModeration.enabled && req.body) {
     // Check for potentially malicious content
     const bodyString = JSON.stringify(req.body);
     const maliciousResult = contentModerationService.analyzeContent(bodyString);
-    
+
     if (!maliciousResult.isApproved) {
       logger.warn('Content moderation blocked request', {
         reason: maliciousResult.reason,
@@ -96,7 +96,7 @@ const applyOtherSecurityChecks = (
         path: req.path,
         userId: (req as any).user?.id
       });
-      
+
       res.status(400).json({
         success: false,
         error: 'Content not allowed',
@@ -105,7 +105,7 @@ const applyOtherSecurityChecks = (
       return;
     }
   }
-  
+
   // 6. File upload validation
   if (fileUpload.enabled && (req.file || req.files)) {
     const fileValidator = validateFileUpload({
@@ -114,24 +114,24 @@ const applyOtherSecurityChecks = (
       scanForMalware: true,
       requireAuth: requireAuth
     });
-    
+
     // Execute file validation
     fileValidator(req, res, () => {
       if (res.headersSent) {
         return; // File validation failed
       }
-      
+
       // If file validation passes, continue to next middleware
       next();
     });
     return;
   }
-  
+
   // Generate CSRF token for safe requests
   if (requireCSRF && ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-    generateCSRFToken(req, res, () => {});
+    generateCSRFToken(req, res, () => { });
   }
-  
+
   // Continue to next middleware if all checks pass
   next();
 };
@@ -148,10 +148,10 @@ export const securityMiddleware = (options: SecurityOptions = {}) => {
     contentModeration = { enabled: true },
     fileUpload = { enabled: false }
   } = options;
-  
+
   return (req: Request, res: Response, next: NextFunction): void => {
     // Apply security measures in order
-    
+
     // 1. Rate limiting (first line of defense)
     if (rateLimit.enabled) {
       const limiter = sensitiveOperationLimiter({
@@ -159,13 +159,13 @@ export const securityMiddleware = (options: SecurityOptions = {}) => {
         windowMs: rateLimit.windowMs,
         operationName: 'API request'
       });
-      
-      const result = limiter(req, res, () => {});
+
+      const result = limiter(req, res, () => { });
       if (res.headersSent) {
         return; // Rate limit exceeded
       }
     }
-    
+
     // 2. Authentication check - apply authentication middleware if needed
     if (requireAuth) {
       // Import and apply authentication middleware
@@ -174,7 +174,7 @@ export const securityMiddleware = (options: SecurityOptions = {}) => {
         if (err) {
           return;
         }
-        
+
         // Continue with other security checks
         applyOtherSecurityChecks(req, res, next, options);
       });
@@ -203,7 +203,7 @@ export const applyRouteSecurity = {
       contentType: 'general'
     }
   }),
-  
+
   // RSVP routes
   rsvp: securityMiddleware({
     requireAuth: false, // RSVPs can be public
@@ -218,7 +218,7 @@ export const applyRouteSecurity = {
       contentType: 'rsvp'
     }
   }),
-  
+
   // Guest wish routes
   guestWish: securityMiddleware({
     requireAuth: false, // Guest wishes can be public
@@ -233,7 +233,7 @@ export const applyRouteSecurity = {
       contentType: 'guest-wish'
     }
   }),
-  
+
   // User profile routes
   profile: securityMiddleware({
     requireAuth: true,
@@ -248,7 +248,7 @@ export const applyRouteSecurity = {
       contentType: 'general'
     }
   }),
-  
+
   // File upload routes
   fileUpload: securityMiddleware({
     requireAuth: true,
@@ -267,7 +267,7 @@ export const applyRouteSecurity = {
       maxSize: 5 * 1024 * 1024 // 5MB
     }
   }),
-  
+
   // Admin routes
   admin: securityMiddleware({
     requireAuth: true,
@@ -291,33 +291,33 @@ export const applyRouteSecurity = {
 export const securityHeaders = (req: Request, res: Response, next: NextFunction): void => {
   // Prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-  
+
   // Prevent MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // Enable XSS protection
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Force HTTPS in production
   if (process.env.NODE_ENV === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
-  
+
   // Content Security Policy
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"
   );
-  
+
   // Referrer Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Permissions Policy
   res.setHeader(
     'Permissions-Policy',
     'geolocation=(), microphone=(), camera=(), payment=(), usb=()'
   );
-  
+
   next();
 };
 
@@ -326,7 +326,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
  */
 export const securityLogger = (req: Request, res: Response, next: NextFunction): void => {
   const startTime = Date.now();
-  
+
   // Log request details
   const logData = {
     method: req.method,
@@ -336,7 +336,7 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
     userId: (req as any).user?.id,
     timestamp: new Date().toISOString()
   };
-  
+
   // Log suspicious patterns
   const suspiciousPatterns = [
     /\.\./,  // Path traversal
@@ -347,11 +347,11 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
     /exec/i,     // Code execution
     /cmd/i       // Command injection
   ];
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => 
+
+  const isSuspicious = suspiciousPatterns.some(pattern =>
     pattern.test(req.url || '') || pattern.test(JSON.stringify(req.body))
   );
-  
+
   if (isSuspicious) {
     logger.warn('Suspicious request detected', {
       ...logData,
@@ -360,22 +360,22 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   } else {
     logger.info('Request logged', logData);
   }
-  
+
   // Override res.end to log response
   const originalEnd = res.end;
-  res.end = function(chunk?: any, encoding?: any) {
+  res.end = function (chunk?: any, encoding?: any) {
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     logger.info('Request completed', {
       ...logData,
       statusCode: res.statusCode,
       duration: `${duration}ms`
     });
-    
+
     return originalEnd.call(this, chunk, encoding);
   };
-  
+
   next();
 };
 
@@ -395,7 +395,7 @@ export const createSecureRoute = (
   return (req: Request, res: Response, next: NextFunction): void => {
     // Apply the base security middleware
     const baseSecurity = applyRouteSecurity[securityType];
-    
+
     // If custom validation is needed, apply it
     if (validationOptions) {
       // Apply body validation if specified
@@ -403,19 +403,19 @@ export const createSecureRoute = (
         const bodyValidator = validateAndSanitizeBody(validationOptions.body);
         bodyValidator(req, res, (err) => {
           if (err || res.headersSent) return;
-          
+
           // Apply params validation if specified
           if (validationOptions.params && req.params && Object.keys(req.params).length > 0) {
             const paramsValidator = validateAndSanitizeParams(validationOptions.params);
             paramsValidator(req, res, (err) => {
               if (err || res.headersSent) return;
-              
+
               // Apply query validation if specified
               if (validationOptions.query && req.query && Object.keys(req.query).length > 0) {
                 const queryValidator = validateAndSanitizeQuery(validationOptions.query);
                 queryValidator(req, res, (err) => {
                   if (err || res.headersSent) return;
-                  
+
                   // Apply base security and continue
                   baseSecurity(req, res, next);
                 });
@@ -430,7 +430,7 @@ export const createSecureRoute = (
               const queryValidator = validateAndSanitizeQuery(validationOptions.query);
               queryValidator(req, res, (err) => {
                 if (err || res.headersSent) return;
-                
+
                 // Apply base security and continue
                 baseSecurity(req, res, next);
               });
@@ -446,13 +446,13 @@ export const createSecureRoute = (
           const paramsValidator = validateAndSanitizeParams(validationOptions.params);
           paramsValidator(req, res, (err) => {
             if (err || res.headersSent) return;
-            
+
             // Apply query validation if specified
             if (validationOptions.query && req.query && Object.keys(req.query).length > 0) {
               const queryValidator = validateAndSanitizeQuery(validationOptions.query);
               queryValidator(req, res, (err) => {
                 if (err || res.headersSent) return;
-                
+
                 // Apply base security and continue
                 baseSecurity(req, res, next);
               });
@@ -467,7 +467,7 @@ export const createSecureRoute = (
             const queryValidator = validateAndSanitizeQuery(validationOptions.query);
             queryValidator(req, res, (err) => {
               if (err || res.headersSent) return;
-              
+
               // Apply base security and continue
               baseSecurity(req, res, next);
             });

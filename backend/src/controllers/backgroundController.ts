@@ -19,7 +19,7 @@ export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response
   try {
     // Get pagination parameters
     const { page, limit } = getPaginationParams(req);
-    const { search, sortBy, sortOrder, category, isPremium, sort } = req.query;
+    const { search, sortBy, sortOrder, category, isPremium, sort, theme, color } = req.query;
 
     const where: any = {};
 
@@ -33,6 +33,26 @@ export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response
       }
     }
 
+    // Apply theme filter
+    if (theme) {
+      const themeList = (theme as string).split(',');
+      if (themeList.length > 1) {
+        where.theme = { [Op.in]: themeList };
+      } else {
+        where.theme = themeList[0];
+      }
+    }
+
+    // Apply color filter
+    if (color) {
+      const colorList = (color as string).split(',');
+      if (colorList.length > 1) {
+        where.primaryColor = { [Op.in]: colorList };
+      } else {
+        where.primaryColor = colorList[0];
+      }
+    }
+
     // Apply premium filter
     if (isPremium !== undefined) {
       where.isPremium = isPremium === 'true';
@@ -43,7 +63,8 @@ export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response
       where[Op.or as any] = [
         { name: { [Op.iLike]: `%${search}%` } },
         { category: { [Op.iLike]: `%${search}%` } },
-        // tags is JSONB, search within it if needed, but simple name/category is usually enough
+        { theme: { [Op.iLike]: `%${search}%` } },
+        { primaryColor: { [Op.iLike]: `%${search}%` } },
       ];
     }
 

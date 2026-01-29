@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
-import { ItineraryItem } from '../types/models';
-import mockDataService from '../services/mockDataService';
+import databaseService from '../services/databaseService';
 import { sortArray } from '../utils/pagination';
 import logger from '../utils/logger';
 
@@ -19,7 +18,7 @@ export const getItineraryItemsByInvitationId = async (req: AuthenticatedRequest,
   try {
     const userId = req.user?.id;
     const { invitationId } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -29,7 +28,7 @@ export const getItineraryItemsByInvitationId = async (req: AuthenticatedRequest,
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitationId);
+    const invitation = await databaseService.getInvitationById(invitationId);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -38,11 +37,11 @@ export const getItineraryItemsByInvitationId = async (req: AuthenticatedRequest,
       return;
     }
 
-    const itineraryItems = await mockDataService.getItineraryItemsByInvitationId(invitationId);
-    
+    const itineraryItems = await databaseService.getItineraryItemsByInvitationId(invitationId);
+
     // Sort by time
     const sortedItems = sortArray(itineraryItems, 'time', 'asc');
-    
+
     res.status(200).json({
       success: true,
       data: sortedItems
@@ -65,7 +64,7 @@ export const getItineraryItemById = async (req: AuthenticatedRequest, res: Respo
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -74,22 +73,7 @@ export const getItineraryItemById = async (req: AuthenticatedRequest, res: Respo
       return;
     }
 
-    // Get all user's invitations to check ownership
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let foundItem: ItineraryItem | null = null;
-    let userOwnsItem = false;
-    
-    // Search through all invitations' itinerary items
-    for (const invitation of userInvitations) {
-      const items = await mockDataService.getItineraryItemsByInvitationId(invitation.id);
-      const item = items.find(i => i.id === id);
-      if (item) {
-        foundItem = item;
-        userOwnsItem = true;
-        break;
-      }
-    }
-    
+    const foundItem = await databaseService.getItineraryItemById(id);
     if (!foundItem) {
       res.status(404).json({
         success: false,
@@ -97,8 +81,10 @@ export const getItineraryItemById = async (req: AuthenticatedRequest, res: Respo
       } as ApiResponse);
       return;
     }
-    
-    if (!userOwnsItem) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(foundItem.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this itinerary item.'
@@ -136,9 +122,9 @@ export const createItineraryItem = async (req: AuthenticatedRequest, res: Respon
     }
 
     const { invitation_id, time, activity } = req.body;
-    
+
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -166,12 +152,12 @@ export const createItineraryItem = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const newItem = await mockDataService.createItineraryItem({
+    const newItem = await databaseService.createItineraryItem({
       invitation_id,
       time,
       activity
     });
-    
+
     logger.info(`New itinerary item created: ${newItem.id} for invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -196,7 +182,7 @@ export const updateItineraryItem = async (req: AuthenticatedRequest, res: Respon
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -205,20 +191,18 @@ export const updateItineraryItem = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    // Check if user owns the itinerary item
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsItem = false;
-    
-    // Search through all invitations' itinerary items
-    for (const invitation of userInvitations) {
-      const items = await mockDataService.getItineraryItemsByInvitationId(invitation.id);
-      if (items.some(i => i.id === id)) {
-        userOwnsItem = true;
-        break;
-      }
+    const existingItem = await databaseService.getItineraryItemById(id);
+    if (!existingItem) {
+      res.status(404).json({
+        success: false,
+        error: 'Itinerary item not found'
+      } as ApiResponse);
+      return;
     }
-    
-    if (!userOwnsItem) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(existingItem.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this itinerary item.'
@@ -226,8 +210,8 @@ export const updateItineraryItem = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const updateData = req.body as Partial<ItineraryItem>;
-    
+    const updateData = req.body;
+
     // Validate time format if provided
     if (updateData.time) {
       const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
@@ -239,17 +223,9 @@ export const updateItineraryItem = async (req: AuthenticatedRequest, res: Respon
         return;
       }
     }
-    
-    const updatedItem = await mockDataService.updateItineraryItem(id, updateData);
-    
-    if (!updatedItem) {
-      res.status(404).json({
-        success: false,
-        error: 'Itinerary item not found'
-      } as ApiResponse);
-      return;
-    }
-    
+
+    const updatedItem = await databaseService.updateItineraryItem(id, updateData);
+
     logger.info(`Itinerary item updated: ${id} by user: ${userId}`);
 
     res.status(200).json({
@@ -274,7 +250,7 @@ export const deleteItineraryItem = async (req: AuthenticatedRequest, res: Respon
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -283,20 +259,18 @@ export const deleteItineraryItem = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    // Check if user owns the itinerary item
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsItem = false;
-    
-    // Search through all invitations' itinerary items
-    for (const invitation of userInvitations) {
-      const items = await mockDataService.getItineraryItemsByInvitationId(invitation.id);
-      if (items.some(i => i.id === id)) {
-        userOwnsItem = true;
-        break;
-      }
+    const existingItem = await databaseService.getItineraryItemById(id);
+    if (!existingItem) {
+      res.status(404).json({
+        success: false,
+        error: 'Itinerary item not found'
+      } as ApiResponse);
+      return;
     }
-    
-    if (!userOwnsItem) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(existingItem.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this itinerary item.'
@@ -304,11 +278,11 @@ export const deleteItineraryItem = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const deleted = await mockDataService.deleteItineraryItem(id);
-    
+    const deleted = await databaseService.deleteItineraryItem(id);
+
     if (deleted) {
       logger.info(`Itinerary item deleted: ${id} by user: ${userId}`);
-      
+
       res.status(200).json({
         success: true,
         message: 'Itinerary item deleted successfully'

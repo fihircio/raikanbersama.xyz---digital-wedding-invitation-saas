@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
 import fileStorageService from '../services/fileStorageService';
-import mockDataService from '../services/mockDataService';
+import databaseService from '../services/databaseService';
 import logger from '../utils/logger';
 
 /**
@@ -18,7 +18,7 @@ export const uploadGalleryImage = async (req: AuthenticatedRequest, res: Respons
   try {
     const userId = req.user?.id;
     const { invitation_id } = req.body;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -36,7 +36,7 @@ export const uploadGalleryImage = async (req: AuthenticatedRequest, res: Respons
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -45,10 +45,12 @@ export const uploadGalleryImage = async (req: AuthenticatedRequest, res: Respons
       return;
     }
 
-    // Add image to gallery
-    invitation.gallery.push(req.uploadResult.url);
-    await mockDataService.updateInvitation(invitation_id, { gallery: invitation.gallery });
-    
+    // Add image to gallery using real database service
+    await databaseService.addGalleryImage({
+      invitation_id,
+      image_url: req.uploadResult.url
+    });
+
     logger.info(`Gallery image uploaded: ${req.uploadResult.url} to invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -77,7 +79,7 @@ export const uploadMultipleGalleryImages = async (req: AuthenticatedRequest, res
   try {
     const userId = req.user?.id;
     const { invitation_id } = req.body;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -95,7 +97,7 @@ export const uploadMultipleGalleryImages = async (req: AuthenticatedRequest, res
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -106,9 +108,13 @@ export const uploadMultipleGalleryImages = async (req: AuthenticatedRequest, res
 
     // Add images to gallery
     const newImageUrls = req.uploadResults.map(result => result.url);
-    invitation.gallery.push(...newImageUrls);
-    await mockDataService.updateInvitation(invitation_id, { gallery: invitation.gallery });
-    
+    for (const url of newImageUrls) {
+      await databaseService.addGalleryImage({
+        invitation_id,
+        image_url: url
+      });
+    }
+
     logger.info(`Multiple gallery images uploaded to invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -137,7 +143,7 @@ export const uploadQrCode = async (req: AuthenticatedRequest, res: Response): Pr
   try {
     const userId = req.user?.id;
     const { invitation_id } = req.body;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -155,7 +161,7 @@ export const uploadQrCode = async (req: AuthenticatedRequest, res: Response): Pr
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -165,11 +171,11 @@ export const uploadQrCode = async (req: AuthenticatedRequest, res: Response): Pr
     }
 
     // Update QR code URL in money gift details
-    invitation.money_gift_details.qr_url = req.uploadResult.url;
-    await mockDataService.updateInvitation(invitation_id, { 
-      money_gift_details: invitation.money_gift_details 
+    const money_gift_details = { ...invitation.money_gift_details, qr_url: req.uploadResult.url };
+    await databaseService.updateInvitation(invitation_id, {
+      money_gift_details
     });
-    
+
     logger.info(`QR code uploaded: ${req.uploadResult.url} to invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -197,7 +203,7 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
   try {
     const userId = req.user?.id;
     const { invitation_id } = req.body;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -215,7 +221,7 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -225,11 +231,11 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
     }
 
     // Update background image in settings
-    invitation.settings.background_image = req.uploadResult.url;
-    await mockDataService.updateInvitation(invitation_id, { 
-      settings: invitation.settings 
+    const settings = { ...invitation.settings, background_image: req.uploadResult.url };
+    await databaseService.updateInvitation(invitation_id, {
+      settings
     });
-    
+
     logger.info(`Background image uploaded: ${req.uploadResult.url} to invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -258,7 +264,7 @@ export const deleteFile = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     const userId = req.user?.id;
     const { key } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -269,7 +275,7 @@ export const deleteFile = async (req: AuthenticatedRequest, res: Response): Prom
 
     // Delete the file from S3
     const success = await fileStorageService.deleteFile(key);
-    
+
     if (!success) {
       res.status(500).json({
         success: false,
@@ -277,7 +283,7 @@ export const deleteFile = async (req: AuthenticatedRequest, res: Response): Prom
       } as ApiResponse);
       return;
     }
-    
+
     logger.info(`File deleted: ${key} by user: ${userId}`);
 
     res.status(200).json({
@@ -303,7 +309,7 @@ export const getSignedUrl = async (req: AuthenticatedRequest, res: Response): Pr
     const userId = req.user?.id;
     const { key } = req.params;
     const { expiresIn = '3600' } = req.query;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -314,10 +320,10 @@ export const getSignedUrl = async (req: AuthenticatedRequest, res: Response): Pr
 
     // Generate signed URL
     const signedUrl = await fileStorageService.getSignedUrl(
-      key, 
+      key,
       parseInt(expiresIn as string, 10)
     );
-    
+
     logger.info(`Signed URL generated for key: ${key} by user: ${userId}`);
 
     res.status(200).json({

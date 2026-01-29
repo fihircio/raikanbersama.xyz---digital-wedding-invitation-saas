@@ -10,13 +10,13 @@ import { detectMaliciousContent } from '../utils/sanitization';
 const INAPPROPRIATE_WORDS = [
   // Profanity (basic list - should be expanded based on requirements)
   'damn', 'hell', 'shit', 'ass', 'bastard', 'bitch', 'crap', 'dick', 'piss', 'tits',
-  
+
   // Hate speech indicators
   'hate', 'kill', 'murder', 'terrorist', 'nazi', 'racist',
-  
+
   // Spam indicators
   'click here', 'buy now', 'free money', 'winner', 'congratulations', 'claim now',
-  
+
   // Inappropriate content for wedding platform
   'divorce', 'breakup', 'cheating', 'affair', 'scam'
 ];
@@ -102,13 +102,13 @@ class ContentModerationService {
       const wordRegex = new RegExp(`\\b${word}\\b`, 'i');
       return wordRegex.test(lowerContent);
     });
-    
+
     // Special handling for Malaysian wedding context
     const malayWeddingTerms = ['kahwin', 'kahwin', 'perkahwinan', 'persandingan', 'walimatulurus', 'majlis'];
     const containsMalayWeddingTerms = malayWeddingTerms.some(term =>
       lowerContent.includes(term)
     );
-    
+
     if (foundInappropriateWords.length > 0) {
       // Reduce penalty for Malaysian wedding terms
       const penaltyMultiplier = containsMalayWeddingTerms ? 0.2 : 1;
@@ -118,10 +118,17 @@ class ContentModerationService {
     }
 
     // Check for spam patterns (more lenient for wedding content)
-    const matchedSpamPatterns = SPAM_PATTERNS.filter(pattern =>
-      pattern.test(content)
-    );
-    
+    const s3BucketUrl = 'raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com';
+    const matchedSpamPatterns = SPAM_PATTERNS.filter(pattern => {
+      if (pattern.source.includes('https?')) {
+        // If it's a URL pattern, check if it's the S3 bucket and ignore if it is
+        const urls = content.match(new RegExp(pattern, 'gi')) || [];
+        const nonS3Urls = urls.filter(u => !u.includes(s3BucketUrl));
+        return nonS3Urls.length > 0;
+      }
+      return pattern.test(content);
+    });
+
     if (matchedSpamPatterns.length > 0) {
       // Only flag as spam if multiple spam patterns are detected (increased threshold)
       if (matchedSpamPatterns.length > 3) {
@@ -131,11 +138,14 @@ class ContentModerationService {
     }
 
     // Check for suspicious patterns
-    const matchedSuspiciousPatterns = SUSPICIOUS_PATTERNS.filter(pattern => 
+    const matchedSuspiciousPatterns = SUSPICIOUS_PATTERNS.filter(pattern =>
       pattern.test(content)
     );
-    
-    if (matchedSuspiciousPatterns.length > 0) {
+
+    // Ignore URL checks if they are your trusted S3 bucket
+    const isS3Url = content.includes(s3BucketUrl);
+
+    if (matchedSuspiciousPatterns.length > 0 && !isS3Url) {
       score += matchedSuspiciousPatterns.length * 25;
     }
 
@@ -146,7 +156,7 @@ class ContentModerationService {
 
     // Normalize score to 0-100
     score = Math.min(100, score);
-    
+
     // Determine if content is approved (more lenient threshold for wedding platform)
     const isApproved = score < 70; // Increased threshold for wedding platform
     let reason: string | undefined;
@@ -178,14 +188,14 @@ class ContentModerationService {
    */
   private checkExcessiveCapitalization(content: string): number {
     if (content.length < 10) return 0;
-    
+
     const uppercaseCount = (content.match(/[A-Z]/g) || []).length;
     const totalLetters = (content.match(/[a-zA-Z]/g) || []).length;
-    
+
     if (totalLetters === 0) return 0;
-    
+
     const uppercasePercentage = (uppercaseCount / totalLetters) * 100;
-    
+
     // Penalize if more than 50% uppercase
     return uppercasePercentage > 50 ? 15 : 0;
   }
@@ -197,24 +207,24 @@ class ContentModerationService {
    */
   private checkRepeatingPhrases(content: string): number {
     let penalty = 0;
-    
+
     // Check for repeated words
     const words = content.toLowerCase().split(/\s+/);
     const wordCounts: { [key: string]: number } = {};
-    
+
     words.forEach(word => {
       if (word.length > 3) { // Only check words longer than 3 characters
         wordCounts[word] = (wordCounts[word] || 0) + 1;
       }
     });
-    
+
     // Penalize words that appear more than 3 times
     Object.values(wordCounts).forEach(count => {
       if (count > 3) {
         penalty += 5;
       }
     });
-    
+
     return penalty;
   }
 
@@ -225,17 +235,17 @@ class ContentModerationService {
    */
   private checkLengthIssues(content: string): number {
     const length = content.trim().length;
-    
+
     // Very short content might be spam
     if (length < 3 && length > 0) {
       return 10;
     }
-    
+
     // Very long content might be spam
     if (length > 1000) {
       return 10;
     }
-    
+
     return 0;
   }
 
@@ -246,21 +256,21 @@ class ContentModerationService {
    */
   moderateGuestName(name: string): ModerationResult {
     const result = this.analyzeContent(name);
-    
+
     // Additional checks for names
     if (name.length < 2 || name.length > 50) {
       result.isApproved = false;
       result.reason = result.reason || 'Name length is invalid';
       result.score += 20;
     }
-    
+
     // Names should not contain numbers or special characters (except hyphens and apostrophes)
     if (!/^[a-zA-Z\s'\-]+$/.test(name)) {
       result.isApproved = false;
       result.reason = result.reason || 'Name contains invalid characters';
       result.score += 30;
     }
-    
+
     return result;
   }
 
@@ -271,14 +281,14 @@ class ContentModerationService {
    */
   moderateRSVPMessage(message: string): ModerationResult {
     const result = this.analyzeContent(message);
-    
+
     // RSVP messages have specific length constraints
     if (message && (message.length < 5 || message.length > 500)) {
       result.isApproved = false;
       result.reason = result.reason || 'Message length is invalid (must be 5-500 characters)';
       result.score += 15;
     }
-    
+
     return result;
   }
 
@@ -289,14 +299,14 @@ class ContentModerationService {
    */
   moderateGuestWish(wish: string): ModerationResult {
     const result = this.analyzeContent(wish);
-    
+
     // Guest wishes have specific length constraints
     if (wish.length < 10 || wish.length > 300) {
       result.isApproved = false;
       result.reason = result.reason || 'Wish length is invalid (must be 10-300 characters)';
       result.score += 15;
     }
-    
+
     return result;
   }
 

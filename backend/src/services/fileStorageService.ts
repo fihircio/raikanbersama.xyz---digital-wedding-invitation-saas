@@ -147,7 +147,8 @@ class FileStorageService {
             fit: 'cover',
             position: 'center',
           })
-          .webp({ quality: 80 }) // Optimize with WebP
+          .rotate() // Auto-rotate based on EXIF
+          .webp({ quality: 70, effort: 6 }) // Aggressive optimization for thumbnails
           .toBuffer();
       }
 
@@ -185,7 +186,7 @@ class FileStorageService {
         Key: key,
         Body: buffer,
         ContentType: contentType,
-        ACL: 'private', // Files are private by default
+        // ACL: 'private' removed to support 'Bucket owner enforced' policy
       });
 
       await this.s3Client.send(command);
@@ -235,7 +236,19 @@ class FileStorageService {
       let finalExtension = extension;
 
       if ((fileType === FileType.GALLERY_IMAGE || fileType === FileType.BACKGROUND) && extension !== 'svg') {
-        finalBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+        // Aggressive optimization for main images:
+        // 1. Resize to max 1200px (width or height)
+        // 2. Auto-rotate based on EXIF
+        // 3. Convert to WebP with 75% quality
+        // 4. Strip metadata (automatic by sharp)
+        finalBuffer = await sharp(buffer)
+          .resize(1200, 1200, {
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .rotate()
+          .webp({ quality: 75, effort: 6 })
+          .toBuffer();
         finalMimeType = 'image/webp';
         finalExtension = 'webp';
       }

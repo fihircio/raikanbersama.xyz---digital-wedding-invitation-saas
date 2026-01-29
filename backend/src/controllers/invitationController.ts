@@ -3,6 +3,7 @@ import { AuthenticatedRequest, ApiResponse } from '../types/api';
 import { Invitation, MembershipTier } from '../types/models';
 import databaseService from '../services/databaseService';
 import { getPaginationParams, getFilterParams, calculatePagination, paginateArray, sortArray, searchArray } from '../utils/pagination';
+import { convertInvitationToApi, convertInvitationsToApi } from '../utils/typeConversion';
 import logger from '../utils/logger';
 
 /**
@@ -50,7 +51,7 @@ export const getAllInvitations = async (req: AuthenticatedRequest, res: Response
 
     res.status(200).json({
       success: true,
-      data: paginatedInvitations,
+      data: convertInvitationsToApi(paginatedInvitations),
       pagination
     } as ApiResponse);
   } catch (error) {
@@ -100,7 +101,7 @@ export const getInvitationById = async (req: AuthenticatedRequest, res: Response
 
     res.status(200).json({
       success: true,
-      data: invitation
+      data: convertInvitationToApi(invitation)
     } as ApiResponse);
   } catch (error) {
     logger.error('Error getting invitation by ID:', error);
@@ -134,7 +135,7 @@ export const getInvitationBySlug = async (req: AuthenticatedRequest, res: Respon
 
     res.status(200).json({
       success: true,
-      data: invitation
+      data: convertInvitationToApi(invitation)
     } as ApiResponse);
   } catch (error) {
     logger.error('Error getting invitation by slug:', error);
@@ -182,7 +183,7 @@ export const createInvitation = async (req: AuthenticatedRequest, res: Response)
 
     res.status(201).json({
       success: true,
-      data: newInvitation
+      data: convertInvitationToApi(newInvitation)
     } as ApiResponse);
   } catch (error) {
     logger.error('Error creating invitation:', error);
@@ -309,7 +310,7 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
 
     res.status(200).json({
       success: true,
-      data: updatedInvitation
+      data: convertInvitationToApi(updatedInvitation!)
     } as ApiResponse);
   } catch (error) {
     logger.error('Error updating invitation:', error);

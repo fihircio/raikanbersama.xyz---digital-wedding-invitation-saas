@@ -137,12 +137,125 @@ export class InvitationRepository extends BaseRepository<Invitation> {
   }
 
   /**
-   * Update an invitation
+   * Update an invitation with association synchronization
    */
-  async updateInvitation(id: string, invitationData: Partial<Invitation>): Promise<Invitation | null> {
+  async updateInvitation(id: string, invitationData: any): Promise<Invitation | null> {
+    const transaction = await this.model.sequelize!.transaction();
+
     try {
-      return await this.updateById(id, invitationData);
+      // 1. Extract associations from update data
+      const { gallery, itinerary, contacts, ...invitationFields } = invitationData;
+
+      // 2. Update the main invitation record
+      await this.model.update(invitationFields, {
+        where: { id },
+        transaction
+      });
+
+      // 3. Sync Gallery (expecting string[] of URLs)
+      if (gallery && Array.isArray(gallery)) {
+        // Delete items from DB that are not in the provided gallery array
+        await Gallery.destroy({
+          where: {
+            invitation_id: id,
+            image_url: { [Op.notIn]: gallery }
+          },
+          transaction
+        });
+
+        // Upsert items and update display order
+        for (let i = 0; i < gallery.length; i++) {
+          const imageUrl = gallery[i];
+          const [item, created] = await Gallery.findOrCreate({
+            where: { invitation_id: id, image_url: imageUrl },
+            defaults: { invitation_id: id, image_url: imageUrl, display_order: i },
+            transaction
+          });
+
+          if (!created) {
+            await item.update({ display_order: i }, { transaction });
+          }
+        }
+      }
+
+      // 4. Sync Itinerary
+      if (itinerary && Array.isArray(itinerary)) {
+        const providedIds = itinerary.filter(item => item.id && item.id.length > 20).map(item => item.id);
+
+        // Delete items not in provided list
+        await ItineraryItem.destroy({
+          where: {
+            invitation_id: id,
+            id: { [Op.notIn]: providedIds }
+          },
+          transaction
+        });
+
+        // Add or Update items
+        for (const item of itinerary) {
+          const isNew = !item.id || item.id.length < 20 || !item.id.includes('-');
+
+          if (isNew) {
+            await ItineraryItem.create({
+              invitation_id: id,
+              time: item.time,
+              activity: item.activity
+            }, { transaction });
+          } else {
+            await ItineraryItem.update({
+              time: item.time,
+              activity: item.activity
+            }, {
+              where: { id: item.id, invitation_id: id },
+              transaction
+            });
+          }
+        }
+      }
+
+      // 5. Sync Contacts
+      if (contacts && Array.isArray(contacts)) {
+        const providedIds = contacts.filter(person => person.id && person.id.length > 20).map(person => person.id);
+
+        // Delete items not in provided list
+        await ContactPerson.destroy({
+          where: {
+            invitation_id: id,
+            id: { [Op.notIn]: providedIds }
+          },
+          transaction
+        });
+
+        // Add or Update items
+        for (const person of contacts) {
+          const isNew = !person.id || person.id.length < 20 || !person.id.includes('-');
+
+          if (isNew) {
+            await ContactPerson.create({
+              invitation_id: id,
+              name: person.name,
+              relation: person.relation,
+              phone: person.phone
+            }, { transaction });
+          } else {
+            await ContactPerson.update({
+              name: person.name,
+              relation: person.relation,
+              phone: person.phone
+            }, {
+              where: { id: person.id, invitation_id: id },
+              transaction
+            });
+          }
+        }
+      }
+
+      await transaction.commit();
+
+      // Return refreshed invitation with all associations
+      return await this.findById(id);
     } catch (error) {
+      await transaction.rollback();
       throw error;
     }
   }

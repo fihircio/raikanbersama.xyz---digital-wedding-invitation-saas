@@ -10,6 +10,20 @@ const CATEGORIES = [
   'Minimalist', 'Modern', 'Rustic', 'Traditional', 'Vintage', 'Watercolor'
 ];
 
+const THEMES = [
+  'Modern', 'Traditional', 'Floral', 'Islamic', 'Minimalist', 'Rustic', 'Vintage'
+];
+
+const COLORS = [
+  { name: 'White', hex: '#FFFFFF' },
+  { name: 'Gold', hex: '#D4AF37' },
+  { name: 'Pink', hex: '#FFC0CB' },
+  { name: 'Blue', hex: '#0000FF' },
+  { name: 'Emerald', hex: '#50C878' },
+  { name: 'Red', hex: '#FF0000' },
+  { name: 'Black', hex: '#000000' },
+];
+
 const CatalogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -29,6 +43,8 @@ const CatalogPage: React.FC = () => {
 
   // Sync state with URL params
   const currentCategories = searchParams.get('category')?.split(',').filter(Boolean) || [];
+  const currentThemes = searchParams.get('theme')?.split(',').filter(Boolean) || [];
+  const currentColors = searchParams.get('color')?.split(',').filter(Boolean) || [];
   const currentSort = searchParams.get('sort') || 'latest';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
@@ -42,6 +58,12 @@ const CatalogPage: React.FC = () => {
       params.append('sort', currentSort);
       if (currentCategories.length > 0) {
         params.append('category', currentCategories.join(','));
+      }
+      if (currentThemes.length > 0) {
+        params.append('theme', currentThemes.join(','));
+      }
+      if (currentColors.length > 0) {
+        params.append('color', currentColors.join(','));
       }
 
       const response = await fetch(`http://localhost:3001/api/backgrounds?${params.toString()}`, {
@@ -63,7 +85,7 @@ const CatalogPage: React.FC = () => {
       console.error('Error fetching backgrounds:', error);
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [currentPage, currentSort, currentCategories.join(',')]);
+  }, [currentPage, currentSort, currentCategories.join(','), currentThemes.join(','), currentColors.join(',')]);
 
   useEffect(() => {
     fetchBackgrounds();
@@ -110,6 +132,38 @@ const CatalogPage: React.FC = () => {
         params.set('category', newCategories.join(','));
       } else {
         params.delete('category');
+      }
+      params.set('page', '1');
+      return params;
+    });
+  };
+
+  const toggleTheme = (theme: string) => {
+    const newThemes = currentThemes.includes(theme)
+      ? currentThemes.filter(t => t !== theme)
+      : [...currentThemes, theme];
+
+    setSearchParams(params => {
+      if (newThemes.length > 0) {
+        params.set('theme', newThemes.join(','));
+      } else {
+        params.delete('theme');
+      }
+      params.set('page', '1');
+      return params;
+    });
+  };
+
+  const toggleColor = (color: string) => {
+    const newColors = currentColors.includes(color)
+      ? currentColors.filter(c => c !== color)
+      : [...currentColors, color];
+
+    setSearchParams(params => {
+      if (newColors.length > 0) {
+        params.set('color', newColors.join(','));
+      } else {
+        params.delete('color');
       }
       params.set('page', '1');
       return params;
@@ -314,41 +368,75 @@ const CatalogPage: React.FC = () => {
         </div>
 
         {/* Filters Bar */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-8 space-y-8">
+          {/* Themes Tab */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Tema</h3>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setSearchParams(params => { params.delete('category'); params.set('page', '1'); return params; })}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition ${currentCategories.length === 0
-                  ? 'bg-rose-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                onClick={() => setSearchParams(params => { params.delete('theme'); params.set('page', '1'); return params; })}
+                className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${currentThemes.length === 0
+                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 scale-105'
+                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                   }`}
               >
-                Semua
+                Semua Tema
               </button>
-              {CATEGORIES.map(cat => (
+              {THEMES.map(theme => (
                 <button
-                  key={cat}
-                  onClick={() => toggleCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${currentCategories.includes(cat)
-                    ? 'bg-rose-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  key={theme}
+                  onClick={() => toggleTheme(theme)}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${currentThemes.includes(theme)
+                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 scale-105'
+                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                     }`}
                 >
-                  {cat}
+                  {theme}
                 </button>
               ))}
             </div>
+          </div>
 
-            <div className="flex items-center gap-3 min-w-[200px]">
-              <span className="text-sm text-gray-500 font-medium shrink-0">Susun:</span>
+          {/* Color Filter */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pt-4 border-t border-gray-50">
+            <div className="space-y-4 flex-1">
+              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Warna Utama</h3>
+              <div className="flex flex-wrap gap-4">
+                {COLORS.map(color => (
+                  <button
+                    key={color.name}
+                    onClick={() => toggleColor(color.name)}
+                    title={color.name}
+                    className={`group relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${currentColors.includes(color.name)
+                      ? 'border-rose-500 p-1 scale-110'
+                      : 'border-transparent hover:border-gray-200'
+                      }`}
+                  >
+                    <span
+                      className="w-full h-full rounded-full shadow-inner"
+                      style={{ backgroundColor: color.hex, border: color.name === 'White' ? '1px solid #e5e7eb' : 'none' }}
+                    />
+                    {currentColors.includes(color.name) && (
+                      <span className="absolute -top-1 -right-1 bg-rose-500 text-white rounded-full p-0.5">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 shrink-0">
+              <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Susunan:</span>
               <select
                 value={currentSort}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="w-full bg-gray-50 border-none rounded-xl text-sm font-medium py-2.5 px-4 focus:ring-2 focus:ring-rose-500"
+                className="bg-gray-50 border-gray-200 rounded-2xl text-sm font-semibold py-3 px-6 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all outline-none"
               >
                 <option value="latest">Terbaru</option>
-                <option value="popular">Popular</option>
+                <option value="popular">Paling Popular</option>
                 <option value="a-z">Nama (A-Z)</option>
               </select>
             </div>

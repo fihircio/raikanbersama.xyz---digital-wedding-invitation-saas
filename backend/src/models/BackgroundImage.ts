@@ -6,6 +6,8 @@ export class BackgroundImage extends Model {
   public url!: string;
   public thumbnail!: string;
   public category!: string;
+  public theme!: string;
+  public primary_color!: string;
   public isPremium!: boolean;
   public tags!: string[];
   public layout_settings!: {
@@ -41,6 +43,16 @@ export class BackgroundImage extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        theme: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: 'Classic',
+        },
+        primary_color: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: 'White',
+        },
         isPremium: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
@@ -66,6 +78,12 @@ export class BackgroundImage extends Model {
         indexes: [
           {
             fields: ['category'],
+          },
+          {
+            fields: ['theme'],
+          },
+          {
+            fields: ['primary_color'],
           },
           {
             fields: ['is_premium'],

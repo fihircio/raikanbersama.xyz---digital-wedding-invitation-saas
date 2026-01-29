@@ -395,38 +395,141 @@ const EditorPage: React.FC = () => {
     setInv({ ...inv, wishlist_details: { ...inv.wishlist_details, [field]: value } });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && token && id && !isDemo) {
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('invitation_id', id);
+
+      try {
+        const headers: Record<string, string> = {
+          'Authorization': `Bearer ${token}`
+        };
+        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+        const response = await fetch('http://localhost:3001/api/files/gallery', {
+          method: 'POST',
+          headers,
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          updateField('gallery', [...(inv.gallery || []), data.data.url]);
+        } else {
+          const err = await response.json();
+          alert(`Upload gagal: ${err.error || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('❌ Upload error:', error);
+        alert('Gagal memuat naik imej. Sila cuba lagi.');
+      }
+    } else if (file && isDemo) {
+      // Keep demo behavior (local preview only)
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result as string;
-        updateField('gallery', [...(inv.gallery || []), base64String]);
+        updateField('gallery', [...(inv.gallery || []), reader.result as string]);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && token && id && !isDemo) {
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('invitation_id', id);
+
+      try {
+        const headers: Record<string, string> = {
+          'Authorization': `Bearer ${token}`
+        };
+        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+        const response = await fetch('http://localhost:3001/api/files/qr-code', {
+          method: 'POST',
+          headers,
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          updateMoneyGift('qr_url', data.data.url);
+        } else {
+          const err = await response.json();
+          alert(`Upload QR gagal: ${err.error || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('❌ QR Upload error:', error);
+      }
+    } else if (file && isDemo) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result as string;
-        updateMoneyGift('qr_url', base64String);
+        updateMoneyGift('qr_url', reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleWishlistItemImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleWishlistItemImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && currentWishlistItemIdx !== null) {
+    if (file && token && id && currentWishlistItemIdx !== null && !isDemo) {
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('invitation_id', id);
+
+      try {
+        const headers: Record<string, string> = {
+          'Authorization': `Bearer ${token}`
+        };
+        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+        const response = await fetch('http://localhost:3001/api/files/gallery', { // Reuse gallery endpoint for wishlist items
+          method: 'POST',
+          headers,
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const newItems = [...(inv.wishlist_details.items || [])];
+          newItems[currentWishlistItemIdx].item_image = data.data.url;
+          updateWishlist('items', newItems);
+        }
+      } catch (error) {
+        console.error('❌ Wishlist Image Upload error:', error);
+      }
+    } else if (file && isDemo && currentWishlistItemIdx !== null) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result as string;
-        const newItems = [...(inv?.wishlist_details.items || [])];
-        newItems[currentWishlistItemIdx].item_image = base64String;
+        const newItems = [...(inv.wishlist_details.items || [])];
+        newItems[currentWishlistItemIdx].item_image = reader.result as string;
         updateWishlist('items', newItems);
       };
       reader.readAsDataURL(file);
@@ -1228,21 +1331,26 @@ const EditorPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
-                      {(inv.gallery || []).map((img, idx) => (
-                        <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
-                          <img src={img} className="w-full h-full object-cover" />
-                          <button
-                            onClick={() => {
-                              const newGallery = [...(inv.gallery || [])];
-                              newGallery.splice(idx, 1);
-                              updateField('gallery', newGallery);
-                            }}
-                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-                          >
-                            <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
-                          </button>
-                        </div>
-                      ))}
+                      {(inv.gallery || []).map((img, idx) => {
+                        const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
+                        if (!imgSrc) return null;
+
+                        return (
+                          <div key={idx} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative border border-gray-100 group">
+                            <img src={imgSrc} className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => {
+                                const newGallery = [...(inv.gallery || [])];
+                                newGallery.splice(idx, 1);
+                                updateField('gallery', newGallery);
+                              }}
+                              className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                            >
+                              <span className="text-white text-xs font-bold uppercase tracking-widest">Remove</span>
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </section>
                 )}

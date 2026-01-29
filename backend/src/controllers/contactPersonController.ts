@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
-import { ContactPerson } from '../types/models';
-import mockDataService from '../services/mockDataService';
+import databaseService from '../services/databaseService';
 import logger from '../utils/logger';
 
 /**
@@ -18,7 +17,7 @@ export const getContactPersonsByInvitationId = async (req: AuthenticatedRequest,
   try {
     const userId = req.user?.id;
     const { invitationId } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -28,7 +27,7 @@ export const getContactPersonsByInvitationId = async (req: AuthenticatedRequest,
     }
 
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitationId);
+    const invitation = await databaseService.getInvitationById(invitationId);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -37,8 +36,8 @@ export const getContactPersonsByInvitationId = async (req: AuthenticatedRequest,
       return;
     }
 
-    const contactPersons = await mockDataService.getContactPersonsByInvitationId(invitationId);
-    
+    const contactPersons = await databaseService.getContactPersonsByInvitationId(invitationId);
+
     res.status(200).json({
       success: true,
       data: contactPersons
@@ -61,7 +60,7 @@ export const getContactPersonById = async (req: AuthenticatedRequest, res: Respo
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -70,22 +69,7 @@ export const getContactPersonById = async (req: AuthenticatedRequest, res: Respo
       return;
     }
 
-    // Get all user's invitations to check ownership
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let foundPerson: ContactPerson | null = null;
-    let userOwnsPerson = false;
-    
-    // Search through all invitations' contact persons
-    for (const invitation of userInvitations) {
-      const persons = await mockDataService.getContactPersonsByInvitationId(invitation.id);
-      const person = persons.find(p => p.id === id);
-      if (person) {
-        foundPerson = person;
-        userOwnsPerson = true;
-        break;
-      }
-    }
-    
+    const foundPerson = await databaseService.getContactPersonById(id);
     if (!foundPerson) {
       res.status(404).json({
         success: false,
@@ -93,8 +77,10 @@ export const getContactPersonById = async (req: AuthenticatedRequest, res: Respo
       } as ApiResponse);
       return;
     }
-    
-    if (!userOwnsPerson) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(foundPerson.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this contact person.'
@@ -132,9 +118,9 @@ export const createContactPerson = async (req: AuthenticatedRequest, res: Respon
     }
 
     const { invitation_id, name, relation, phone } = req.body;
-    
+
     // Check if user owns the invitation
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
@@ -162,13 +148,13 @@ export const createContactPerson = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const newPerson = await mockDataService.createContactPerson({
+    const newPerson = await databaseService.createContactPerson({
       invitation_id,
       name,
       relation,
       phone
     });
-    
+
     logger.info(`New contact person created: ${newPerson.id} for invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -193,7 +179,7 @@ export const updateContactPerson = async (req: AuthenticatedRequest, res: Respon
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -202,20 +188,18 @@ export const updateContactPerson = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    // Check if user owns the contact person
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsPerson = false;
-    
-    // Search through all invitations' contact persons
-    for (const invitation of userInvitations) {
-      const persons = await mockDataService.getContactPersonsByInvitationId(invitation.id);
-      if (persons.some(p => p.id === id)) {
-        userOwnsPerson = true;
-        break;
-      }
+    const existingPerson = await databaseService.getContactPersonById(id);
+    if (!existingPerson) {
+      res.status(404).json({
+        success: false,
+        error: 'Contact person not found'
+      } as ApiResponse);
+      return;
     }
-    
-    if (!userOwnsPerson) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(existingPerson.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this contact person.'
@@ -223,8 +207,8 @@ export const updateContactPerson = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const updateData = req.body as Partial<ContactPerson>;
-    
+    const updateData = req.body;
+
     // Validate phone number format if provided
     if (updateData.phone) {
       const phoneRegex = /^(\+?6?01)[0-46-9]*$/;
@@ -236,17 +220,9 @@ export const updateContactPerson = async (req: AuthenticatedRequest, res: Respon
         return;
       }
     }
-    
-    const updatedPerson = await mockDataService.updateContactPerson(id, updateData);
-    
-    if (!updatedPerson) {
-      res.status(404).json({
-        success: false,
-        error: 'Contact person not found'
-      } as ApiResponse);
-      return;
-    }
-    
+
+    const updatedPerson = await databaseService.updateContactPerson(id, updateData);
+
     logger.info(`Contact person updated: ${id} by user: ${userId}`);
 
     res.status(200).json({
@@ -271,7 +247,7 @@ export const deleteContactPerson = async (req: AuthenticatedRequest, res: Respon
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -280,20 +256,18 @@ export const deleteContactPerson = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    // Check if user owns the contact person
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsPerson = false;
-    
-    // Search through all invitations' contact persons
-    for (const invitation of userInvitations) {
-      const persons = await mockDataService.getContactPersonsByInvitationId(invitation.id);
-      if (persons.some(p => p.id === id)) {
-        userOwnsPerson = true;
-        break;
-      }
+    const existingPerson = await databaseService.getContactPersonById(id);
+    if (!existingPerson) {
+      res.status(404).json({
+        success: false,
+        error: 'Contact person not found'
+      } as ApiResponse);
+      return;
     }
-    
-    if (!userOwnsPerson) {
+
+    // Check ownership via invitation
+    const invitation = await databaseService.getInvitationById(existingPerson.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this contact person.'
@@ -301,11 +275,11 @@ export const deleteContactPerson = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
-    const deleted = await mockDataService.deleteContactPerson(id);
-    
+    const deleted = await databaseService.deleteContactPerson(id);
+
     if (deleted) {
       logger.info(`Contact person deleted: ${id} by user: ${userId}`);
-      
+
       res.status(200).json({
         success: true,
         message: 'Contact person deleted successfully'

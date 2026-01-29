@@ -109,152 +109,233 @@ const seedOrders = async (): Promise<void> => {
  * Seed background images
  */
 const seedBackgroundImages = async (): Promise<void> => {
-  // ... (same as before, skipping overwrite for brevity of replacement if possible, but I need to include it if I replace the whole block)
-  // Actually, I can keep seedBackgroundImages as is if I didn't verify it, but I'll paste it back.
-  // To be safe and concise, I will use findOrCreate or count check in the main function as added above.
+  // Clear existing backgrounds to ensure fresh set
+  await BackgroundImage.destroy({ where: {}, truncate: true, cascade: true });
+
   const backgroundImages = [
     {
-      name: 'Elegant Rose',
-      url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=200',
-      category: 'Elegant',
+      name: 'Ethereal Flowery 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655902916-98df2c9e7641b3f0.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655902916-98df2c9e7641b3f0.webp',
+      category: 'Floral',
+      theme: 'Floral',
+      primary_color: 'Pink',
       isPremium: false,
-      tags: ['rose', 'elegant', 'romantic'],
+      tags: ['flower', 'ethereal', 'floral'],
       layout_settings: {
         cover_layout: 'standard',
         font_family: 'serif',
+        overlay_opacity: 0.3
       },
     },
     {
-      name: 'Minimalist White',
-      url: 'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&q=80&w=200',
-      category: 'Minimalist',
-      isPremium: false,
-      tags: ['minimalist', 'white', 'clean'],
-      layout_settings: {
-        cover_layout: 'bottom-accent',
-        font_family: 'sans-serif',
-      },
-    },
-    {
-      name: 'Floral Garden',
-      url: 'https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&q=80&w=200',
+      name: 'Ethereal Flowery 02',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903269-b3c123c4609dc0ac.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903269-b3c123c4609dc0ac.webp',
       category: 'Floral',
+      theme: 'Floral',
+      primary_color: 'Emerald',
+      isPremium: false,
+      tags: ['flower', 'ethereal', 'floral'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Ethereal Flowery 03',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903618-2ed12cedfa0808fa.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903618-2ed12cedfa0808fa.webp',
+      category: 'Floral',
+      theme: 'Modern',
+      primary_color: 'White',
       isPremium: true,
-      tags: ['floral', 'garden', 'nature'],
+      tags: ['flower', 'ethereal', 'floral'],
       layout_settings: {
         cover_layout: 'top-bordered',
         font_family: 'serif',
+        overlay_opacity: 0.4
       },
     },
     {
-      name: 'Baby Shower Blue',
-      url: 'https://images.unsplash.com/photo-1519340241574-2cef6a2188ca?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1519340241574-2cef6a2188ca?auto=format&fit=crop&q=80&w=200',
-      category: 'Baby',
-      isPremium: false,
-      tags: ['baby', 'boy', 'blue'],
+      name: 'Ethereal Flowery 04',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903936-5d37778f705cc8a3.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655903936-5d37778f705cc8a3.webp',
+      category: 'Floral',
+      theme: 'Traditional',
+      primary_color: 'Gold',
+      isPremium: true,
+      tags: ['flower', 'ethereal', 'floral'],
       layout_settings: {
         cover_layout: 'centered-circle',
         font_family: 'cursive',
+        overlay_opacity: 0.3
       },
     },
     {
-      name: 'Birthday Party',
-      url: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&q=80&w=200',
-      category: 'Party',
+      name: 'Royal Islamic Motif',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655904712-c076fe431d634d2e.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655904712-c076fe431d634d2e.webp',
+      category: 'Islamic',
+      theme: 'Islamic',
+      primary_color: 'Gold',
       isPremium: true,
-      tags: ['party', 'birthday', 'celebration'],
-      layout_settings: {
-        cover_layout: 'centered-circle',
-        font_family: 'sans-serif',
-      },
-    },
-    {
-      name: 'Ramadan Kareem',
-      url: 'https://images.unsplash.com/photo-1584281722572-902319342738?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1584281722572-902319342738?auto=format&fit=crop&q=80&w=200',
-      category: 'Ramadan',
-      isPremium: false,
-      tags: ['ramadan', 'islamic', 'sacred'],
-      layout_settings: {
-        cover_layout: 'standard',
-        font_family: 'serif',
-      },
-    },
-    {
-      name: 'Aidilfitri Joy',
-      url: 'https://images.unsplash.com/photo-1563294373-c65134abb2b7?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1563294373-c65134abb2b7?auto=format&fit=crop&q=80&w=200',
-      category: 'Raya',
-      isPremium: true,
-      tags: ['raya', 'eid', 'muslim'],
+      tags: ['islamic', 'royal', 'gold'],
       layout_settings: {
         cover_layout: 'glass-card',
         font_family: 'serif',
+        overlay_opacity: 0.5
       },
     },
     {
-      name: 'Islamic Geometry',
-      url: 'https://images.unsplash.com/photo-1564769625905-50e9363afda9?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1564769625905-50e9363afda9?auto=format&fit=crop&q=80&w=200',
-      category: 'Islamic',
+      name: 'Modern Minimalist',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655905759-e0f9807bd74e1eee.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655905759-e0f9807bd74e1eee.webp',
+      category: 'Minimalist',
+      theme: 'Minimalist',
+      primary_color: 'White',
       isPremium: false,
-      tags: ['islamic', 'geometry', 'pattern'],
+      tags: ['minimalist', 'modern', 'clean'],
       layout_settings: {
-        cover_layout: 'standard',
-        font_family: 'serif',
+        cover_layout: 'bottom-accent',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.2
       },
     },
     {
-      name: 'Rustic Woods',
-      url: 'https://images.unsplash.com/photo-1445510491599-c391e8046a68?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1445510491599-c391e8046a68?auto=format&fit=crop&q=80&w=200',
-      category: 'Rustic',
-      isPremium: true,
-      tags: ['rustic', 'wood', 'vintage'],
-      layout_settings: {
-        cover_layout: 'standard',
-        font_family: 'serif',
-      },
-    },
-    {
-      name: 'Traditional Motif',
-      url: 'https://images.unsplash.com/photo-1582533089852-0240222081d5?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1582533089852-0240222081d5?auto=format&fit=crop&q=80&w=200',
-      category: 'Traditional',
-      isPremium: false,
-      tags: ['traditional', 'culture', 'heritage'],
-      layout_settings: {
-        cover_layout: 'standard',
-        font_family: 'serif',
-      },
-    },
-    {
-      name: 'Vintage Paper',
-      url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=80&w=200',
-      category: 'Vintage',
-      isPremium: true,
-      tags: ['vintage', 'classic', 'old'],
-      layout_settings: {
-        cover_layout: 'standard',
-        font_family: 'serif',
-      },
-    },
-    {
-      name: 'Watercolor Blooms',
-      url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800',
-      thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=200',
+      name: 'Watercolor Bloom 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655908844-e2a647da5f41b994.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655908844-e2a647da5f41b994.webp',
       category: 'Watercolor',
+      theme: 'Vintage',
+      primary_color: 'Blue',
       isPremium: false,
-      tags: ['watercolor', 'art', 'soft'],
+      tags: ['watercolor', 'bloom', 'soft'],
       layout_settings: {
         cover_layout: 'standard',
         font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Watercolor Bloom 02',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655909266-7941b626eb7350bb.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655909266-7941b626eb7350bb.webp',
+      category: 'Watercolor',
+      theme: 'Floral',
+      primary_color: 'Pink',
+      isPremium: false,
+      tags: ['watercolor', 'bloom', 'soft'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Majestic Birthday',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655901297-199d5b9a5d7c6cf7.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655901297-199d5b9a5d7c6cf7.webp',
+      category: 'Baby',
+      theme: 'Modern',
+      primary_color: 'Blue',
+      isPremium: false,
+      tags: ['birthday', 'baby', 'blue'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Garden Party 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655906814-c6e2985e713e7840.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655906814-c6e2985e713e7840.webp',
+      category: 'Party',
+      theme: 'Floral',
+      primary_color: 'Pink',
+      isPremium: false,
+      tags: ['party', 'garden', 'floral'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Garden Party 02',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655907165-a70c19f3d38c2a70.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655907165-a70c19f3d38c2a70.webp',
+      category: 'Party',
+      theme: 'Modern',
+      primary_color: 'Emerald',
+      isPremium: true,
+      tags: ['party', 'modern', 'emerald'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Classic Vintage 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655907962-1266b68c8f54ee4d.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769655907962-1266b68c8f54ee4d.webp',
+      category: 'Vintage',
+      theme: 'Vintage',
+      primary_color: 'White',
+      isPremium: true,
+      tags: ['vintage', 'classic', 'white'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Modern Flow 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657840647-4d3b51f04fbfa4d6.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657840647-4d3b51f04fbfa4d6.webp',
+      category: 'Modern',
+      theme: 'Modern',
+      primary_color: 'Blue',
+      isPremium: false,
+      tags: ['modern', 'flow', 'blue'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Ramadhan Special 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657843367-c02dd2cbe28157c4.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657843367-c02dd2cbe28157c4.webp',
+      category: 'Islamic',
+      theme: 'Islamic',
+      primary_color: 'Emerald',
+      isPremium: true,
+      tags: ['ramadhan', 'islamic', 'emerald'],
+      layout_settings: {
+        cover_layout: 'glass-card',
+        font_family: 'serif',
+        overlay_opacity: 0.4
+      },
+    },
+    {
+      name: 'Rustic Charm 01',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657843865-5b7665210ee4171f.webp',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/1769657843865-5b7665210ee4171f.webp',
+      category: 'Traditional',
+      theme: 'Traditional',
+      primary_color: 'Gold',
+      isPremium: true,
+      tags: ['rustic', 'traditional', 'gold'],
+      layout_settings: {
+        cover_layout: 'centered-circle',
+        font_family: 'serif',
+        overlay_opacity: 0.3
       },
     },
   ];

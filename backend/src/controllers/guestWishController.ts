@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, ApiResponse } from '../types/api';
-import { GuestWish } from '../types/models';
-import mockDataService from '../services/mockDataService';
+import databaseService from '../services/databaseService';
 import { getPaginationParams, calculatePagination, paginateArray, sortArray } from '../utils/pagination';
 import logger from '../utils/logger';
 
@@ -29,16 +28,13 @@ export const getAllGuestWishes = async (req: AuthenticatedRequest, res: Response
     // Get pagination parameters
     const { page, limit } = getPaginationParams(req);
     const { invitation_id } = req.query;
-    
+
     // Get all guest wishes
-    let wishes: GuestWish[] = [];
-    
+    let wishes: any[] = [];
+
     if (invitation_id) {
-      // Get wishes for specific invitation
-      wishes = await mockDataService.getGuestWishesByInvitationId(invitation_id as string);
-      
       // Check if user owns the invitation
-      const invitation = await mockDataService.getInvitationById(invitation_id as string);
+      const invitation = await databaseService.getInvitationById(invitation_id as string);
       if (!invitation || invitation.user_id !== userId) {
         res.status(403).json({
           success: false,
@@ -46,27 +42,30 @@ export const getAllGuestWishes = async (req: AuthenticatedRequest, res: Response
         } as ApiResponse);
         return;
       }
+
+      // Get wishes for specific invitation
+      wishes = await databaseService.getGuestWishesByInvitationId(invitation_id as string);
     } else {
       // Get all wishes for user's invitations
-      const userInvitations = await mockDataService.getInvitationsByUserId(userId);
+      const userInvitations = await databaseService.getInvitationsByUserId(userId);
       const userInvitationIds = userInvitations.map(inv => inv.id);
-      
+
       for (const invId of userInvitationIds) {
-        const invWishes = await mockDataService.getGuestWishesByInvitationId(invId);
+        const invWishes = await databaseService.getGuestWishesByInvitationId(invId);
         wishes.push(...invWishes);
       }
     }
-    
+
     // Apply sorting
     wishes = sortArray(wishes, 'created_at', 'desc');
-    
+
     // Calculate pagination
     const total = wishes.length;
     const pagination = calculatePagination(page || 1, limit || 10, total);
-    
+
     // Apply pagination
     const paginatedWishes = paginateArray(wishes, page || 1, limit || 10);
-    
+
     res.status(200).json({
       success: true,
       data: paginatedWishes,
@@ -90,7 +89,7 @@ export const getGuestWishById = async (req: AuthenticatedRequest, res: Response)
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -99,7 +98,7 @@ export const getGuestWishById = async (req: AuthenticatedRequest, res: Response)
       return;
     }
 
-    const wish = await mockDataService.getGuestWishById(id);
+    const wish = await databaseService.getGuestWishById(id);
     if (!wish) {
       res.status(404).json({
         success: false,
@@ -109,19 +108,8 @@ export const getGuestWishById = async (req: AuthenticatedRequest, res: Response)
     }
 
     // Check if user owns the invitation for this wish
-    // We need to find which invitation this wish belongs to
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsWish = false;
-    
-    for (const invitation of userInvitations) {
-      const invitationWishes = await mockDataService.getGuestWishesByInvitationId(invitation.id);
-      if (invitationWishes.some(w => w.id === wish.id)) {
-        userOwnsWish = true;
-        break;
-      }
-    }
-    
-    if (!userOwnsWish) {
+    const invitation = await databaseService.getInvitationById(wish.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this guest wish.'
@@ -150,9 +138,9 @@ export const getGuestWishById = async (req: AuthenticatedRequest, res: Response)
 export const getGuestWishesByInvitationId = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { invitationId } = req.params;
-    
-    // Check if invitation exists and is published
-    const invitation = await mockDataService.getInvitationById(invitationId);
+
+    // Check if invitation exists
+    const invitation = await databaseService.getInvitationById(invitationId);
     if (!invitation) {
       res.status(404).json({
         success: false,
@@ -162,8 +150,8 @@ export const getGuestWishesByInvitationId = async (req: AuthenticatedRequest, re
     }
 
     // Get wishes for the invitation
-    const wishes = await mockDataService.getGuestWishesByInvitationId(invitationId);
-    
+    const wishes = await databaseService.getGuestWishesByInvitationId(invitationId);
+
     res.status(200).json({
       success: true,
       data: wishes
@@ -185,21 +173,13 @@ export const getGuestWishesByInvitationId = async (req: AuthenticatedRequest, re
 export const createGuestWish = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { invitation_id, name, message } = req.body;
-    
-    // Check if invitation exists and is published
-    const invitation = await mockDataService.getInvitationById(invitation_id);
+
+    // Check if invitation exists
+    const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation) {
       res.status(404).json({
         success: false,
         error: 'Invitation not found'
-      } as ApiResponse);
-      return;
-    }
-
-    if (!invitation.settings.is_published) {
-      res.status(400).json({
-        success: false,
-        error: 'Invitation is not published yet'
       } as ApiResponse);
       return;
     }
@@ -213,12 +193,12 @@ export const createGuestWish = async (req: AuthenticatedRequest, res: Response):
       return;
     }
 
-    const newWish = await mockDataService.createGuestWish({
+    const newWish = await databaseService.createGuestWish({
       invitation_id,
       name,
       message
     });
-    
+
     logger.info(`New guest wish created: ${newWish.id} for invitation: ${invitation_id}`);
 
     res.status(201).json({
@@ -243,7 +223,7 @@ export const deleteGuestWish = async (req: AuthenticatedRequest, res: Response):
   try {
     const userId = req.user?.id;
     const { id } = req.params;
-    
+
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -253,7 +233,7 @@ export const deleteGuestWish = async (req: AuthenticatedRequest, res: Response):
     }
 
     // Check if guest wish exists
-    const existingWish = await mockDataService.getGuestWishById(id);
+    const existingWish = await databaseService.getGuestWishById(id);
     if (!existingWish) {
       res.status(404).json({
         success: false,
@@ -263,18 +243,8 @@ export const deleteGuestWish = async (req: AuthenticatedRequest, res: Response):
     }
 
     // Check if user owns the invitation for this wish
-    const userInvitations = await mockDataService.getInvitationsByUserId(userId);
-    let userOwnsWish = false;
-    
-    for (const invitation of userInvitations) {
-      const invitationWishes = await mockDataService.getGuestWishesByInvitationId(invitation.id);
-      if (invitationWishes.some(w => w.id === existingWish.id)) {
-        userOwnsWish = true;
-        break;
-      }
-    }
-    
-    if (!userOwnsWish) {
+    const invitation = await databaseService.getInvitationById(existingWish.invitation_id);
+    if (!invitation || invitation.user_id !== userId) {
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this guest wish.'
@@ -282,11 +252,11 @@ export const deleteGuestWish = async (req: AuthenticatedRequest, res: Response):
       return;
     }
 
-    const deleted = await mockDataService.deleteGuestWish(id);
-    
+    const deleted = await databaseService.deleteGuestWish(id);
+
     if (deleted) {
       logger.info(`Guest wish deleted: ${id} by user: ${userId}`);
-      
+
       res.status(200).json({
         success: true,
         message: 'Guest wish deleted successfully'

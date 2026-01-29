@@ -179,6 +179,8 @@ export interface BackgroundImage {
   url: string;
   thumbnail: string;
   category: string;
+  theme: string;
+  primary_color: string;
   isPremium: boolean;
   tags: string[];
   layout_settings?: {

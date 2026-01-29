@@ -138,6 +138,10 @@ class DatabaseService {
   }
 
   // Itinerary Item operations
+  async getItineraryItemById(id: string) {
+    return await itineraryRepository.findById(id);
+  }
+
   async getItineraryItemsByInvitationId(invitationId: string) {
     return await itineraryRepository.findByInvitationId(invitationId);
   }
@@ -159,6 +163,10 @@ class DatabaseService {
   }
 
   // Contact Person operations
+  async getContactPersonById(id: string) {
+    return await contactPersonRepository.findById(id);
+  }
+
   async getContactPersonsByInvitationId(invitationId: string) {
     return await contactPersonRepository.findByInvitationId(invitationId);
   }
