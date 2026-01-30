@@ -56,10 +56,15 @@ app.use(helmet({
 app.use(securityHeaders);
 
 // CORS configuration
+// Support comma-separated frontend URLs for multiple domains
+const frontendUrls = config.frontendUrl
+  ? config.frontendUrl.split(',').map(url => url.trim())
+  : [];
+
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  config.frontendUrl
+  ...frontendUrls
 ].filter((origin, index, self) => origin && self.indexOf(origin) === index); // Remove duplicates and empty values
 
 app.use(cors({
