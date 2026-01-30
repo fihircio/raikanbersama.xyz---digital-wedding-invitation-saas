@@ -7,6 +7,7 @@ import { UserCircleIcon } from '@heroicons/react/24/outline';
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -146,7 +147,65 @@ const Navbar: React.FC = () => {
               </Link>
             </div>
           )}
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-gray-600 hover:text-rose-600 p-2"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            {user ? (
+              <div className="space-y-2">
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Catalog</Link>
+                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Pricing</Link>
+                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Tutorial</Link>
+                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">FAQ</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Hubungi</Link>
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Dashboard</Link>
+                <Link to="/create" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">Mula Bina Kad</Link>
+
+                <div className="border-t border-gray-200 mt-4 pt-4 px-4">
+                  <div className="mb-3">
+                    <p className="text-sm font-bold text-gray-800">{user.name}</p>
+                    <p className="text-xs text-gray-400">{user.email}</p>
+                    <p className="text-xs text-rose-600 font-bold mt-1 uppercase">{user.membership_tier}</p>
+                  </div>
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Profile Settings</Link>
+                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Order History</Link>
+                  <Link to="/favorites" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">My Favorites</Link>
+                  <button onClick={() => { setIsMobileMenuOpen(false); logout(); }} className="block w-full text-left py-2 text-sm text-red-600 hover:text-red-700 transition">Logout</button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Catalog</Link>
+                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Pricing</Link>
+                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Tutorial</Link>
+                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">FAQ</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Hubungi</Link>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Login</Link>
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">Mula Bina Kad</Link>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );
