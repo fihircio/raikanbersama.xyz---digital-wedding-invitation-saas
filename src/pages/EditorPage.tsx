@@ -320,7 +320,8 @@ const EditorPage: React.FC = () => {
       const response = await fetch(buildApiUrl(`/invitations/${id}`), {
         method: 'PUT',
         headers,
-        body: JSON.stringify(inv)
+        body: JSON.stringify(inv),
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -420,7 +421,8 @@ const EditorPage: React.FC = () => {
         const response = await fetch(buildApiUrl('/files/gallery'), {
           method: 'POST',
           headers,
-          body: formData
+          body: formData,
+          credentials: 'include'
         });
 
         if (response.ok) {
@@ -468,7 +470,8 @@ const EditorPage: React.FC = () => {
         const response = await fetch(buildApiUrl('/files/qr-code'), {
           method: 'POST',
           headers,
-          body: formData
+          body: formData,
+          credentials: 'include'
         });
 
         if (response.ok) {
@@ -514,7 +517,8 @@ const EditorPage: React.FC = () => {
         const response = await fetch(buildApiUrl('/files/gallery'), { // Reuse gallery endpoint for wishlist items
           method: 'POST',
           headers,
-          body: formData
+          body: formData,
+          credentials: 'include'
         });
 
         if (response.ok) {

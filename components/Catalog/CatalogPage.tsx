@@ -4,6 +4,7 @@ import BackgroundGrid from './BackgroundGrid';
 import Pagination from './Pagination';
 import { BackgroundImage, CatalogState } from '../../types';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { buildApiUrl } from '../../src/config';
 
 const CATEGORIES = [
   'Baby', 'Party', 'Ramadan', 'Raya', 'Floral', 'Islamic',
@@ -66,9 +67,12 @@ const CatalogPage: React.FC = () => {
         params.append('color', currentColors.join(','));
       }
 
-      const response = await fetch(`http://localhost:3001/api/backgrounds?${params.toString()}`, {
+      const response = await fetch(buildApiUrl(`/backgrounds?${params.toString()}`), {
         credentials: 'include'
       });
+
+      const newToken = response.headers.get('X-CSRF-Token');
+      if (newToken) setCsrfToken(newToken);
 
       if (response.ok) {
         const data = await response.json();
