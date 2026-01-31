@@ -50,6 +50,21 @@ function getSessionId(req: Request): string | null {
 }
 
 /**
+ * Debug helper to log session state
+ */
+export function logSessionDebug(req: Request, context: string): void {
+  logger.debug('CSRF Session Debug', {
+    context,
+    cookies: Object.keys(req.cookies || {}),
+    hasSecuritySid: !!req.cookies?.['security_sid'],
+    hasCsrfToken: !!req.cookies?.['csrf-token'],
+    userId: (req as any).user?.id,
+    path: req.path,
+    method: req.method
+  });
+}
+
+/**
  * Clean up expired tokens
  */
 function cleanupExpiredTokens(): void {
@@ -77,11 +92,12 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
     sessionId = `sid:${newSid}`;
     isNewSession = true;
 
-    // Set HTTP-only session cookie
+    // Set HTTP-only session cookie with explicit path
     res.cookie('security_sid', newSid, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin compatibility
+      path: '/', // Ensure cookie is sent for all paths
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
   }
@@ -97,7 +113,8 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
     res.cookie('csrf-token', token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Changed from 'strict' for better cross-origin compatibility
+      path: '/', // Ensure cookie is sent for all paths
       maxAge: 60 * 60 * 1000
     });
 
@@ -121,7 +138,8 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
   res.cookie('csrf-token', token, {
     httpOnly: false, // Client needs to read this for AJAX requests
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax', // Changed from 'strict' for better cross-origin compatibility
+    path: '/', // Ensure cookie is sent for all paths
     maxAge: 60 * 60 * 1000 // 1 hour
   });
 
@@ -150,7 +168,11 @@ export const validateCSRFToken = (options: {
       logger.warn('CSRF session not found', {
         path: req.path,
         method: req.method,
-        ip: req.ip
+        ip: req.ip,
+        cookies: Object.keys(req.cookies || {}),
+        hasSecuritySid: !!req.cookies?.['security_sid'],
+        hasCsrfToken: !!req.cookies?.['csrf-token'],
+        userId: (req as any).user?.id
       });
       res.status(403).json({
         success: false,
@@ -290,8 +312,9 @@ export const invalidateCSRFToken = (req: Request, res: Response, next: NextFunct
     tokenStore.delete(sessionId);
   }
 
-  // Clear CSRF cookie
-  res.clearCookie('csrf-token');
+  // Clear CSRF cookie with explicit path
+  res.clearCookie('csrf-token', { path: '/' });
+  res.clearCookie('security_sid', { path: '/' });
 
   next();
 };

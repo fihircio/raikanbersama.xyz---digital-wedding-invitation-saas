@@ -143,8 +143,10 @@ app.get('/', (req, res) => {
   });
 });
 
+import { generateCSRFToken } from './middleware/csrf';
+
 // Health check endpoint (outside API prefix)
-app.get('/health', (req, res) => {
+app.get('/health', generateCSRFToken, (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Server is running',

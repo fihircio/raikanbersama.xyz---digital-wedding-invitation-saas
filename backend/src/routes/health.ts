@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import logger from '../utils/logger';
 import config from '../config';
+import { generateCSRFToken } from '../middleware/csrf';
 
 const router = Router();
 
-// Health check endpoint
-router.get('/', (req: Request, res: Response) => {
+// Health check endpoint with CSRF token generation
+router.get('/', generateCSRFToken, (req: Request, res: Response) => {
   const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),

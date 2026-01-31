@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createSecureRoute } from '../middleware/securityMiddleware';
+import { generateCSRFToken } from '../middleware/csrf';
 import {
   getAllRSVPs,
   getRSVPById,
