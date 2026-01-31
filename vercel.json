@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:match*",
+            "destination": "https://raikanbersama-xyz-digital-wedding-invitation-s-production.up.railway.app/api/:match*"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
