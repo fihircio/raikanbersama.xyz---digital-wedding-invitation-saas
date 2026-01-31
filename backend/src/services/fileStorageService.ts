@@ -206,7 +206,26 @@ class FileStorageService {
 
       return { url, key };
     } catch (error: any) {
-      logger.error('Error uploading to S3:', error);
+      logger.error('Error uploading to S3:', {
+        error: error.message,
+        code: error.code,
+        bucket: config.s3BucketName,
+        region: config.awsRegion,
+        endpoint: config.s3Endpoint || 'aws-standard',
+        key: key,
+        name: error.name,
+        '$metadata': error.$metadata
+      });
+      
+      // Provide helpful error message for common S3 errors
+      if (error.message?.includes('endpoint')) {
+        throw new Error(
+          `S3 bucket region mismatch. The bucket "${config.s3BucketName}" is not in ${config.awsRegion}. ` +
+          `AWS returned: "${error.message}". ` +
+          `Please check your bucket's actual region in AWS Console and update AWS_REGION environment variable.`
+        );
+      }
+      
       // Expose the specific error from AWS (e.g. AccessDenied, InvalidRegion)
       throw new Error(`Failed to upload file to S3: ${error.message || error.code || 'Unknown error'}`);
     }

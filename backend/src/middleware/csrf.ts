@@ -105,8 +105,8 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
   // Check if valid token already exists for this session
   // This prevents race conditions where parallel requests might invalidate each other
   const existingTokenData = tokenStore.get(sessionId);
-  if (existingTokenData && existingTokenData.expires > Date.now() + 5 * 60 * 1000) {
-    // Reuse existing token if it has at least 5 minutes left
+  // Reuse existing token if it has at least 30 minutes left (12.5% of 4-hour lifetime)
+  if (existingTokenData && existingTokenData.expires > Date.now() + 30 * 60 * 1000) {
     const token = existingTokenData.token;
 
     res.set('X-CSRF-Token', token);
@@ -115,7 +115,7 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax', // Changed from 'strict' for better cross-origin compatibility
       path: '/', // Ensure cookie is sent for all paths
-      maxAge: 60 * 60 * 1000
+      maxAge: 4 * 60 * 60 * 1000 // 4 hours
     });
 
     next();
@@ -125,10 +125,10 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
   // Generate new token
   const token = _generateCSRFToken();
 
-  // Store token with expiration (1 hour)
+  // Store token with expiration (4 hours - increased for better UX with uploads)
   tokenStore.set(sessionId, {
     token,
-    expires: Date.now() + 60 * 60 * 1000
+    expires: Date.now() + 4 * 60 * 60 * 1000
   });
 
   // Set CSRF token in response header
@@ -140,7 +140,7 @@ export const generateCSRFToken = (req: Request, res: Response, next: NextFunctio
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax', // Changed from 'strict' for better cross-origin compatibility
     path: '/', // Ensure cookie is sent for all paths
-    maxAge: 60 * 60 * 1000 // 1 hour
+    maxAge: 4 * 60 * 60 * 1000 // 4 hours
   });
 
   next();
