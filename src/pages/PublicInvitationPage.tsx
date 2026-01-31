@@ -627,9 +627,10 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
 
       {invitation.settings.youtube_url && invitation.settings.youtube_show && (
         <YoutubePlayer
+          key={isOpen ? 'playing' : 'initial'} // Force re-mount on open to trigger autoplay with user gesture
           url={invitation.settings.youtube_url}
           startTime={invitation.settings.youtube_start_time}
-          autoplay={invitation.settings.youtube_autoplay !== false}
+          autoplay={isOpen && (invitation.settings.youtube_autoplay !== false)} // Only autoplay when open
         />
       )}
 

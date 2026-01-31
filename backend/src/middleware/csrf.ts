@@ -23,22 +23,30 @@ function _generateCSRFToken(): string {
  * @param req - Express request
  * @returns Session ID
  */
-function getSessionId(req: Request): string {
+// Generate a random session ID
+function generateSessionId(): string {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+/**
+ * Generate a session ID for CSRF token storage
+ * @param req - Express request
+ * @returns Session ID or null if not established
+ */
+function getSessionId(req: Request): string | null {
   // If user is authenticated, use their ID for stable session
-  // This prevents issues with IP rotation (e.g. mobile networks, load balancers)
   const userId = (req as any).user?.id;
   if (userId) {
     return `user:${userId}`;
   }
 
-  // Fallback to IP and user agent for unauthenticated users
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
-  const userAgent = req.get('User-Agent') || 'unknown';
+  // Check for existing session cookie
+  const sid = req.cookies?.['security_sid'];
+  if (sid) {
+    return `sid:${sid}`;
+  }
 
-  // Create a hash from IP and user agent for session identification
-  return crypto.createHash('sha256')
-    .update(`${ip}:${userAgent}`)
-    .digest('hex');
+  return null;
 }
 
 /**
@@ -60,7 +68,44 @@ setInterval(cleanupExpiredTokens, 5 * 60 * 1000);
  * Middleware to generate CSRF token
  */
 export const generateCSRFToken = (req: Request, res: Response, next: NextFunction): void => {
-  const sessionId = getSessionId(req);
+  let sessionId = getSessionId(req);
+  let isNewSession = false;
+
+  // If no session exists, create one
+  if (!sessionId) {
+    const newSid = generateSessionId();
+    sessionId = `sid:${newSid}`;
+    isNewSession = true;
+
+    // Set HTTP-only session cookie
+    res.cookie('security_sid', newSid, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+  }
+
+  // Check if valid token already exists for this session
+  // This prevents race conditions where parallel requests might invalidate each other
+  const existingTokenData = tokenStore.get(sessionId);
+  if (existingTokenData && existingTokenData.expires > Date.now() + 5 * 60 * 1000) {
+    // Reuse existing token if it has at least 5 minutes left
+    const token = existingTokenData.token;
+
+    res.set('X-CSRF-Token', token);
+    res.cookie('csrf-token', token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000
+    });
+
+    next();
+    return;
+  }
+
+  // Generate new token
   const token = _generateCSRFToken();
 
   // Store token with expiration (1 hour)
@@ -101,6 +146,19 @@ export const validateCSRFToken = (options: {
     }
 
     const sessionId = getSessionId(req);
+    if (!sessionId) {
+      logger.warn('CSRF session not found', {
+        path: req.path,
+        method: req.method,
+        ip: req.ip
+      });
+      res.status(403).json({
+        success: false,
+        error: 'CSRF session invalid or expired. Please refresh the page.'
+      });
+      return;
+    }
+
     const storedTokenData = tokenStore.get(sessionId);
 
     if (!storedTokenData || storedTokenData.expires < Date.now()) {
@@ -171,6 +229,14 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
   }
 
   const sessionId = getSessionId(req);
+  if (!sessionId) {
+    res.status(403).json({
+      success: false,
+      error: 'CSRF session invalid. Please refresh the page.'
+    });
+    return;
+  }
+
   const storedTokenData = tokenStore.get(sessionId);
 
   if (!storedTokenData || storedTokenData.expires < Date.now()) {
@@ -220,7 +286,9 @@ export const doubleSubmitCSRF = (req: Request, res: Response, next: NextFunction
  */
 export const invalidateCSRFToken = (req: Request, res: Response, next: NextFunction): void => {
   const sessionId = getSessionId(req);
-  tokenStore.delete(sessionId);
+  if (sessionId) {
+    tokenStore.delete(sessionId);
+  }
 
   // Clear CSRF cookie
   res.clearCookie('csrf-token');
