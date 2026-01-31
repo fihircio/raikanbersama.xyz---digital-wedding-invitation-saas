@@ -37,11 +37,17 @@ const createRSVPSchema = {
   phone_number: {
     type: 'string',
     required: true,
-    pattern: /^(\+?6?01)[0-46-9]*$/,
+    pattern: /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/,
     custom: (value: string) => {
       if (!value) return true;
-      return value.length >= 10 && value.length <= 15 || 'Phone number must be between 10 and 15 digits';
+      // Remove all non-numeric characters for length check
+      const digitsOnly = value.replace(/\D/g, '');
+      return (digitsOnly.length >= 8 && digitsOnly.length <= 15) || 'Phone number must be between 8 and 15 digits';
     }
+  },
+  slot: {
+    type: 'string',
+    max: 100
   },
   message: {
     type: 'string',
@@ -65,11 +71,17 @@ const updateRSVPSchema = {
   },
   phone_number: {
     type: 'string',
-    pattern: /^(\+?6?01)[0-46-9]*$/,
+    pattern: /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/,
     custom: (value: string) => {
       if (!value) return true;
-      return value.length >= 10 && value.length <= 15 || 'Phone number must be between 10 and 15 digits';
+      // Remove all non-numeric characters for length check
+      const digitsOnly = value.replace(/\D/g, '');
+      return (digitsOnly.length >= 8 && digitsOnly.length <= 15) || 'Phone number must be between 8 and 15 digits';
     }
+  },
+  slot: {
+    type: 'string',
+    max: 100
   },
   message: {
     type: 'string',
