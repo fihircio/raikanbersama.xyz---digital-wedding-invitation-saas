@@ -183,7 +183,7 @@ export const seedSampleInvitations = async () => {
                 const galleryImages = [
                     'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
                     'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
-                    'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
                     'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80'
                 ];
                 for (let i = 0; i < galleryImages.length; i++) {

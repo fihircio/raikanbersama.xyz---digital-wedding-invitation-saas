@@ -665,7 +665,7 @@ const seedGalleryItems = async (): Promise<void> => {
     },
     {
       invitation_id: testInvitation.id,
-      image_url: 'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&q=80&w=800',
+      image_url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800',
       caption: 'Couple portrait',
       display_order: 2,
     },

@@ -52,7 +52,7 @@ export const MOCK_INVITATIONS: Invitation[] = [
     ],
     gallery: [
       'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800',
-      'https://images.unsplash.com/photo-1519225495810-75178319a13b?auto=format&fit=crop&q=80&w=800'
+      'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800'
     ],
     settings: {
       music_url: '',
