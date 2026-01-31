@@ -53,6 +53,13 @@ class FileStorageService {
         secretAccessKey: config.s3SecretAccessKey,
       },
     });
+
+    logger.info('S3 Service Initialized', {
+      region: config.awsRegion,
+      bucket: config.s3BucketName,
+      endpoint: config.s3Endpoint || 'standard-aws',
+      forcePathStyle: !!config.s3Endpoint
+    });
   }
 
   /**
