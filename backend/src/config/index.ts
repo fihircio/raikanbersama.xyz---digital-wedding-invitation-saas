@@ -38,7 +38,7 @@ const config: Config = {
   logLevel: process.env.LOG_LEVEL || 'info',
   logFile: process.env.LOG_FILE || 'logs/app.log',
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes
-  rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
+  rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000', 10),
   jwtSecret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   // AWS S3 Configuration

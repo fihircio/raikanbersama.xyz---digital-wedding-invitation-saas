@@ -195,7 +195,7 @@ export const applyRouteSecurity = {
     requireCSRF: false,
     rateLimit: {
       enabled: true,
-      maxAttempts: 10,
+      maxAttempts: 100,
       windowMs: 15 * 60 * 1000 // 15 minutes
     },
     contentModeration: {
@@ -210,7 +210,7 @@ export const applyRouteSecurity = {
     requireCSRF: true,
     rateLimit: {
       enabled: true,
-      maxAttempts: 20,
+      maxAttempts: 200,
       windowMs: 60 * 60 * 1000 // 1 hour
     },
     contentModeration: {
@@ -225,7 +225,7 @@ export const applyRouteSecurity = {
     requireCSRF: true,
     rateLimit: {
       enabled: true,
-      maxAttempts: 10,
+      maxAttempts: 100,
       windowMs: 60 * 60 * 1000 // 1 hour
     },
     contentModeration: {
@@ -240,7 +240,7 @@ export const applyRouteSecurity = {
     requireCSRF: true,
     rateLimit: {
       enabled: true,
-      maxAttempts: 20,
+      maxAttempts: 1000,
       windowMs: 60 * 60 * 1000 // 1 hour
     },
     contentModeration: {
@@ -255,7 +255,7 @@ export const applyRouteSecurity = {
     requireCSRF: true,
     rateLimit: {
       enabled: true,
-      maxAttempts: 50,
+      maxAttempts: 200,
       windowMs: 60 * 60 * 1000 // 1 hour
     },
     contentModeration: {
@@ -274,7 +274,7 @@ export const applyRouteSecurity = {
     requireCSRF: true,
     rateLimit: {
       enabled: true,
-      maxAttempts: 100,
+      maxAttempts: 2000,
       windowMs: 60 * 60 * 1000 // 1 hour
     },
     contentModeration: {
