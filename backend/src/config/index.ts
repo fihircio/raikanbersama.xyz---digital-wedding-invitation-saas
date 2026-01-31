@@ -42,7 +42,7 @@ const config: Config = {
   jwtSecret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   // AWS S3 Configuration
-  awsRegion: process.env.AWS_REGION || 'us-east-1',
+  awsRegion: process.env.AWS_REGION || 'ap-southeast-1',
   s3BucketName: process.env.S3_BUCKET_NAME || 'raikanbersama-uploads',
   s3AccessKeyId: process.env.S3_ACCESS_KEY_ID || '',
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
