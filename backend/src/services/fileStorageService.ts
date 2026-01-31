@@ -47,7 +47,7 @@ class FileStorageService {
     this.s3Client = new S3Client({
       region: config.awsRegion,
       endpoint: config.s3Endpoint, // Support for R2/S3 compatible services
-      forcePathStyle: true, // Often required for S3-compatible storage
+      forcePathStyle: !!config.s3Endpoint, // Only use path style for custom endpoints (MinIO/LocalStack), AWS uses virtual hosted
       credentials: {
         accessKeyId: config.s3AccessKeyId,
         secretAccessKey: config.s3SecretAccessKey,
@@ -198,9 +198,10 @@ class FileStorageService {
         : `https://${config.s3BucketName}.s3.${config.awsRegion}.amazonaws.com/${key}`;
 
       return { url, key };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Error uploading to S3:', error);
-      throw new Error('Failed to upload file to S3');
+      // Expose the specific error from AWS (e.g. AccessDenied, InvalidRegion)
+      throw new Error(`Failed to upload file to S3: ${error.message || error.code || 'Unknown error'}`);
     }
   }
 
