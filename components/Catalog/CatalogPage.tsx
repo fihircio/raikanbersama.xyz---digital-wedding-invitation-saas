@@ -108,7 +108,7 @@ const CatalogPage: React.FC = () => {
       };
       if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-      const response = await fetch('http://localhost:3001/api/favorites', {
+      const response = await fetch(buildApiUrl('/favorites'), {
         headers,
         credentials: 'include'
       });
@@ -205,8 +205,8 @@ const CatalogPage: React.FC = () => {
 
       const method = isFavorited ? 'DELETE' : 'POST';
       const url = isFavorited
-        ? `http://localhost:3001/api/favorites/${backgroundId}`
-        : 'http://localhost:3001/api/favorites';
+        ? buildApiUrl(`/favorites/${backgroundId}`)
+        : buildApiUrl('/favorites');
 
       const response = await fetch(url, {
         method,
@@ -325,7 +325,7 @@ const CatalogPage: React.FC = () => {
       };
       if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-      const response = await fetch('http://localhost:3001/api/invitations', {
+      const response = await fetch(buildApiUrl('/invitations'), {
         method: 'POST',
         headers,
         credentials: 'include',

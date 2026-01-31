@@ -24,7 +24,14 @@ function _generateCSRFToken(): string {
  * @returns Session ID
  */
 function getSessionId(req: Request): string {
-  // Try to get session ID from various sources
+  // If user is authenticated, use their ID for stable session
+  // This prevents issues with IP rotation (e.g. mobile networks, load balancers)
+  const userId = (req as any).user?.id;
+  if (userId) {
+    return `user:${userId}`;
+  }
+
+  // Fallback to IP and user agent for unauthenticated users
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent') || 'unknown';
 
