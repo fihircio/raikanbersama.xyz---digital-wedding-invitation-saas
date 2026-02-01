@@ -112,6 +112,11 @@ export interface Invitation {
     greeting_text?: string;
     invitation_text?: string;
     story_title?: string;
+    // Hashtag for social sharing
+    hashtag_text?: string;
+    hashtag_color?: string;
+    hashtag_size?: string;
+    hashtag_font?: string;
     // New individual color & size overrides
     groom_color?: string;
     groom_font?: string;

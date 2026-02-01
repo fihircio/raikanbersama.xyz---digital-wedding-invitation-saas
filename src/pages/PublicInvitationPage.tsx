@@ -18,6 +18,7 @@ const GoogleFontLoader: React.FC<{ settings: any }> = ({ settings }) => {
     if (settings.invitation_font) fonts.add(settings.invitation_font);
     if (settings.date_font) fonts.add(settings.date_font);
     if (settings.location_font) fonts.add(settings.location_font);
+    if (settings.hashtag_font) fonts.add(settings.hashtag_font);
     return Array.from(fonts);
   }, [settings]);
 
@@ -357,9 +358,9 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
   );
 };
 
-const Guestbook: React.FC<{ wishes: any[], primaryColor: string }> = ({ wishes, primaryColor }) => (
+const Guestbook: React.FC<{ wishes: any[], primaryColor: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string }> = ({ wishes, primaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont }) => (
   <div className="mt-24 text-center px-4 pb-48">
-    <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Ucapan & Doa</h4>
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 border-b pb-2 inline-block font-serif">Ucapan & Doa</h4>
     <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar py-4 px-2">
       {(wishes || []).length > 0 ? (wishes || []).map((wish) => (
         <div key={wish.id} className="bg-white border border-gray-100 p-6 rounded-[2rem] shadow-sm text-left relative overflow-hidden group hover:shadow-md transition">
@@ -372,6 +373,38 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string }> = ({ wishes, 
         <p className="text-gray-400 italic text-sm py-10">Belum ada ucapan. Jadilah yang pertama!</p>
       )}
     </div>
+    {/* Hashtag Display - appears after wishes for Pro/Elite */}
+    {hashtagText && (
+      <div className="mt-16 mb-2">
+        <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 border-b pb-2 inline-block font-serif">Hashtag</h4>
+        <span
+          className="block tracking-wider break-words leading-relaxed"
+          style={{
+            color: hashtagColor || primaryColor,
+            fontSize: `${hashtagSize || '18'}px`,
+            fontFamily: hashtagFont || 'cursive'
+          }}
+        >
+          {hashtagText}
+        </span>
+      </div>
+    )}
+  </div>
+);
+
+const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor }) => (
+  <div className="mt-24 text-center px-4 pb-16">
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 border-b pb-2 inline-block font-serif">Hashtag</h4>
+    <span
+      className="block tracking-wider break-words leading-relaxed"
+      style={{
+        color: hashtagColor || primaryColor,
+        fontSize: `${hashtagSize || '18'}px`,
+        fontFamily: hashtagFont || 'cursive'
+      }}
+    >
+      {hashtagText}
+    </span>
   </div>
 );
 
@@ -784,6 +817,17 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
             </div>
 
+            {/* Hashtag Section - Only for Lite users (no wishes feature) */}
+            {invitation.settings.hashtag_text && !canAccess('wishes') && (
+              <Hashtag
+                hashtagText={invitation.settings.hashtag_text}
+                hashtagColor={invitation.settings.hashtag_color}
+                hashtagSize={invitation.settings.hashtag_size}
+                hashtagFont={invitation.settings.hashtag_font}
+                primaryColor={primaryColor}
+              />
+            )}
+
             {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
               <div className="mt-24 text-center">
                 <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
@@ -802,7 +846,16 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               </div>
             )}
 
-            {canAccess('wishes') && <Guestbook wishes={invitation.wishes} primaryColor={primaryColor} />}
+            {canAccess('wishes') && (
+              <Guestbook
+                wishes={invitation.wishes}
+                primaryColor={primaryColor}
+                hashtagText={invitation.settings.hashtag_text}
+                hashtagColor={invitation.settings.hashtag_color}
+                hashtagSize={invitation.settings.hashtag_size}
+                hashtagFont={invitation.settings.hashtag_font}
+              />
+            )}
           </div>
 
           {/* Floating Bottom Nav */}

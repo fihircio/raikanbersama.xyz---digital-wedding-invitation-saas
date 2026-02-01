@@ -167,6 +167,10 @@ const EditorPage: React.FC = () => {
               invitation_text: 'Dengan penuh kesyukuran, kami menjemput anda ke majlis perkahwinan kami:',
               story_title: 'Kisah Cinta Kita',
               our_story: 'Kisah cinta kami bermula di sebuah perpustakaan lama...',
+              hashtag_text: '#AisyahDanAhmun2025',
+              hashtag_color: '#8B4513',
+              hashtag_size: '18',
+              hashtag_font: 'Great Vibes',
               pantun: 'Tuai padi antara nampak, Esok jangan layu-layuan; Intai kami antara nampak, Esok jangan rindu-rinduan.',
               groom_color: '#8B4513',
               bride_color: '#8B4513',
@@ -996,6 +1000,63 @@ const EditorPage: React.FC = () => {
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kandungan Kisah</label>
                       <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-3xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium italic leading-relaxed" />
+                    </div>
+                  </div>
+
+                  {/* Hashtag Section */}
+                  <div className="space-y-4 pt-6 border-t border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.3em] border-l-2 border-rose-200 pl-4 font-serif">Hashtag</h4>
+                      <span className="text-[9px] text-gray-400 italic">- untuk ucapan & doa</span>
+                    </div>
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Teks Hashtag</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: #AisyahDanAhmun2025"
+                          value={inv.settings.hashtag_text || ''}
+                          onChange={(e) => updateSettings('hashtag_text', e.target.value)}
+                          className="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                      <FontPicker label="Font Hashtag" value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                            <span>Warna</span>
+                            <input
+                              type="color"
+                              value={inv.settings.hashtag_color || '#8B4513'}
+                              onChange={(e) => updateSettings('hashtag_color', e.target.value)}
+                              className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                            />
+                          </label>
+                          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200">
+                            <div
+                              className="w-6 h-6 rounded-full border border-gray-200"
+                              style={{ backgroundColor: inv.settings.hashtag_color || '#8B4513' }}
+                            />
+                            <span className="text-[10px] font-mono text-gray-500">{inv.settings.hashtag_color || '#8B4513'}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                            <span>Saiz</span>
+                            <span>{inv.settings.hashtag_size || '16'}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="10"
+                            max="32"
+                            value={inv.settings.hashtag_size || '16'}
+                            onChange={(e) => updateSettings('hashtag_size', e.target.value)}
+                            className="w-full accent-rose-600 h-2 mt-3"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </section>
