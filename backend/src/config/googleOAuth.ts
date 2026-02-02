@@ -3,10 +3,15 @@ import { Strategy as GoogleStrategy, VerifyCallback } from 'passport-google-oaut
 import config from './index';
 
 // Google OAuth configuration
+const getPrimaryFrontendUrl = () => {
+  const url = process.env.FRONTEND_URL || 'http://localhost:5173';
+  return url.split(',')[0].trim();
+};
+
 const googleOAuthConfig = {
   clientID: process.env.GOOGLE_CLIENT_ID || '',
   clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-  callbackURL: process.env.GOOGLE_CALLBACK_URL || `${config.frontendUrl}/api/users/auth/google/callback`,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || `${getPrimaryFrontendUrl()}/api/users/auth/google/callback`,
 };
 
 // Google profile interface

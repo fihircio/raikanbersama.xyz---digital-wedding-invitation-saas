@@ -32,7 +32,9 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
     const user = req.user as any;
 
     if (!user) {
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/#/login?error=oauth_failed`);
+      const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = rawFrontendUrl.split(',')[0].trim();
+      res.redirect(`${frontendUrl}/#/login?error=oauth_failed`);
       return;
     }
 
@@ -41,14 +43,16 @@ export const googleCallback = async (req: Request, res: Response): Promise<void>
 
     // Redirect to frontend with tokens
     // Use hash routing because frontend uses HashRouter
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = rawFrontendUrl.split(',')[0].trim();
     const redirectUrl = `${frontendUrl}/#/oauth/callback?token=${accessToken}&refreshToken=${refreshToken}`;
 
     logger.info(`Google OAuth successful for user: ${user.email}`);
     res.redirect(redirectUrl);
   } catch (error) {
     logger.error('Error in Google OAuth callback:', error);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = rawFrontendUrl.split(',')[0].trim();
     res.redirect(`${frontendUrl}/#/login?error=oauth_error`);
   }
 };
