@@ -338,6 +338,157 @@ const seedBackgroundImages = async (): Promise<void> => {
         overlay_opacity: 0.3
       },
     },
+    // New designs added Feb 2026
+    {
+      name: 'Birthday Celebration',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/birthday.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/birthday.png',
+      category: 'Party',
+      theme: 'Modern',
+      primary_color: 'Gold',
+      isPremium: false,
+      tags: ['birthday', 'party', 'celebration'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Flowery Elegance',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/flowery.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/flowery.png',
+      category: 'Floral',
+      theme: 'Floral',
+      primary_color: 'Pink',
+      isPremium: false,
+      tags: ['flowery', 'floral', 'elegant'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Minimal Clean',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal.png',
+      category: 'Minimalist',
+      theme: 'Minimalist',
+      primary_color: 'White',
+      isPremium: false,
+      tags: ['minimal', 'clean', 'simple'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Minimal Soft',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal_02.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal_02.png',
+      category: 'Minimalist',
+      theme: 'Minimalist',
+      primary_color: 'White',
+      isPremium: false,
+      tags: ['minimal', 'soft', 'elegant'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Minimal Chic',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal_03.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/minimal_03.png',
+      category: 'Minimalist',
+      theme: 'Minimalist',
+      primary_color: 'White',
+      isPremium: true,
+      tags: ['minimal', 'chic', 'premium'],
+      layout_settings: {
+        cover_layout: 'bottom-accent',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.2
+      },
+    },
+    {
+      name: 'Modern Flow',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/modern.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/modern.png',
+      category: 'Modern',
+      theme: 'Modern',
+      primary_color: 'Blue',
+      isPremium: false,
+      tags: ['modern', 'flow', 'contemporary'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Modern Gradient',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/modern_02.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/modern_02.png',
+      category: 'Modern',
+      theme: 'Modern',
+      primary_color: 'Blue',
+      isPremium: true,
+      tags: ['modern', 'gradient', 'premium'],
+      layout_settings: {
+        cover_layout: 'glass-card',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.3
+      },
+    },
+    {
+      name: 'Neon Glow',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/neon.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/neon.png',
+      category: 'Party',
+      theme: 'Modern',
+      primary_color: 'Pink',
+      isPremium: true,
+      tags: ['neon', 'glow', 'party'],
+      layout_settings: {
+        cover_layout: 'standard',
+        font_family: 'sans-serif',
+        overlay_opacity: 0.4
+      },
+    },
+    {
+      name: 'Ramadhan Mubarak',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/ramadhan.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/ramadhan.png',
+      category: 'Ramadan',
+      theme: 'Islamic',
+      primary_color: 'Emerald',
+      isPremium: false,
+      tags: ['ramadhan', 'islamic', 'eid'],
+      layout_settings: {
+        cover_layout: 'glass-card',
+        font_family: 'serif',
+        overlay_opacity: 0.4
+      },
+    },
+    {
+      name: 'Rustic Nature',
+      url: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/rustic.png',
+      thumbnail: 'https://raikanbersama-server-bucket.s3.ap-southeast-1.amazonaws.com/background/admin/rustic.png',
+      category: 'Rustic',
+      theme: 'Rustic',
+      primary_color: 'Gold',
+      isPremium: false,
+      tags: ['rustic', 'nature', 'earthy'],
+      layout_settings: {
+        cover_layout: 'centered-circle',
+        font_family: 'serif',
+        overlay_opacity: 0.3
+      },
+    },
   ];
 
   for (const bg of backgroundImages) {
