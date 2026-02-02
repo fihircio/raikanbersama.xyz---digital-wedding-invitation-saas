@@ -22,7 +22,7 @@ import { connectDatabase, initializeDatabase, closeDatabase } from './config/dat
 import { initializeModels } from './models';
 import sequelize from './config/database';
 import { securityHeaders } from './middleware/securityMiddleware';
-import { configureGoogleStrategy } from './config/googleOAuth';
+import { configureGoogleStrategy, isGoogleOAuthConfigured } from './config/googleOAuth';
 import authService from './services/authService';
 import databaseService from './services/databaseService';
 
@@ -199,10 +199,15 @@ const startServer = async () => {
     // Initialize database (create tables if they don't exist)
     await initializeDatabase();
 
-    // Configure Google OAuth strategy
-    configureGoogleStrategy(async (profile) => {
-      return await authService.handleGoogleLogin(profile);
-    });
+    // Configure Google OAuth strategy only if variables are provided
+    if (isGoogleOAuthConfigured()) {
+      logger.info('Google OAuth configuration detected, initializing strategy');
+      configureGoogleStrategy(async (profile) => {
+        return await authService.handleGoogleLogin(profile);
+      });
+    } else {
+      logger.warn('Google OAuth is NOT configured. Google login will be unavailable.');
+    }
 
   } catch (error) {
     logger.error('Database connection failed:', error);
