@@ -7,7 +7,6 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import pgSession from 'connect-pg-simple';
 import passport from 'passport';
 import path from 'path';
 import fs from 'fs';
@@ -122,32 +121,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Session middleware for Passport OAuth
-const PostgresStore = pgSession(session);
-let sessionStore;
-
-if (config.nodeEnv === 'production') {
-  if (process.env.DATABASE_URL) {
-    logger.info('Initializing PostgreSQL session store for production');
-    sessionStore = new PostgresStore({
-      conObject: {
-        connectionString: process.env.DATABASE_URL,
-        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-      },
-      tableName: 'sessions',
-      createTableIfMissing: true
-    });
-
-    // Add error handler for session store
-    sessionStore.on('error', (error) => {
-      logger.error('Session store error:', error);
-    });
-  } else {
-    logger.warn('DATABASE_URL not found in production! Falling back to MemoryStore (not recommended)');
-  }
-}
-
 app.use(session({
-  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,

@@ -28,12 +28,7 @@ const databaseUrl = process.env.DATABASE_URL;
 const sequelize = databaseUrl
   ? new Sequelize(databaseUrl, {
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? {
-        require: true,
-        rejectUnauthorized: false // Required for some cloud databases like Railway/Heroku
-      } : false
-    },
+    ssl: process.env.DB_SSL === 'true',
     pool: dbConfig.pool,
     logging: dbConfig.logging,
     timezone: dbConfig.timezone
@@ -42,15 +37,7 @@ const sequelize = databaseUrl
     dbConfig.database,
     dbConfig.username,
     dbConfig.password,
-    {
-      ...dbConfig,
-      dialectOptions: {
-        ssl: process.env.DB_SSL === 'true' ? {
-          require: true,
-          rejectUnauthorized: false
-        } : false
-      }
-    }
+    dbConfig
   );
 
 // Test database connection

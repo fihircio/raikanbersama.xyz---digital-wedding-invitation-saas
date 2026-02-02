@@ -34,16 +34,14 @@ const logger = winston.createLogger({
   ],
 });
 
-// If we're not in production, log to the console with a simple format
-if (config.nodeEnv !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      ),
-    })
-  );
-}
+// Enable console logging for all environments to help with debugging on platforms like Railway
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    ),
+  })
+);
 
 export default logger;
