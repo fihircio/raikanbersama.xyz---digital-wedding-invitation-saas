@@ -6,6 +6,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import pgSession from 'connect-pg-simple';
 import passport from 'passport';
 import path from 'path';
 import fs from 'fs';
@@ -120,7 +121,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Session middleware for Passport OAuth
+const PostgresStore = pgSession(session);
 app.use(session({
+  store: config.nodeEnv === 'production'
+    ? new PostgresStore({
+      conObject: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+      },
+      tableName: 'sessions',
+      createTableIfMissing: true
+    })
+    : undefined,
   secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
