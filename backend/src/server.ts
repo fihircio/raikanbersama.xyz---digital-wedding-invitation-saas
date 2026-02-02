@@ -1,3 +1,4 @@
+console.log('--- SERVER STARTING ---');
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -122,17 +123,31 @@ app.use(cookieParser());
 
 // Session middleware for Passport OAuth
 const PostgresStore = pgSession(session);
-app.use(session({
-  store: config.nodeEnv === 'production'
-    ? new PostgresStore({
+let sessionStore;
+
+if (config.nodeEnv === 'production') {
+  if (process.env.DATABASE_URL) {
+    logger.info('Initializing PostgreSQL session store for production');
+    sessionStore = new PostgresStore({
       conObject: {
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
       },
       tableName: 'sessions',
       createTableIfMissing: true
-    })
-    : undefined,
+    });
+
+    // Add error handler for session store
+    sessionStore.on('error', (error) => {
+      logger.error('Session store error:', error);
+    });
+  } else {
+    logger.warn('DATABASE_URL not found in production! Falling back to MemoryStore (not recommended)');
+  }
+}
+
+app.use(session({
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
