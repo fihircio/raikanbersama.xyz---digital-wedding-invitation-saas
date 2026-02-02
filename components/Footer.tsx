@@ -40,7 +40,8 @@ const Footer: React.FC = () => {
                         <ul className="space-y-4">
                             <li><Link to="/faq" className="text-gray-500 hover:text-rose-600 transition text-sm">Soalan Lazim (FAQ)</Link></li>
                             <li><Link to="/contact" className="text-gray-500 hover:text-rose-600 transition text-sm">Hubungi Kami</Link></li>
-                            <li><a href="#" className="text-gray-500 hover:text-rose-600 transition text-sm">Terma & Syarat</a></li>
+                            <li><Link to="/terms" className="text-gray-500 hover:text-rose-600 transition text-sm">Terma & Syarat</Link></li>
+                            <li><Link to="/privacy" className="text-gray-500 hover:text-rose-600 transition text-sm">Privacy Policy</Link></li>
                         </ul>
                     </div>
 

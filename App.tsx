@@ -20,6 +20,8 @@ import FAQPage from './src/pages/FAQPage';
 import TutorialPage from './src/pages/TutorialPage';
 import ContactPage from './src/pages/ContactPage';
 import AffiliatePage from './src/pages/AffiliatePage';
+import PrivacyPolicyPage from './src/pages/PrivacyPolicyPage';
+import TermsPage from './src/pages/TermsPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -54,6 +56,8 @@ const App: React.FC = () => {
             <Route path="/tutorial" element={<><Navbar /><TutorialPage /><Footer /></>} />
             <Route path="/contact" element={<><Navbar /><ContactPage /><Footer /></>} />
             <Route path="/affiliates" element={<><Navbar /><AffiliatePage /><Footer /></>} />
+            <Route path="/privacy" element={<><Navbar /><PrivacyPolicyPage /><Footer /></>} />
+            <Route path="/terms" element={<><Navbar /><TermsPage /><Footer /></>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
