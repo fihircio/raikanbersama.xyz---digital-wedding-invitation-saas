@@ -28,12 +28,12 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  password: string; // Hashed
+  password?: string | null; // Hashed - nullable for OAuth users, optional for general request compatibility
   membership_tier: MembershipTier;
   membership_expires_at?: string;
   email_verified?: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // User type for API responses (without password)
@@ -125,12 +125,22 @@ export interface ApiResponse<T = any> {
 }
 
 // Express Request with authenticated user
+declare global {
+  namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface User {
+      id: string;
+      email: string;
+      name: string;
+      membership_tier: MembershipTier;
+      created_at?: string;
+      updated_at?: string;
+    }
+  }
+}
+
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    membership_tier: MembershipTier;
-  };
+  user?: User;
 }
 
 // Validation schemas

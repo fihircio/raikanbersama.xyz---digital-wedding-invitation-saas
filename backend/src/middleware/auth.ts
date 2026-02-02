@@ -53,6 +53,7 @@ export const authenticate = async (
     req.user = {
       id: user.id,
       email: user.email,
+      name: user.name,
       membership_tier: user.membership_tier
     };
 
@@ -116,6 +117,7 @@ export const optionalAuth = async (
       req.user = {
         id: user.id,
         email: user.email,
+        name: user.name,
         membership_tier: user.membership_tier
       };
     }

@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { AuthenticatedRequest, ApiResponse } from '../types/api';
+import { Request, Response } from 'express';
+import { ApiResponse } from '../types/api';
 import { BackgroundImage } from '../models';
 import { getPaginationParams, calculatePagination } from '../utils/pagination';
 import logger from '../utils/logger';
@@ -15,7 +15,7 @@ import { Op, WhereOptions } from 'sequelize';
  * @route GET /api/backgrounds
  * @access Public
  */
-export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllBackgrounds = async (req: Request, res: Response): Promise<void> => {
   try {
     // Get pagination parameters
     const { page, limit } = getPaginationParams(req);
@@ -110,7 +110,7 @@ export const getAllBackgrounds = async (req: AuthenticatedRequest, res: Response
  * @route GET /api/backgrounds/:id
  * @access Public
  */
-export const getBackgroundById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getBackgroundById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -141,7 +141,7 @@ export const getBackgroundById = async (req: AuthenticatedRequest, res: Response
  * @route GET /api/backgrounds/category/:category
  * @access Public
  */
-export const getBackgroundsByCategory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getBackgroundsByCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const { category } = req.params;
     const { page, limit } = getPaginationParams(req);
@@ -181,7 +181,7 @@ export const getBackgroundsByCategory = async (req: AuthenticatedRequest, res: R
  * @route GET /api/backgrounds/premium
  * @access Public
  */
-export const getPremiumBackgrounds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getPremiumBackgrounds = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page, limit } = getPaginationParams(req);
     const { search, sortBy, sortOrder } = req.query;
@@ -220,7 +220,7 @@ export const getPremiumBackgrounds = async (req: AuthenticatedRequest, res: Resp
  * @route GET /api/backgrounds/free
  * @access Public
  */
-export const getFreeBackgrounds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getFreeBackgrounds = async (req: Request, res: Response): Promise<void> => {
   try {
     const { page, limit } = getPaginationParams(req);
     const { search, sortBy, sortOrder } = req.query;

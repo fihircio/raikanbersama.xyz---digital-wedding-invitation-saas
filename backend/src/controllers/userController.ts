@@ -97,6 +97,14 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
     }
 
     // Check password using authService
+    // OAuth users don't have passwords
+    if (!user.password) {
+      res.status(401).json({
+        success: false,
+        error: 'Please login with Google instead'
+      } as ApiResponse);
+      return;
+    }
     const isPasswordValid = await authService.comparePassword(password, user.password);
     if (!isPasswordValid) {
       res.status(401).json({
@@ -111,7 +119,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
       id: user.id,
       email: user.email,
       name: user.name,
-      password: user.password, // Include password for authService
+      password: user.password || '', // Include password for authService (empty for OAuth users)
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,
@@ -267,6 +275,15 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response): 
       return;
     }
 
+    // OAuth users don't have passwords to change via this method
+    if (!user.password) {
+      res.status(400).json({
+        success: false,
+        error: 'OAuth users cannot change password using this method'
+      } as ApiResponse);
+      return;
+    }
+
     // Verify current password using authService
     const isCurrentPasswordValid = await authService.comparePassword(currentPassword, user.password);
     if (!isCurrentPasswordValid) {
@@ -401,7 +418,7 @@ export const forgotPassword = async (req: AuthenticatedRequest, res: Response): 
       id: user.id,
       email: user.email,
       name: user.name,
-      password: user.password, // Include password for authService
+      password: user.password || '', // Include password for authService (empty for OAuth users)
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,
@@ -520,7 +537,7 @@ export const sendEmailVerification = async (req: AuthenticatedRequest, res: Resp
       id: user.id,
       email: user.email,
       name: user.name,
-      password: user.password, // Include password for authService
+      password: user.password || '', // Include password for authService (empty for OAuth users)
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,

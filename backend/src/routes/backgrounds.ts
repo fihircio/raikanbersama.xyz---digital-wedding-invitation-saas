@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { createSecureRoute } from '../middleware/securityMiddleware';
-import { 
-  getAllBackgrounds, 
-  getBackgroundById, 
-  getBackgroundsByCategory, 
-  getPremiumBackgrounds, 
-  getFreeBackgrounds 
+import {
+  getAllBackgrounds,
+  getBackgroundById,
+  getBackgroundsByCategory,
+  getPremiumBackgrounds,
+  getFreeBackgrounds
 } from '../controllers/backgroundController';
 
 const router = Router();
