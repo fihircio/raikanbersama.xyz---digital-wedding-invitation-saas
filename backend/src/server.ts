@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import passport from 'passport';
 import path from 'path';
 import fs from 'fs';
 
@@ -19,6 +21,10 @@ import { connectDatabase, initializeDatabase, closeDatabase } from './config/dat
 import { initializeModels } from './models';
 import sequelize from './config/database';
 import { securityHeaders } from './middleware/securityMiddleware';
+import { configureGoogleStrategy } from './config/googleOAuth';
+import authService from './services/authService';
+import databaseService from './services/databaseService';
+
 
 // Create Express app
 const app = express();
@@ -113,6 +119,22 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// Session middleware for Passport OAuth
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: config.nodeEnv === 'production', // Use secure cookies in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Compression middleware
 app.use(compression());
 
@@ -175,6 +197,11 @@ const startServer = async () => {
 
     // Initialize database (create tables if they don't exist)
     await initializeDatabase();
+
+    // Configure Google OAuth strategy
+    configureGoogleStrategy(async (profile) => {
+      return await authService.handleGoogleLogin(profile);
+    });
 
   } catch (error) {
     logger.error('Database connection failed:', error);

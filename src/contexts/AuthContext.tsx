@@ -14,6 +14,8 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => void;
+  handleOAuthCallback: (token: string, refreshToken: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -129,12 +131,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const loginWithGoogle = () => {
+    // Redirect to backend Google OAuth endpoint
+    window.location.href = '/api/users/auth/google';
+  };
+
+  const handleOAuthCallback = async (token: string, refreshToken: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Call backend to verify and complete OAuth
+      const response = await fetch('/api/users/oauth/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, refreshToken }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const userData = data.data.user;
+        const tokenData = data.data.token;
+        const refreshTokenData = data.data.refreshToken;
+
+        setUser(userData);
+        setToken(tokenData);
+
+        localStorage.setItem('token', tokenData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('refreshToken', refreshTokenData);
+
+        return { success: true };
+      } else {
+        return { success: false, error: data.error || 'OAuth callback failed' };
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      return { success: false, error: 'An error occurred during OAuth callback' };
+    }
+  };
+
   const value = {
     user,
     token,
     isLoading,
     login,
     register,
+    loginWithGoogle,
+    handleOAuthCallback,
     logout,
   };
 

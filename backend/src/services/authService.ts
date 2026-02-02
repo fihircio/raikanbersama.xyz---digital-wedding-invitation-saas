@@ -3,10 +3,12 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { User as ApiUserType } from '../types/api';
 import { User } from '../models';
+import { userRepository } from '../repositories';
 import config from '../config';
 import databaseService from './databaseService';
 import logger from '../utils/logger';
 import { convertUserToApi } from '../utils/typeConversion';
+import { GoogleProfile } from '../config/googleOAuth';
 
 // Token interface for JWT payload
 interface TokenPayload extends jwt.JwtPayload {
@@ -325,6 +327,99 @@ class AuthService {
    */
   generateRandomToken(length = 32): string {
     return crypto.randomBytes(length).toString('hex');
+  }
+
+  /**
+   * Handle Google OAuth login/registration
+   * Finds existing user or creates a new one based on Google profile
+   * @param profile Google profile from OAuth
+   * @returns User object
+   */
+  async handleGoogleLogin(profile: GoogleProfile): Promise<any> {
+    try {
+      const googleId = profile.id;
+      const email = profile.emails[0]?.value;
+      const name = profile.displayName || `${profile.name.givenName} ${profile.name.familyName}`;
+      const profilePicture = profile.photos[0]?.value;
+
+      if (!email) {
+        throw new Error('Email is required from Google profile');
+      }
+
+      // Check if user exists by Google ID
+      let user = await userRepository.findByGoogleId(googleId);
+
+      if (user) {
+        // User exists, update profile info if needed
+        if (user.profile_picture !== profilePicture || user.name !== name) {
+          await databaseService.updateUser(user.id, {
+            name,
+            profile_picture: profilePicture,
+          });
+          // Refresh user data
+          user = await userRepository.findById(user.id);
+        }
+        logger.info(`Google OAuth login: Existing user ${email}`);
+        return user;
+      }
+
+      // Check if user exists by email
+      user = await userRepository.findByEmail(email);
+
+      if (user) {
+        // User exists with email but not linked to Google
+        // Link Google account to existing user
+        await databaseService.updateUser(user.id, {
+          google_id: googleId,
+          provider: 'google',
+          profile_picture: profilePicture || user.profile_picture,
+          email_verified: true, // Google emails are verified
+        });
+        logger.info(`Google OAuth login: Linked Google to existing user ${email}`);
+        return await userRepository.findById(user.id);
+      }
+
+      // Create new user using repository directly to support OAuth fields
+      const newUser = await userRepository.createUser({
+        email,
+        name,
+        google_id: googleId,
+        provider: 'google',
+        profile_picture: profilePicture,
+        is_oauth_user: true,
+        password: '', // OAuth users don't have passwords
+        membership_tier: 'free' as any,
+        email_verified: true, // Google emails are verified
+      });
+
+      logger.info(`Google OAuth registration: New user ${email}`);
+      return newUser;
+    } catch (error) {
+      logger.error('Error handling Google login:', error);
+      throw new Error('Failed to process Google login');
+    }
+  }
+
+  /**
+   * Generate JWT tokens for OAuth user
+   * @param user User object
+   * @returns Object containing access and refresh tokens
+   */
+  generateOAuthToken(user: any): { accessToken: string; refreshToken: string } {
+    // Convert user to ApiUserType format
+    const apiUser: ApiUserType = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      password: user.password || 'dummy', // OAuth users might not have password
+      membership_tier: user.membership_tier,
+      membership_expires_at: user.membership_expires_at?.toISOString(),
+      email_verified: user.email_verified,
+      created_at: user.created_at?.toISOString(),
+      updated_at: user.updated_at?.toISOString()
+    };
+
+    return this.generateTokenPair(apiUser);
   }
 }
 

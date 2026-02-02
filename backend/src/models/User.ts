@@ -5,7 +5,11 @@ export class User extends Model {
   public id!: string;
   public email!: string;
   public name!: string;
-  public password!: string;
+  public password!: string | null;
+  public google_id?: string | null;
+  public provider?: 'email' | 'google' | null;
+  public profile_picture?: string | null;
+  public is_oauth_user!: boolean;
   public membership_tier!: MembershipTier;
   public membership_expires_at?: Date;
   public phone_number?: string;
@@ -37,7 +41,25 @@ export class User extends Model {
         },
         password: {
           type: DataTypes.STRING,
+          allowNull: true,
+        },
+        google_id: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          unique: true,
+        },
+        provider: {
+          type: DataTypes.ENUM('email', 'google'),
+          allowNull: true,
+        },
+        profile_picture: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        is_oauth_user: {
+          type: DataTypes.BOOLEAN,
           allowNull: false,
+          defaultValue: false,
         },
         membership_tier: {
           type: DataTypes.ENUM(...Object.values(MembershipTier)),
@@ -82,6 +104,10 @@ export class User extends Model {
           {
             unique: true,
             fields: ['email'],
+          },
+          {
+            unique: true,
+            fields: ['google_id'],
           },
         ],
       }

@@ -8,6 +8,7 @@ import PricingPage from './components/Pricing/PricingPage';
 import HomePage from './src/pages/HomePage';
 import LoginPage from './src/pages/LoginPage';
 import RegisterPage from './src/pages/RegisterPage';
+import OAuthCallbackPage from './src/pages/OAuthCallbackPage';
 import DashboardPage from './src/pages/DashboardPage';
 import EditorPage from './src/pages/EditorPage';
 import ManageInvitationPage from './src/pages/ManageInvitationPage';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
             <Route path="/affiliates" element={<><Navbar /><AffiliatePage /><Footer /></>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
             <Route path="/i/:slug" element={<PublicInvitationPage />} />
 
             {/* Protected Routes */}

@@ -22,14 +22,31 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   /**
+   * Find a user by Google ID
+   */
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    try {
+      return await this.findOne({
+        where: { google_id: googleId },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Create a new user
    */
   async createUser(userData: {
     email: string;
     name: string;
-    password: string;
+    password?: string | null;
     membership_tier?: MembershipTier;
     email_verified?: boolean;
+    google_id?: string | null;
+    provider?: 'email' | 'google' | null;
+    profile_picture?: string | null;
+    is_oauth_user?: boolean;
   }): Promise<User> {
     try {
       return await this.create({

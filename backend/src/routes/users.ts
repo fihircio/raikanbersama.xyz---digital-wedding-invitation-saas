@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
+import passport from 'passport';
 import { authenticate } from '../middleware/auth';
 import { createSecureRoute } from '../middleware/securityMiddleware';
 import {
@@ -14,8 +15,16 @@ import {
   sendEmailVerification,
   verifyEmail
 } from '../controllers/userController';
+import {
+  googleCallback,
+  handleOAuthCallback
+} from '../controllers/oauthController';
 
 const router = Router();
+
+// Configure Google OAuth strategy
+// This needs to be called after database connection is established
+// We'll configure it in server.ts and pass the handler function
 
 // Validation schemas
 const registerSchema = {
@@ -231,5 +240,30 @@ router.post('/send-verification', createSecureRoute('profile'), sendEmailVerific
  * @access Public
  */
 router.post('/verify-email', createSecureRoute('auth', { body: verifyEmailSchema }), verifyEmail);
+
+/**
+ * @route GET /api/users/auth/google
+ * @access Public
+ * Initiates Google OAuth flow
+ */
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+/**
+ * @route GET /api/users/auth/google/callback
+ * @access Public
+ * Handles Google OAuth callback
+ */
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login?error=google_auth_failed' }),
+  googleCallback
+);
+
+/**
+ * @route POST /api/users/oauth/callback
+ * @access Public
+ * Handles OAuth callback from frontend
+ */
+router.post('/oauth/callback', handleOAuthCallback);
 
 export default router;
