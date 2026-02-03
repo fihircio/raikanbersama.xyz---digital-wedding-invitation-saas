@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plan } from '../../types';
+import { buildApiUrl } from '../../src/config';
 import { useAuth } from '../../src/contexts/AuthContext';
 
 interface PaymentModalProps {
@@ -25,7 +26,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, couponC
     setIsProcessing(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/payments/checkout', {
+      const response = await fetch(buildApiUrl('/payments/checkout'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
