@@ -21,8 +21,17 @@ const uploadDesignImages = async () => {
         const adminUser = await User.findOne({ where: { role: 'admin' } });
         const userId = adminUser ? adminUser.id : 'system-admin';
 
-        // Path to public directory (root of the project)
-        const publicDir = path.resolve(__dirname, '../../../public');
+        // Path to public directory - Try multiple locations for environment compatibility
+        let publicDir = path.resolve(__dirname, '../../../public');
+        if (!fs.existsSync(publicDir)) {
+            publicDir = path.resolve(__dirname, '../../public');
+        }
+        if (!fs.existsSync(publicDir)) {
+            // Fallback for Railway if executing from app root
+            publicDir = path.resolve(process.cwd(), 'public');
+        }
+
+        logger.info(`Using public directory: ${publicDir}`);
 
         // List of files to process
         const files = [
