@@ -11,6 +11,7 @@ export const convertUserToApi = (user: User): ApiUser => {
     id: user.id,
     email: user.email,
     name: user.name,
+    role: user.role,
     membership_tier: user.membership_tier,
     membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
     email_verified: user.email_verified,

@@ -131,7 +131,7 @@ class AuthService {
     try {
       // Verify refresh token
       const decoded = this.verifyToken(refreshToken);
-      
+
       if (decoded.type !== 'refresh') {
         throw new Error('Invalid token type');
       }
@@ -190,7 +190,7 @@ class AuthService {
    */
   generateEmailVerificationToken(user: ApiUserType): string {
     const token = this.generateToken(user, 'email');
-    
+
     // Store token with expiration
     const decoded = this.verifyToken(token);
     const expiresAt = new Date((decoded.exp || 0) * 1000);
@@ -207,7 +207,7 @@ class AuthService {
   async verifyEmailToken(token: string): Promise<string | null> {
     try {
       const decoded = this.verifyToken(token);
-      
+
       if (decoded.type !== 'email') {
         throw new Error('Invalid token type');
       }
@@ -242,7 +242,7 @@ class AuthService {
    */
   generatePasswordResetToken(user: ApiUserType): string {
     const token = this.generateToken(user, 'password');
-    
+
     // Store token with expiration
     const decoded = this.verifyToken(token);
     const expiresAt = new Date((decoded.exp || 0) * 1000);
@@ -259,7 +259,7 @@ class AuthService {
   async verifyPasswordResetToken(token: string): Promise<string | null> {
     try {
       const decoded = this.verifyToken(token);
-      
+
       if (decoded.type !== 'password') {
         throw new Error('Invalid token type');
       }
@@ -390,6 +390,7 @@ class AuthService {
         password: '', // OAuth users don't have passwords
         membership_tier: 'free' as any,
         email_verified: true, // Google emails are verified
+        role: 'user' as any,
       });
 
       logger.info(`Google OAuth registration: New user ${email}`);
@@ -415,6 +416,7 @@ class AuthService {
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString(),
       email_verified: user.email_verified,
+      role: user.role || 'user',
       created_at: user.created_at?.toISOString(),
       updated_at: user.updated_at?.toISOString()
     };

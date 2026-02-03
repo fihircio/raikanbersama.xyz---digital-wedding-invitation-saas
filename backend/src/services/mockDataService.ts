@@ -5,7 +5,8 @@ import {
   ItineraryItem,
   ContactPerson,
   BackgroundImage,
-  MembershipTier
+  MembershipTier,
+  UserRole
 } from '../types/models';
 import { User } from '../types/api';
 
@@ -125,6 +126,7 @@ const MOCK_USERS: User[] = [
     membership_tier: MembershipTier.ELITE,
     membership_expires_at: '2025-12-31T23:59:59Z',
     email_verified: true,
+    role: UserRole.ADMIN,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z'
   },
@@ -135,6 +137,7 @@ const MOCK_USERS: User[] = [
     password: '$2b$10$example_hashed_password',
     membership_tier: MembershipTier.FREE,
     email_verified: false,
+    role: UserRole.USER,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z'
   }

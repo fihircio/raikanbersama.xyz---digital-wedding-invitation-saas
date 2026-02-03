@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { User } from '../models';
-import { MembershipTier } from '../types/models';
+import { MembershipTier, UserRole } from '../types/models';
 import BaseRepository from './BaseRepository';
 
 export class UserRepository extends BaseRepository<User> {
@@ -47,12 +47,14 @@ export class UserRepository extends BaseRepository<User> {
     provider?: 'email' | 'google' | null;
     profile_picture?: string | null;
     is_oauth_user?: boolean;
+    role?: UserRole;
   }): Promise<User> {
     try {
       return await this.create({
         ...userData,
         membership_tier: userData.membership_tier || MembershipTier.FREE,
         email_verified: userData.email_verified || false,
+        role: userData.role || UserRole.USER,
       });
     } catch (error) {
       throw error;
