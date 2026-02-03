@@ -1,5 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { MembershipTier } from '../types/models';
+import { MembershipTier, UserRole } from '../types/models';
 
 export class User extends Model {
   public id!: string;
@@ -10,6 +10,7 @@ export class User extends Model {
   public provider?: 'email' | 'google' | null;
   public profile_picture?: string | null;
   public is_oauth_user!: boolean;
+  public role!: UserRole;
   public membership_tier!: MembershipTier;
   public membership_expires_at?: Date;
   public phone_number?: string;
@@ -60,6 +61,11 @@ export class User extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        role: {
+          type: DataTypes.ENUM(...Object.values(UserRole)),
+          allowNull: false,
+          defaultValue: UserRole.USER,
         },
         membership_tier: {
           type: DataTypes.ENUM(...Object.values(MembershipTier)),

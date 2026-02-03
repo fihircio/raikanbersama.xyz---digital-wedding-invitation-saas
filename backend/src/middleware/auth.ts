@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest } from '../types/api';
 import authService from '../services/authService';
 import { User } from '../models';
-import { MembershipTier } from '../types/models';
+import { MembershipTier, UserRole } from '../types/models';
 import logger from '../utils/logger';
 
 /**
@@ -54,6 +54,7 @@ export const authenticate = async (
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
       membership_tier: user.membership_tier
     };
 
@@ -118,6 +119,7 @@ export const optionalAuth = async (
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
         membership_tier: user.membership_tier
       };
     }
@@ -195,4 +197,34 @@ export const requireMembershipTier = (requiredTier: MembershipTier) => {
 
     next();
   };
+};
+
+/**
+ * Middleware to check if user has admin role
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next function
+ */
+export const requireAdmin = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      error: 'Authentication required.'
+    });
+    return;
+  }
+
+  if (req.user.role !== UserRole.ADMIN) {
+    res.status(403).json({
+      success: false,
+      error: 'Admin access required.'
+    });
+    return;
+  }
+
+  next();
 };

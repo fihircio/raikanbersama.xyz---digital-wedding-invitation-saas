@@ -8,6 +8,7 @@ export class Order extends Model {
     public amount!: number;
     public status!: OrderStatus;
     public plan_tier!: MembershipTier;
+    public coupon_id?: string;
     public payment_id?: string;
     public payment_method?: string;
     public readonly created_at!: Date;
@@ -57,6 +58,14 @@ export class Order extends Model {
                 payment_method: {
                     type: DataTypes.STRING,
                     allowNull: true,
+                },
+                coupon_id: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                    references: {
+                        model: 'coupons',
+                        key: 'id',
+                    },
                 },
             },
             {

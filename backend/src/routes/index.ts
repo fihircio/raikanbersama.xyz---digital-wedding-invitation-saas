@@ -13,6 +13,9 @@ import favoriteRoutes from './favorites';
 import profileRoutes from './profile';
 import orderRoutes from './orders';
 import paymentRoutes from './payments';
+import adminRoutes from './admin';
+import affiliateRoutes from './affiliates';
+import contactRoutes from './contacts';
 import docsRoutes from './docs';
 
 const router = Router();
@@ -31,6 +34,9 @@ router.use('/favorites', favoriteRoutes);
 router.use('/profile', profileRoutes);
 router.use('/orders', orderRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/admin', adminRoutes);
+router.use('/affiliates', affiliateRoutes);
+router.use('/contacts', contactRoutes);
 router.use('/files', fileRoutes);
 
 // API version and info
@@ -117,6 +123,13 @@ router.get('/', (req, res) => {
         uploadBackgroundImage: 'POST /api/files/background',
         deleteFile: 'DELETE /api/files/:key',
         getSignedUrl: 'GET /api/files/signed-url/:key'
+      },
+      affiliates: {
+        apply: 'POST /api/affiliates/apply',
+        status: 'GET /api/affiliates/my-status'
+      },
+      contacts: {
+        submit: 'POST /api/contacts'
       }
     }
   });

@@ -9,6 +9,9 @@ import { BackgroundImage } from './BackgroundImage';
 import { Gallery } from './Gallery';
 import { Favorite } from './Favorite';
 import { Order } from './Order';
+import { Affiliate } from './Affiliate';
+import { ContactMessage } from './ContactMessage';
+import { Coupon } from './Coupon';
 
 const models = {
   User,
@@ -20,12 +23,15 @@ const models = {
   BackgroundImage,
   Gallery,
   Favorite,
-  Order
+  Order,
+  Affiliate,
+  ContactMessage,
+  Coupon
 };
 
 // Setup model associations
 export const setupAssociations = (): void => {
-  const { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery, Favorite, BackgroundImage, Order } = models;
+  const { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery, Favorite, BackgroundImage, Order, Affiliate, ContactMessage, Coupon } = models;
 
   // User has many Invitations
   User.hasMany(Invitation, {
@@ -126,6 +132,36 @@ export const setupAssociations = (): void => {
     foreignKey: 'invitation_id',
     as: 'invitation'
   });
+
+  // User has one Affiliate profile (optional)
+  User.hasOne(Affiliate, {
+    foreignKey: 'user_id',
+    as: 'affiliateProfile'
+  });
+  Affiliate.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  // Affiliate has many Coupons
+  Affiliate.hasMany(Coupon, {
+    foreignKey: 'affiliate_id',
+    as: 'coupons'
+  });
+  Coupon.belongsTo(Affiliate, {
+    foreignKey: 'affiliate_id',
+    as: 'affiliate'
+  });
+
+  // Coupon has many Orders
+  Coupon.hasMany(Order, {
+    foreignKey: 'coupon_id',
+    as: 'orders'
+  });
+  Order.belongsTo(Coupon, {
+    foreignKey: 'coupon_id',
+    as: 'coupon'
+  });
 };
 
 // Initialize all models
@@ -152,7 +188,10 @@ export {
   BackgroundImage,
   Gallery,
   Favorite,
-  Order
+  Order,
+  Affiliate,
+  ContactMessage,
+  Coupon
 };
 
 export default models;

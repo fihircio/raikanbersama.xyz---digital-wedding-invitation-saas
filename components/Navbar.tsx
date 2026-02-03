@@ -53,6 +53,12 @@ const Navbar: React.FC = () => {
               <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
               <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
               <Link to="/dashboard" className="text-gray-600 hover:text-rose-600 font-medium transition">Dashboard</Link>
+              {user.role === 'admin' && (
+                <Link to="/admin" className="text-rose-600 hover:text-rose-700 font-bold transition flex items-center gap-1">
+                  <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse" />
+                  Admin
+                </Link>
+              )}
               <Link
                 to="/create"
                 className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
@@ -182,6 +188,9 @@ const Navbar: React.FC = () => {
                 <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">FAQ</Link>
                 <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Hubungi</Link>
                 <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Dashboard</Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-rose-600 font-bold bg-rose-50 hover:bg-rose-100 transition">Admin Dashboard</Link>
+                )}
                 <Link to="/create" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">Mula Bina Kad</Link>
 
                 <div className="border-t border-gray-200 mt-4 pt-4 px-4">

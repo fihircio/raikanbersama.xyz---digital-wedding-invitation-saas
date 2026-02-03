@@ -62,6 +62,11 @@ const EditorPage: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null);
   const [initialPackagePlan, setInitialPackagePlan] = useState<string>('free');
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [discountInfo, setDiscountInfo] = useState<{ type: string, value: number, businessName: string } | null>(null);
 
   const isDemo = id === 'demo' || !user;
 
@@ -565,6 +570,48 @@ const EditorPage: React.FC = () => {
 
     updateField('rsvp_settings', newSettings);
   };
+
+  const handleValidateCoupon = async () => {
+    const cleanCode = couponCode.trim().toUpperCase();
+    if (!cleanCode) return;
+    setIsValidatingCoupon(true);
+    setCouponError(null);
+    try {
+      const response = await fetch(buildApiUrl('/payments/validate'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ code: cleanCode })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDiscountInfo({
+          type: data.data.discount_type,
+          value: Number(data.data.discount_value),
+          businessName: data.data.business_name
+        });
+      } else {
+        setCouponError(data.message || 'Kupon tidak sah.');
+        setDiscountInfo(null);
+      }
+    } catch (error) {
+      setCouponError('Ralat rangkaian.');
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const calculateDiscountedPrice = (originalPrice: number) => {
+    if (!discountInfo) return originalPrice;
+    if (discountInfo.type === 'percentage') {
+      return originalPrice * (1 - discountInfo.value / 100);
+    } else {
+      return Math.max(0, originalPrice - discountInfo.value);
+    }
+  };
+
   if (!inv) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white z-[300]">
@@ -628,6 +675,8 @@ const EditorPage: React.FC = () => {
           <PaymentModal
             plan={selectedPlanForPayment}
             invitationId={id}
+            couponCode={discountInfo ? couponCode : undefined}
+            discountedPrice={discountInfo ? calculateDiscountedPrice(Number(selectedPlanForPayment.price)) : undefined}
             onClose={() => setShowPaymentModal(false)}
           />
         )}
@@ -708,6 +757,46 @@ const EditorPage: React.FC = () => {
                                 Beli & Aktifkan Sekarang
                               </button>
                               <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk setiap invite</p>
+                            </div>
+                          )}
+
+                          {/* Coupon Field */}
+                          {initialPackagePlan === 'free' && (
+                            <div className="pt-4 border-t border-gray-100 mt-6 animate-slide-up">
+                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Kod Kupon / Affiliate</label>
+                              <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                  <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    placeholder="CONTOH: KASIH10"
+                                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl text-xs font-bold transition outline-none ${couponError ? 'border-red-300 focus:border-red-400' : 'border-transparent focus:border-rose-300 focus:bg-white'}`}
+                                  />
+                                  {discountInfo && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                      <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                                    </div>
+                                  )}
+                                </div>
+                                <button
+                                  onClick={handleValidateCoupon}
+                                  disabled={isValidatingCoupon || !couponCode}
+                                  className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-black transition disabled:opacity-50"
+                                >
+                                  {isValidatingCoupon ? '...' : 'Tebus'}
+                                </button>
+                              </div>
+                              {couponError && <p className="text-[10px] text-red-500 font-bold mt-2 ml-1">{couponError}</p>}
+                              {discountInfo && (
+                                <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between animate-fade-in">
+                                  <div>
+                                    <p className="text-[10px] text-green-700 font-bold uppercase tracking-wider">Kupon Aktif: {couponCode}</p>
+                                    <p className="text-[9px] text-green-600 font-medium">Oleh: {discountInfo.businessName}</p>
+                                  </div>
+                                  <p className="text-xs font-black text-green-700">-{discountInfo.type === 'percentage' ? `${discountInfo.value}%` : `RM${discountInfo.value}`}</p>
+                                </div>
+                              )}
                             </div>
                           )}
                         </>

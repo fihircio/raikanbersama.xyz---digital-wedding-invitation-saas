@@ -48,6 +48,7 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
       email: newUser.email,
       name: newUser.name,
       password: hashedPassword, // Include password for authService
+      role: newUser.role,
       membership_tier: newUser.membership_tier,
       membership_expires_at: newUser.membership_expires_at,
       email_verified: newUser.email_verified,
@@ -120,6 +121,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
       email: user.email,
       name: user.name,
       password: user.password || '', // Include password for authService (empty for OAuth users)
+      role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,
@@ -419,6 +421,7 @@ export const forgotPassword = async (req: AuthenticatedRequest, res: Response): 
       email: user.email,
       name: user.name,
       password: user.password || '', // Include password for authService (empty for OAuth users)
+      role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,
@@ -538,6 +541,7 @@ export const sendEmailVerification = async (req: AuthenticatedRequest, res: Resp
       email: user.email,
       name: user.name,
       password: user.password || '', // Include password for authService (empty for OAuth users)
+      role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
       email_verified: user.email_verified,

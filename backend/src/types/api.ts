@@ -7,6 +7,7 @@ import {
   ContactPerson,
   BackgroundImage,
   MembershipTier,
+  UserRole,
   Plan
 } from './models';
 
@@ -29,6 +30,7 @@ export interface User {
   email: string;
   name: string;
   password?: string | null; // Hashed - nullable for OAuth users, optional for general request compatibility
+  role: UserRole;
   membership_tier: MembershipTier;
   membership_expires_at?: string;
   email_verified?: boolean;
@@ -41,6 +43,7 @@ export interface ApiUser {
   id: string;
   email: string;
   name: string;
+  role: UserRole;
   membership_tier: MembershipTier;
   membership_expires_at?: string;
   email_verified?: boolean;
@@ -132,6 +135,7 @@ declare global {
       id: string;
       email: string;
       name: string;
+      role: UserRole;
       membership_tier: MembershipTier;
       created_at?: string;
       updated_at?: string;

@@ -1,18 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { buildApiUrl } from '../config';
+import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import {
+    CheckCircleIcon,
+    ExclamationCircleIcon,
+    ClockIcon,
+    CheckBadgeIcon,
+    XCircleIcon,
+    ArrowRightIcon
+} from '@heroicons/react/24/outline';
+
+interface AffiliateProfile {
+    id: string;
+    status: 'pending' | 'active' | 'rejected';
+    business_name: string;
+    referral_code?: string;
+}
 
 const AffiliatePage: React.FC = () => {
+    const { token, user } = useAuth();
+    const navigate = useNavigate();
+
+    const [formData, setFormData] = useState({
+        business_name: '',
+        business_type: 'Photographer / Videographer',
+        social_link: ''
+    });
+    const [affiliateProfile, setAffiliateProfile] = useState<AffiliateProfile | null>(null);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSuccess(true);
-        }, 1500);
+    useEffect(() => {
+        const fetchStatus = async () => {
+            if (!token) {
+                setIsLoadingProfile(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(buildApiUrl('/affiliates/my-status'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.success && data.data) {
+                    setAffiliateProfile(data.data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch affiliate status');
+            } finally {
+                setIsLoadingProfile(false);
+            }
+        };
+
+        fetchStatus();
+    }, [token]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!token) {
+            navigate('/login', { state: { from: '/affiliate-program' } });
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            const response = await fetch(buildApiUrl('/affiliates/apply'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setIsSuccess(true);
+                setAffiliateProfile(data.data);
+            } else {
+                setError(data.error || 'Gagal menghantar permohonan.');
+            }
+        } catch (err) {
+            setError('Ralat sambungan. Sila cuba lagi.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (isLoadingProfile) {
+        return (
+            <div className="pt-24 pb-12 bg-white min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white">
@@ -27,14 +121,6 @@ const AffiliatePage: React.FC = () => {
                     <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">
                         Sertai komuniti vendor kami dan tawarkan jemputan digital premium kepada pelanggan anda. Sesuai untuk Photographers, Event Planners, dan Wedding Vendors.
                     </p>
-                    <div className="mt-10 flex justify-center gap-4">
-                        <a href="#join" className="px-10 py-4 bg-rose-600 text-white rounded-2xl font-bold hover:bg-rose-700 transition shadow-xl shadow-rose-100 uppercase text-xs tracking-widest">
-                            Sertai Sekarang
-                        </a>
-                        <a href="#benefits" className="px-10 py-4 bg-gray-50 text-gray-600 rounded-2xl font-bold hover:bg-gray-100 transition uppercase text-xs tracking-widest border border-gray-100">
-                            Lihat Kelebihan
-                        </a>
-                    </div>
                 </div>
 
                 {/* How It Works */}
@@ -63,11 +149,10 @@ const AffiliatePage: React.FC = () => {
                                 <h2 className="text-4xl font-serif font-bold italic mb-8">Kelebihan Eksklusif <br />Vendor RaikanBersama</h2>
                                 <div className="space-y-6">
                                     {[
-                                        'Harga Diskaun Vendor (Sehingga 40%)',
+                                        'Harga Diskaun Vendor',
                                         'Tiada Yuran Pendaftaran atau Tahunan',
-                                        'Support VIP & Keutamaan Design Baru',
-                                        'Dashboard Khas (Akan Datang)',
-                                        'Akses Lifetime untuk Semua Design',
+                                        'Support utama',
+                                        'Akses kepada Semua Design',
                                         'Material Pemasaran Percuma'
                                     ].map((benefit, i) => (
                                         <div key={i} className="flex items-center gap-4">
@@ -128,42 +213,87 @@ const AffiliatePage: React.FC = () => {
                     </div>
 
                     <div className="bg-gray-50 rounded-[3.5rem] p-12 border border-gray-100 shadow-sm relative">
-                        {isSuccess ? (
-                            <div className="text-center py-16 animate-scale-in">
-                                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
-                                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                                <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Permohonan Diterima!</h3>
-                                <p className="text-gray-500">Terima kasih kerana berminat. Pasukan kami akan menghubungi anda melalui WhatsApp/Email dalam masa terdekat.</p>
-                                <button onClick={() => setIsSuccess(false)} className="mt-8 text-rose-600 font-bold uppercase text-[10px] tracking-widest hover:underline">Hantar Permohonan Lain</button>
+                        {affiliateProfile ? (
+                            <div className="text-center py-8">
+                                {affiliateProfile.status === 'pending' ? (
+                                    <div className="animate-scale-in">
+                                        <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                                            <ClockIcon className="w-10 h-10" />
+                                        </div>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Permohonan Sedang Diproses</h3>
+                                        <p className="text-gray-500 mb-8 px-4">Kami telah menerima maklumat perniagaan anda (**{affiliateProfile.business_name}**). Pasukan kami akan memberikan maklum balas dalam masa 24-48 jam.</p>
+                                        <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 max-w-sm mx-auto">
+                                            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">Status</p>
+                                            <p className="text-sm font-bold text-amber-600 uppercase">Menunggu Pengesahan</p>
+                                        </div>
+                                    </div>
+                                ) : affiliateProfile.status === 'active' ? (
+                                    <div className="animate-scale-in">
+                                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                                            <CheckBadgeIcon className="w-10 h-10" />
+                                        </div>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Akaun Vendor Aktif!</h3>
+                                        <p className="text-gray-500 mb-8 px-4">Tahniah! Anda kini merupakan Rakan Kongsi Rasmi RaikanBersama.xyz.</p>
+
+                                        <div className="space-y-4">
+                                            <div className="bg-green-50 rounded-2xl p-6 border border-green-100 max-w-sm mx-auto">
+                                                <p className="text-[10px] font-bold text-green-800 uppercase tracking-widest mb-1">Kod Referral Anda</p>
+                                                <p className="text-3xl font-serif italic font-bold text-rose-600 uppercase tracking-widest">{affiliateProfile.referral_code || 'TIDAK AKTIF'}</p>
+                                            </div>
+                                            <button
+                                                onClick={() => navigate('/dashboard')}
+                                                className="px-8 py-4 bg-black text-white rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-gray-800 transition flex items-center justify-center gap-2 mx-auto"
+                                            >
+                                                Ke Dashboard <ArrowRightIcon className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="animate-scale-in">
+                                        <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                                            <XCircleIcon className="w-10 h-10" />
+                                        </div>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Permohonan Tidak Berjaya</h3>
+                                        <p className="text-gray-500 mb-8 px-4">Maaf, permohonan anda belum memenuhi kriteria kami buat masa ini. Anda boleh mengemaskini profil sosial anda dan memohon semula di masa hadapan.</p>
+                                        <button
+                                            onClick={() => setAffiliateProfile(null)}
+                                            className="text-rose-600 font-bold uppercase text-[10px] tracking-widest hover:underline"
+                                        >
+                                            Cuba Mohon Semula
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <>
                                 <h2 className="text-2xl font-bold text-gray-900 mb-8 font-serif italic tracking-tight">Borang Permohonan Vendor</h2>
+                                {error && (
+                                    <div className="mb-6 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold">
+                                        <ExclamationCircleIcon className="w-4 h-4" />
+                                        {error}
+                                    </div>
+                                )}
                                 <form className="space-y-6" onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Penuh</label>
-                                            <input required type="text" placeholder="Nama anda" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
-                                        </div>
+                                    <div className="space-y-6">
+                                        {token ? (
+                                            <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
+                                                <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">Profil Pemohon</p>
+                                                <p className="text-sm font-bold text-gray-900">{user?.name} ({user?.email})</p>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-4">
+                                                <p className="text-xs text-amber-800 font-medium leading-relaxed">Sila log masuk untuk menghantar permohonan vendor anda.</p>
+                                            </div>
+                                        )}
+
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Bisnes</label>
-                                            <input required type="text" placeholder="E.g. Indah Photography" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Business</label>
-                                            <input required type="email" placeholder="business@email.com" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">No. Telefon / WhatsApp</label>
-                                            <input required type="text" placeholder="01X-XXXXXXX" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                                            <input required name="business_name" value={formData.business_name} onChange={handleChange} type="text" placeholder="E.g. Indah Photography" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Perniagaan</label>
-                                        <select className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold appearance-none">
+                                        <select name="business_type" value={formData.business_type} onChange={handleChange} className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold appearance-none cursor-pointer">
                                             <option>Photographer / Videographer</option>
                                             <option>Wedding / Event Planner</option>
                                             <option>Bridal / Boutique</option>
@@ -174,7 +304,7 @@ const AffiliatePage: React.FC = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Website / Instagram / FB Link</label>
-                                        <input required type="text" placeholder="https://instagram.com/..." className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                                        <input required name="social_link" value={formData.social_link} onChange={handleChange} type="text" placeholder="https://instagram.com/..." className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
                                     </div>
                                     <button
                                         disabled={isSubmitting}

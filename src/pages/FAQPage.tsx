@@ -12,7 +12,7 @@ const FAQPage: React.FC = () => {
         },
         {
             question: 'Adakah saya boleh menggunakan lagu sendiri?',
-            answer: 'Ya, anda boleh memasukkan link lagu dari YouTube atau upload file MP3 anda sendiri di bahagian Media.'
+            answer: 'Ya, anda boleh memasukkan link lagu dari YouTube dibahagian Media.'
         },
         {
             question: 'Bagaimana cara untuk berkongsi link jemputan?',

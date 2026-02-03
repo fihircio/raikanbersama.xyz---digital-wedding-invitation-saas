@@ -5,10 +5,12 @@ import { useAuth } from '../../src/contexts/AuthContext';
 interface PaymentModalProps {
   plan: Plan;
   invitationId?: string;
+  couponCode?: string;
+  discountedPrice?: number;
   onClose: () => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose }) => {
+const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, couponCode, discountedPrice, onClose }) => {
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,7 +33,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
         },
         body: JSON.stringify({
           planId: plan.id,
-          invitationId: invitationId
+          invitationId: invitationId,
+          couponCode: couponCode
         })
       });
 
@@ -65,7 +68,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
 
         <div className="bg-gray-50 rounded-2xl p-6 mb-6">
           <h3 className="font-bold text-lg text-gray-900">{plan.name} Plan</h3>
-          <p className="text-3xl font-bold text-rose-600 mt-2">{plan.price}</p>
+          <div className="mt-2 flex items-baseline gap-2">
+            <p className="text-3xl font-bold text-rose-600">
+              {discountedPrice ? `RM${discountedPrice.toFixed(2)}` : plan.price}
+            </p>
+            {discountedPrice && (
+              <p className="text-sm text-gray-400 line-through">RM{plan.price}</p>
+            )}
+          </div>
+          {couponCode && (
+            <p className="text-[10px] text-green-600 font-bold uppercase mt-2">KUPON: {couponCode}</p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,7 +141,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
             disabled={isProcessing}
             className="w-full bg-rose-600 text-white py-3 rounded-lg font-bold hover:bg-rose-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isProcessing ? 'Processing...' : `Pay ${plan.price}`}
+            {isProcessing ? 'Processing...' : `Pay ${discountedPrice ? `RM${discountedPrice.toFixed(2)}` : (plan.price.startsWith('RM') ? plan.price : `RM${plan.price}`)}`}
           </button>
         </form>
       </div>

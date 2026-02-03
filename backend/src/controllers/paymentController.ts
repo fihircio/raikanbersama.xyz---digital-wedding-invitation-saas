@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { Order, Invitation, User } from '../models';
-import { OrderStatus, MembershipTier } from '../types/models';
+import { Order, Invitation, User, Coupon } from '../models';
+import { OrderStatus, MembershipTier, DiscountType } from '../types/models';
+import { Op } from 'sequelize';
 import logger from '../utils/logger';
 
 const CHIP_API_KEY = 'JAzcbKJSUaFSieI1RloCfDYwyvqzY583WOrW6GKkcMdVUbLDSN-bqmpZxZiocPyw3j-fOE9vyzsMwbjVL4vkOg==';
@@ -13,7 +14,7 @@ const CHIP_ENDPOINT = 'https://gate.chip-in.asia/api/v1/purchases/';
 export const createCheckout = async (req: Request, res: Response): Promise<void> => {
     try {
         const userId = (req as any).user.id;
-        const { planId, invitationId, successUrl, cancelUrl } = req.body;
+        const { planId, invitationId, couponCode, successUrl, cancelUrl } = req.body;
 
         // Map plan IDs to amounts
         const planPrices: Record<string, number> = {
@@ -22,10 +23,34 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
             'elite': 69.00
         };
 
-        const amount = planPrices[planId];
+        let amount = planPrices[planId];
         if (!amount) {
             res.status(400).json({ success: false, error: 'Invalid plan selected' });
             return;
+        }
+
+        let couponId = null;
+        if (couponCode) {
+            const coupon = await Coupon.findOne({
+                where: {
+                    code: { [Op.iLike]: couponCode },
+                    is_active: true,
+                    [Op.or]: [
+                        { expiry_date: null },
+                        { expiry_date: { [Op.gt]: new Date() } }
+                    ]
+                }
+            });
+
+            if (coupon && (coupon.max_uses === null || coupon.current_uses < coupon.max_uses)) {
+                if (coupon.discount_type === DiscountType.PERCENTAGE) {
+                    amount = amount * (1 - (Number(coupon.discount_value) / 100));
+                } else {
+                    amount = Math.max(0, amount - Number(coupon.discount_value));
+                }
+                couponId = coupon.id;
+                logger.info(`Applied coupon ${couponCode} to order. New amount: ${amount}`);
+            }
         }
 
         // Get user details for CHIP
@@ -41,7 +66,8 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
             invitation_id: invitationId,
             amount: amount,
             status: OrderStatus.PENDING,
-            plan_tier: planId as MembershipTier
+            plan_tier: planId as MembershipTier,
+            coupon_id: couponId
         });
 
         // Call CHIP API
@@ -113,6 +139,12 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
 
         if (status === 'paid') {
             await order.update({ status: OrderStatus.COMPLETED });
+
+            // Increment coupon usage if applicable
+            if (order.coupon_id) {
+                await Coupon.increment('current_uses', { where: { id: order.coupon_id } });
+                logger.info(`Incremented usage for coupon ID: ${order.coupon_id}`);
+            }
 
             // Update associated invitation
             if (order.invitation_id) {

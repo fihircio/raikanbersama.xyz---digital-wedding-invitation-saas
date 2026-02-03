@@ -5,11 +5,34 @@ export enum MembershipTier {
   ELITE = 'elite'
 }
 
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin'
+}
+
+
 export enum OrderStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
   FAILED = 'failed',
   REFUNDED = 'refunded'
+}
+
+export enum AffiliateStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  REJECTED = 'rejected'
+}
+
+export enum ContactMessageStatus {
+  NEW = 'new',
+  READ = 'read',
+  ARCHIVED = 'archived'
+}
+
+export enum DiscountType {
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed'
 }
 
 export interface ItineraryItem {
@@ -161,6 +184,44 @@ export interface BackgroundImage {
     font_family?: string;
     overlay_opacity?: number;
   };
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+export interface Affiliate {
+  id: string;
+  user_id: string;
+  business_name: string;
+  business_type: string;
+  social_link?: string;
+  referral_code?: string;
+  status: AffiliateStatus;
+  earnings_total: number;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_type: DiscountType;
+  discount_value: number;
+  affiliate_id?: string;
+  max_uses?: number;
+  current_uses: number;
+  expiry_date?: Date | string;
+  is_active: boolean;
   created_at: Date | string;
   updated_at: Date | string;
 }

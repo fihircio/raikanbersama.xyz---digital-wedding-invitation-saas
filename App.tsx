@@ -15,11 +15,17 @@ import ManageInvitationPage from './src/pages/ManageInvitationPage';
 import PublicInvitationPage from './src/pages/PublicInvitationPage';
 import ProfilePage from './src/pages/ProfilePage';
 import OrdersPage from './src/pages/OrdersPage';
+import AdminDashboard from './src/pages/admin/AdminDashboard';
 import FavoritesPage from './src/pages/FavoritesPage';
 import FAQPage from './src/pages/FAQPage';
 import TutorialPage from './src/pages/TutorialPage';
 import ContactPage from './src/pages/ContactPage';
 import AffiliatePage from './src/pages/AffiliatePage';
+import AffiliateManagement from './src/pages/admin/AffiliateManagement';
+import ContactManagement from './src/pages/admin/ContactManagement';
+import CouponManagement from './src/pages/admin/CouponManagement';
+import UserManagement from './src/pages/admin/UserManagement';
+import OrderManagement from './src/pages/admin/OrderManagement';
 import PrivacyPolicyPage from './src/pages/PrivacyPolicyPage';
 import TermsPage from './src/pages/TermsPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -41,6 +47,25 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   return <>{children}</>;
 };
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 border-t-transparent border-r-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 
 const App: React.FC = () => {
   return (
@@ -99,6 +124,38 @@ const App: React.FC = () => {
                 <FavoritesPage />
                 <Footer />
               </ProtectedRoute>
+            } />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
+            <Route path="/admin/affiliates" element={
+              <AdminRoute>
+                <AffiliateManagement />
+              </AdminRoute>
+            } />
+            <Route path="/admin/contacts" element={
+              <AdminRoute>
+                <ContactManagement />
+              </AdminRoute>
+            } />
+            <Route path="/admin/coupons" element={
+              <AdminRoute>
+                <CouponManagement />
+              </AdminRoute>
+            } />
+            <Route path="/admin/users" element={
+              <AdminRoute>
+                <UserManagement />
+              </AdminRoute>
+            } />
+            <Route path="/admin/orders" element={
+              <AdminRoute>
+                <OrderManagement />
+              </AdminRoute>
             } />
           </Routes>
         </div>
