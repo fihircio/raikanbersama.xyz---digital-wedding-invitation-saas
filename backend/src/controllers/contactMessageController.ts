@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ContactMessage } from '../models';
 import { ContactMessageStatus } from '../types/models';
 import logger from '../utils/logger';
+import emailService from '../services/emailService';
 
 class ContactMessageController {
     /**
@@ -28,6 +29,10 @@ class ContactMessageController {
             });
 
             logger.info(`New contact message received from ${email}`);
+
+            // Send email notification (don't block the response)
+            emailService.sendContactNotification({ name, email, subject, message })
+                .catch(err => logger.error('Background email notification failed:', err));
 
             res.status(201).json({
                 success: true,
