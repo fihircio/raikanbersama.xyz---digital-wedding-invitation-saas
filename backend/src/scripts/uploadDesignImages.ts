@@ -27,8 +27,16 @@ const uploadDesignImages = async () => {
             publicDir = path.resolve(__dirname, '../../public');
         }
         if (!fs.existsSync(publicDir)) {
+            // Check for relocated design_assets (to bypass gitignore)
+            publicDir = path.resolve(__dirname, '../../design_assets');
+        }
+        if (!fs.existsSync(publicDir)) {
             // Fallback for Railway if executing from app root
             publicDir = path.resolve(process.cwd(), 'public');
+        }
+        if (!fs.existsSync(publicDir)) {
+            // Fallback for Railway if relocated
+            publicDir = path.resolve(process.cwd(), 'design_assets');
         }
 
         logger.info(`Using public directory: ${publicDir}`);
