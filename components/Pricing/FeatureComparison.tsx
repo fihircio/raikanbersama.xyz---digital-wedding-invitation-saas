@@ -7,9 +7,6 @@ interface FeatureComparisonProps {
 
 const FeatureComparison: React.FC<FeatureComparisonProps> = ({ plans }) => {
   const allFeatures = [
-    { name: 'Link Aktif Selamanya (Lifetime Access)', lite: true, pro: true, elite: true },
-    { name: 'Tiada Had Pelawat (Unlimited)', lite: true, pro: true, elite: true },
-    { name: 'Edit Maklumat (Edit Window)', lite: '60 Hari', pro: '120 Hari', elite: 'Tanpa Had' },
     { name: 'Calendar / Add to Calendar', lite: true, pro: true, elite: true },
     { name: 'Contact', lite: true, pro: true, elite: true },
     { name: 'Countdown Timer Majlis', lite: true, pro: true, elite: true },

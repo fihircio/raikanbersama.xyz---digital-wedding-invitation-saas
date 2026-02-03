@@ -7,11 +7,7 @@ const FAQPage: React.FC = () => {
             answer: 'Link jemputan anda aktif selama-lamanya (Lifetime Access). Ia boleh dijadikan kenang-kenangan digital untuk anda dan tetamu.'
         },
         {
-            question: 'Bolehkah saya menukar maklumat selepas membeli?',
-            answer: 'Boleh. Setiap pelan mempunyai tempoh "Edit Window" (60, 120, atau Tanpa Had) untuk anda mengemaskini maklumat majlis.'
-        },
-        {
-            question: 'Apa itu Money Gift (E-Angpow)?',
+            question: 'Apa itu Money Gift (Hadiah)?',
             answer: 'Ciri yang membolehkan tetamu memberikan sumbangan secara digital terus ke akaun bank anda melalui paparan yang elegan.'
         },
         {

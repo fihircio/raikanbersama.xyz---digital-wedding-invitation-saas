@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
                         &copy; 2026 EEE LAB VISUAL (002278324-V). All right reserved
                     </p>
                     <div className="flex space-x-6">
-                        <span className="text-gray-300 text-[10px] font-bold uppercase tracking-widest">Premium Digital Invitation</span>
+                        <span className="text-gray-300 text-[10px] font-bold uppercase tracking-widest">Digital E-Invitation</span>
                     </div>
                 </div>
             </div>

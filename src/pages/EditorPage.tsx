@@ -707,7 +707,7 @@ const EditorPage: React.FC = () => {
                               >
                                 Beli & Aktifkan Sekarang
                               </button>
-                              <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk akses seumur hidup</p>
+                              <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk setiap invite</p>
                             </div>
                           )}
                         </>
@@ -1021,9 +1021,9 @@ const EditorPage: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-3">
-                      <FontPicker label="Font Hashtag" value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                        <FontPicker label="Font Hashtag" value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
                             <span>Warna</span>

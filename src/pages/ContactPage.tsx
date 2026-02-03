@@ -79,8 +79,8 @@ const ContactPage: React.FC = () => {
                                     <div>
                                         <h3 className="font-bold text-gray-900 mb-1">Waktu Operasi</h3>
                                         <p className="text-gray-500 text-sm leading-relaxed">
-                                            Isnin - Jumaat: 9:00 AM - 6:00 PM<br />
-                                            Sabtu: 10:00 AM - 2:00 PM
+                                            Isnin - Jumaat: 10:00 AM - 6:00 PM<br />
+                                            Weekends & Public Holidays: - Tutup
                                         </p>
                                     </div>
                                 </div>
