@@ -80,7 +80,7 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
 
             {/* Design Preview (CoverLayout) scaled down */}
             <div className={`absolute left-0 top-0 pointer-events-none origin-top-left scale-[0.333] w-[300%] h-[300%] transition-opacity duration-500 ${isHovered ? 'opacity-40' : 'opacity-100'}`}>
-              <CoverLayout invitation={mockInvitation} formattedDate="25 Disember 2025" />
+              <CoverLayout invitation={mockInvitation} formattedDate="25 Disember 2025" isCatalog={true} />
             </div>
 
 
