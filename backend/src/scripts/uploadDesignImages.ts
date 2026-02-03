@@ -26,19 +26,19 @@ const uploadDesignImages = async () => {
 
         // List of files to process
         const files = [
-            { name: 'Islamic Elegant 01', filename: 'islamic_01.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'] },
-            { name: 'Islamic Elegant 02', filename: 'islamic_02.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'] },
-            { name: 'Islamic Elegant 03', filename: 'islamic_03.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'] },
-            { name: 'Minimalist White 01', filename: 'minimal_01.png', category: 'Minimalist', theme: 'Minimalist', tags: ['minimal', 'white'] },
-            { name: 'Modern Style 01', filename: 'modern_01.png', category: 'Modern', theme: 'Modern', tags: ['modern', 'clean'] },
-            { name: 'Ramadan Mubarak 01', filename: 'ramadhan_01.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'] },
-            { name: 'Ramadan Mubarak 02', filename: 'ramadhan_02.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'] },
-            { name: 'Raya Celebration 01', filename: 'raya_01.png', category: 'Islamic', theme: 'Raya', tags: ['raya', 'islamic', 'eid'] },
-            { name: 'Rustic Floral 01', filename: 'rustic_01.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'] },
-            { name: 'Rustic Floral 02', filename: 'rustic_02.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'] },
-            { name: 'Nature Scenery 01', filename: 'scenery_01.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'] },
-            { name: 'Nature Scenery 02', filename: 'scenery_02.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'] },
-            { name: 'Vintage Rose 01', filename: 'vintage_01.png', category: 'Vintage', theme: 'Vintage', tags: ['vintage', 'rose'] },
+            { name: 'Islamic Elegant 01', filename: 'islamic_01.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#1a4e3a' }, // Deep green
+            { name: 'Islamic Elegant 02', filename: 'islamic_02.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#4a3a1a' }, // Bronze
+            { name: 'Islamic Elegant 03', filename: 'islamic_03.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#1a2b4e' }, // Navy
+            { name: 'Minimalist White 01', filename: 'minimal_01.png', category: 'Minimalist', theme: 'Minimalist', tags: ['minimal', 'white'], primary_color: '#4B5563' }, // Charcoal
+            { name: 'Modern Style 01', filename: 'modern_01.png', category: 'Modern', theme: 'Modern', tags: ['modern', 'clean'], primary_color: '#1F2937' }, // Dark Slate
+            { name: 'Ramadan Mubarak 01', filename: 'ramadhan_01.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'], primary_color: '#1a4e3a' }, // Emerald
+            { name: 'Ramadan Mubarak 02', filename: 'ramadhan_02.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'], primary_color: '#8B4513' }, // Saddle Brown
+            { name: 'Raya Celebration 01', filename: 'raya_01.png', category: 'Islamic', theme: 'Raya', tags: ['raya', 'islamic', 'eid'], primary_color: '#1a4e3a' }, // Green
+            { name: 'Rustic Floral 01', filename: 'rustic_01.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'], primary_color: '#8B4513' }, // Brown
+            { name: 'Rustic Floral 02', filename: 'rustic_02.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'], primary_color: '#a81c3c' }, // Crimson
+            { name: 'Nature Scenery 01', filename: 'scenery_01.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'], primary_color: '#1c3c1c' }, // Dark Forest
+            { name: 'Nature Scenery 02', filename: 'scenery_02.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'], primary_color: '#1c1c3c' }, // Midnight
+            { name: 'Vintage Rose 01', filename: 'vintage_01.png', category: 'Vintage', theme: 'Vintage', tags: ['vintage', 'rose'], primary_color: '#a81c3c' }, // Rose
         ];
 
         for (const fileItem of files) {
