@@ -152,8 +152,7 @@ const AffiliatePage: React.FC = () => {
                                         'Harga Diskaun Vendor',
                                         'Tiada Yuran Pendaftaran atau Tahunan',
                                         'Support utama',
-                                        'Akses kepada Semua Design',
-                                        'Material Pemasaran Percuma'
+                                        'Akses kepada Semua Design'
                                     ].map((benefit, i) => (
                                         <div key={i} className="flex items-center gap-4">
                                             <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -170,8 +169,8 @@ const AffiliatePage: React.FC = () => {
                                     <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Kos Permulaan</p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 text-center">
-                                    <p className="text-3xl font-bold mb-2">40%</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Margin Keuntungan</p>
+                                    <p className="text-3xl font-bold mb-2">10%</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">referal kod percuma untuk 10 jemputan pertama</p>
                                 </div>
                                 <div className="col-span-2 bg-rose-600 p-8 rounded-[2.5rem] text-center shadow-2xl shadow-rose-900/20">
                                     <p className="text-lg font-serif italic mb-1">Rakan Kongsi Dipercayai</p>
