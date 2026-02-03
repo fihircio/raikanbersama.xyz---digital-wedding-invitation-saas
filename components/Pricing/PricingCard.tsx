@@ -63,7 +63,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
           </button>
 
           <a
-            href={`#/i/${plan.id === 'lite' ? 'sample-pakej-aswa' :
+            href={`/i/${plan.id === 'lite' ? 'sample-pakej-aswa' :
               plan.id === 'pro' ? 'sample-pakej-asmaradana' :
                 'sample-pakej-kayangan'
               }`}

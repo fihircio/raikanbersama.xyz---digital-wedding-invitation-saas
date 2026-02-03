@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -67,12 +67,30 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+const LegacyHashRedirect: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    // Check if the current URL has a legacy hash route (e.g., /#/i/slug or /pricing#/i/slug)
+    // Note: window.location.hash includes the '#'
+    if (window.location.hash.startsWith('#/')) {
+      const targetPath = window.location.hash.substring(1); // Remove the '#'
+      console.log('🔄 Redirecting legacy hash link:', window.location.hash, '->', targetPath);
+      navigate(targetPath, { replace: true });
+    }
+  }, [location, navigate]);
+
+  return null;
+};
+
 
 const App: React.FC = () => {
   return (
     <HelmetProvider>
       <AuthProvider>
         <BrowserRouter>
+          <LegacyHashRedirect />
           <div className="min-h-screen">
             <Routes>
               {/* Public Routes */}

@@ -199,14 +199,14 @@ const ManageInvitationPage: React.FC = () => {
     const encoded = encodeURIComponent(magicGuest);
     const baseUrl = window.location.origin + window.location.pathname;
     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    setMagicLink(`${cleanBase}#/i/${invitation.slug}?to=${encoded}`);
+    setMagicLink(`${cleanBase}/i/${invitation.slug}?to=${encoded}`);
   };
 
   const shareSpecificLink = (guestName: string) => {
     const encoded = encodeURIComponent(guestName);
     const baseUrl = window.location.origin + window.location.pathname;
     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    const link = `${cleanBase}#/i/${invitation.slug}?to=${encoded}`;
+    const link = `${cleanBase}/i/${invitation.slug}?to=${encoded}`;
     const text = `Assalamualaikum! Ini kad jemputan khas buat anda: ${link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -281,7 +281,7 @@ const ManageInvitationPage: React.FC = () => {
                   onClick={() => {
                     const baseUrl = window.location.origin + window.location.pathname;
                     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-                    const link = `${cleanBase}#/i/${invitation.slug}`;
+                    const link = `${cleanBase}/i/${invitation.slug}`;
                     navigator.clipboard.writeText(link);
                     alert('Pautan disalin!');
                   }}
@@ -290,7 +290,7 @@ const ManageInvitationPage: React.FC = () => {
                   Salin Pautan
                 </button>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent('Assalamualaikum! Ini kad jemputan perkahwinan kami: ' + window.location.origin + window.location.pathname + '#/i/' + invitation.slug)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent('Assalamualaikum! Ini kad jemputan perkahwinan kami: ' + window.location.origin + '/i/' + invitation.slug)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="bg-green-500 text-white px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition"
