@@ -11,7 +11,8 @@
     "test": "jest",
     "seed": "ts-node src/scripts/seed.ts",
     "migrate": "ts-node src/scripts/sync-db.ts",
-    "create-admin": "ts-node src/scripts/create-admin.ts"
+    "create-admin": "ts-node src/scripts/create-admin.ts",
+    "upload-designs": "ts-node src/scripts/uploadDesignImages.ts"
   },
   "keywords": [
     "wedding",
