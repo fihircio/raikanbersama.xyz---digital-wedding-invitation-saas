@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { buildApiUrl } from '../config';
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import SEO from '../../components/SEO';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const ContactPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -48,6 +51,10 @@ const ContactPage: React.FC = () => {
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white flex flex-col">
+            <SEO
+                title="Hubungi Kami"
+                description="Ada soalan atau perlukan bantuan? Hubungi pasukan RaikanBersama.xyz. Kami sedia membantu anda."
+            />
             <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4 italic">

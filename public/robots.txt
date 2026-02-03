@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /pricing
+Allow: /faq
+Allow: /contact
+Allow: /tutorial
+
+# Privacy & Admin protection
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /edit/
+Disallow: /manage/
+Disallow: /profile/
+Disallow: /orders/
+Disallow: /oauth/
+
+Sitemap: https://raikanbersama.xyz/sitemap.xml

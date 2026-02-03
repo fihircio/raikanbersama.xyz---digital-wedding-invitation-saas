@@ -1,8 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../../components/SEO';
 
 const HomePage: React.FC = () => (
   <div className="pt-24 min-h-screen bg-white">
+    <SEO
+      title="Bina Kad Jemputan Digital & Wedding No.1 Malaysia"
+      description="Platform premium untuk kad jemputan digital. Bina sendiri kad idaman anda secara real-time dari peranti anda. Mudah & Pantas."
+    />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
       <div className="inline-block bg-rose-50 text-rose-600 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] mb-12 animate-bounce border border-rose-100 shadow-sm font-sans">
         Digital E-Invitation

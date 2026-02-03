@@ -1,6 +1,7 @@
 import React from 'react';
 import PricingCard from './PricingCard';
 import FeatureComparison from './FeatureComparison';
+import SEO from '../SEO';
 import { Plan } from '../../types';
 
 import { useSearchParams } from 'react-router-dom';
@@ -12,6 +13,7 @@ const PricingPage: React.FC = () => {
     {
       id: 'lite',
       name: 'Lite',
+      label: 'Basic',
       price: 'RM29',
       period: 'per invitation',
       description: 'The essential wedding invitation',
@@ -27,6 +29,7 @@ const PricingPage: React.FC = () => {
     {
       id: 'pro',
       name: 'Pro',
+      label: 'Recommended',
       price: 'RM49',
       period: 'per invitation',
       description: 'The preferred choice for couples',
@@ -46,6 +49,7 @@ const PricingPage: React.FC = () => {
     {
       id: 'elite',
       name: 'Elite',
+      label: 'Premium',
       price: 'RM69',
       period: 'per invitation',
       description: 'The ultimate digital experience',
@@ -71,6 +75,10 @@ const PricingPage: React.FC = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-white">
+      <SEO
+        title="Harga & Pelan"
+        description="Pilih pelan kad jemputan digital yang sesuai dengan bajet anda. Pelan Lite, Pro dan Elite dengan pelbagai ciri premium."
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="text-center mb-16">

@@ -4,6 +4,7 @@ import { buildApiUrl } from '../config';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import SEO from '../../components/SEO';
 import {
     CheckCircleIcon,
     ExclamationCircleIcon,
@@ -110,6 +111,10 @@ const AffiliatePage: React.FC = () => {
 
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white">
+            <SEO
+                title="Program Affiliate & Vendor"
+                description="Sertai program rakan kongsi RaikanBersama.xyz. Jana pendapatan pasif dengan tawarkan jemputan digital premium kepada pelanggan anda."
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Hero Section */}
                 <div className="text-center mb-24 animate-fade-in">

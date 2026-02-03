@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CatalogPage from './components/Catalog/CatalogPage';
@@ -69,98 +70,100 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <HashRouter>
-        <div className="min-h-screen">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<><Navbar /><HomePage /><Footer /></>} />
-            <Route path="/catalog" element={<><Navbar /><CatalogPage /><Footer /></>} />
-            <Route path="/pricing" element={<><Navbar /><PricingPage /><Footer /></>} />
-            <Route path="/faq" element={<><Navbar /><FAQPage /><Footer /></>} />
-            <Route path="/tutorial" element={<><Navbar /><TutorialPage /><Footer /></>} />
-            <Route path="/contact" element={<><Navbar /><ContactPage /><Footer /></>} />
-            <Route path="/affiliates" element={<><Navbar /><AffiliatePage /><Footer /></>} />
-            <Route path="/privacy" element={<><Navbar /><PrivacyPolicyPage /><Footer /></>} />
-            <Route path="/terms" element={<><Navbar /><TermsPage /><Footer /></>} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-            <Route path="/i/:slug" element={<PublicInvitationPage />} />
+    <HelmetProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="min-h-screen">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<><Navbar /><HomePage /><Footer /></>} />
+              <Route path="/catalog" element={<><Navbar /><CatalogPage /><Footer /></>} />
+              <Route path="/pricing" element={<><Navbar /><PricingPage /><Footer /></>} />
+              <Route path="/faq" element={<><Navbar /><FAQPage /><Footer /></>} />
+              <Route path="/tutorial" element={<><Navbar /><TutorialPage /><Footer /></>} />
+              <Route path="/contact" element={<><Navbar /><ContactPage /><Footer /></>} />
+              <Route path="/affiliates" element={<><Navbar /><AffiliatePage /><Footer /></>} />
+              <Route path="/privacy" element={<><Navbar /><PrivacyPolicyPage /><Footer /></>} />
+              <Route path="/terms" element={<><Navbar /><TermsPage /><Footer /></>} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+              <Route path="/i/:slug" element={<PublicInvitationPage />} />
 
-            {/* Protected Routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Navbar />
-                <DashboardPage />
-                <Footer />
-              </ProtectedRoute>
-            } />
-            <Route path="/edit/:id" element={<><Navbar /><EditorPage /></>} />
-            <Route path="/create" element={<><Navbar /><EditorPage /></>} />
-            <Route path="/manage/:id" element={
-              <ProtectedRoute>
-                <Navbar />
-                <ManageInvitationPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Navbar />
-                <ProfilePage />
-                <Footer />
-              </ProtectedRoute>
-            } />
-            <Route path="/orders" element={
-              <ProtectedRoute>
-                <Navbar />
-                <OrdersPage />
-                <Footer />
-              </ProtectedRoute>
-            } />
-            <Route path="/favorites" element={
-              <ProtectedRoute>
-                <Navbar />
-                <FavoritesPage />
-                <Footer />
-              </ProtectedRoute>
-            } />
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <DashboardPage />
+                  <Footer />
+                </ProtectedRoute>
+              } />
+              <Route path="/edit/:id" element={<><Navbar /><EditorPage /></>} />
+              <Route path="/create" element={<><Navbar /><EditorPage /></>} />
+              <Route path="/manage/:id" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <ManageInvitationPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <ProfilePage />
+                  <Footer />
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <OrdersPage />
+                  <Footer />
+                </ProtectedRoute>
+              } />
+              <Route path="/favorites" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <FavoritesPage />
+                  <Footer />
+                </ProtectedRoute>
+              } />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-            <Route path="/admin/affiliates" element={
-              <AdminRoute>
-                <AffiliateManagement />
-              </AdminRoute>
-            } />
-            <Route path="/admin/contacts" element={
-              <AdminRoute>
-                <ContactManagement />
-              </AdminRoute>
-            } />
-            <Route path="/admin/coupons" element={
-              <AdminRoute>
-                <CouponManagement />
-              </AdminRoute>
-            } />
-            <Route path="/admin/users" element={
-              <AdminRoute>
-                <UserManagement />
-              </AdminRoute>
-            } />
-            <Route path="/admin/orders" element={
-              <AdminRoute>
-                <OrderManagement />
-              </AdminRoute>
-            } />
-          </Routes>
-        </div>
-      </HashRouter>
-    </AuthProvider>
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
+              <Route path="/admin/affiliates" element={
+                <AdminRoute>
+                  <AffiliateManagement />
+                </AdminRoute>
+              } />
+              <Route path="/admin/contacts" element={
+                <AdminRoute>
+                  <ContactManagement />
+                </AdminRoute>
+              } />
+              <Route path="/admin/coupons" element={
+                <AdminRoute>
+                  <CouponManagement />
+                </AdminRoute>
+              } />
+              <Route path="/admin/users" element={
+                <AdminRoute>
+                  <UserManagement />
+                </AdminRoute>
+              } />
+              <Route path="/admin/orders" element={
+                <AdminRoute>
+                  <OrderManagement />
+                </AdminRoute>
+              } />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </HelmetProvider>
   );
 };
 

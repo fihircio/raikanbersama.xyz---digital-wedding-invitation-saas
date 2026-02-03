@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import BackgroundGrid from './BackgroundGrid';
 import Pagination from './Pagination';
+import SEO from '../SEO';
 import { BackgroundImage, CatalogState } from '../../types';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { buildApiUrl } from '../../src/config';
@@ -361,6 +362,10 @@ const CatalogPage: React.FC = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-gray-50">
+      <SEO
+        title="Katalog Tema Kad Jemputan Digital"
+        description="Terokai koleksi tema premium untuk kad jemputan digital anda. Pelbagai pilihan design elegant, rustic, minimalist dan tradisional."
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4">
