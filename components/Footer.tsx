@@ -9,17 +9,22 @@ const Footer: React.FC = () => {
                     {/* Brand section */}
                     <div className="col-span-1 md:col-span-1">
                         <Link to="/" className="inline-block group relative mb-6">
-                            <div className="relative h-16 w-16 rounded-full overflow-hidden border border-gray-100 shadow-inner">
-                                <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.15)] rounded-full"></div>
-                                <img
-                                    src="/logo.png"
-                                    alt="RaikanBersama Logo"
-                                    className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                                />
+                            <div className="flex items-center space-x-3">
+                                <div className="relative h-12 w-12 rounded-full overflow-hidden border border-gray-100 shadow-inner">
+                                    <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.15)] rounded-full"></div>
+                                    <img
+                                        src="/logo.png"
+                                        alt="RaikanBersama Logo"
+                                        className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                </div>
+                                <span className="text-lg font-serif font-bold text-gray-900 tracking-tight">
+                                    RaikanBersama.xyz
+                                </span>
                             </div>
                         </Link>
                         <p className="text-gray-500 text-sm leading-relaxed">
-                            Platform jemputan digital premium untuk majlis perkahwinan dan pelbagai acara. Bina kad digital anda dengan mudah dan pantas.
+                            Platform jemputan digital premium RaikanBersama.xyz untuk majlis perkahwinan dan pelbagai acara.
                         </p>
                     </div>
 

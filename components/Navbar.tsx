@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center group relative">
+            <Link to="/" className="flex items-center group relative space-x-3">
               <div className="relative h-12 w-12 rounded-full overflow-hidden border border-gray-100 shadow-inner">
                 {/* Vignette Overlay */}
                 <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.15)] rounded-full"></div>
@@ -37,6 +37,9 @@ const Navbar: React.FC = () => {
                   className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
+              <span className="text-xl font-serif font-bold text-gray-900 tracking-tight group-hover:text-rose-600 transition-colors">
+                RaikanBersama.xyz
+              </span>
             </Link>
           </div>
 
