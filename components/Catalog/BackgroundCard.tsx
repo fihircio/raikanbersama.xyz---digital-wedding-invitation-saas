@@ -32,7 +32,7 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
     event_date: '2025-12-25',
     settings: {
       music_url: '',
-      primary_color: '#8B4513',
+      primary_color: background.primary_color !== 'Varies' ? background.primary_color : '#8B4513',
       show_countdown: true,
       show_gallery: true,
       is_published: true,
@@ -42,6 +42,8 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
       // Use styles from layout settings or defaults
       groom_font: background.layout_settings?.font_family,
       bride_font: background.layout_settings?.font_family,
+      groom_color: background.primary_color !== 'Varies' ? background.primary_color : '#8B4513',
+      bride_color: background.primary_color !== 'Varies' ? background.primary_color : '#8B4513',
     }
   };
 
@@ -65,7 +67,7 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
 
             <div className="absolute inset-0">
               <img
-                src={background.thumbnail}
+                src={background.url}
                 alt={background.name}
                 className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                 onClick={onSelect}
