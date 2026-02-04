@@ -187,22 +187,11 @@ const ManageInvitationPage: React.FC = () => {
     return { totalPax, attendingCount, notAttendingCount };
   }, [rsvps]);
 
-  if (loading) {
-    return (
-      <div className="pt-32 text-center font-serif italic text-gray-400">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
-        <p className="mt-4">Loading invitation...</p>
-      </div>
-    );
-  }
-
-  if (!invitation) return <div className="pt-32 text-center font-serif italic text-gray-400">Invitation not found.</div>;
-
-  const invitationLink = `${window.location.origin}/i/${invitation.slug}`;
-  const weddingDate = invitation.event_date ? new Date(invitation.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA';
+  const invitationLink = invitation ? `${window.location.origin}/i/${invitation.slug}` : '';
+  const weddingDate = invitation?.event_date ? new Date(invitation.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA';
 
   useEffect(() => {
-    if (isShareModalOpen) {
+    if (isShareModalOpen && invitation) {
       const linkWithGuest = shareToGuest ? `${invitationLink}?to=${encodeURIComponent(shareToGuest)}` : invitationLink;
 
       const dynamicTemplates = {
@@ -235,7 +224,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
   }, [isShareModalOpen, selectedTemplate, invitation, shareToGuest, invitationLink, weddingDate]);
 
   const handleGenerateMagic = () => {
-    if (!magicGuest) return;
+    if (!magicGuest || !invitation) return;
     const encoded = encodeURIComponent(magicGuest);
     setMagicLink(`${invitationLink}?to=${encoded}`);
     setShareToGuest(magicGuest);
@@ -246,6 +235,17 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
     setShareToGuest(guestName);
     setIsShareModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="pt-32 text-center font-serif italic text-gray-400">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
+        <p className="mt-4">Loading invitation...</p>
+      </div>
+    );
+  }
+
+  if (!invitation) return <div className="pt-32 text-center font-serif italic text-gray-400">Invitation not found.</div>;
 
   return (
     <div className="pt-24 pb-12 bg-gray-50 min-h-screen">
