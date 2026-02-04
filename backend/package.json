@@ -12,6 +12,7 @@
     "seed": "ts-node src/scripts/seed.ts",
     "migrate": "ts-node src/scripts/sync-db.ts",
     "create-admin": "ts-node src/scripts/create-admin.ts",
+    "sync-designs": "ts-node src/scripts/exportDesignSeeder.ts",
     "upload-designs": "ts-node src/scripts/uploadDesignImages.ts"
   },
   "keywords": [
