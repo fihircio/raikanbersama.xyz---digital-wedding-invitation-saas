@@ -231,10 +231,6 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
     setIsShareModalOpen(true);
   };
 
-  const shareSpecificLink = (guestName: string) => {
-    setShareToGuest(guestName);
-    setIsShareModalOpen(true);
-  };
 
   if (loading) {
     return (
@@ -477,7 +473,6 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                       <th className="px-8 py-4">Nama Tetamu</th>
                       <th className="px-8 py-4 text-center">Kehadiran</th>
                       <th className="px-8 py-4 text-center">Pax</th>
-                      <th className="px-8 py-4">Magic Link</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -493,11 +488,6 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                           </span>
                         </td>
                         <td className="px-8 py-6 text-center text-sm font-bold text-gray-600">{rsvp.pax}</td>
-                        <td className="px-8 py-6">
-                          <button onClick={() => shareSpecificLink(rsvp.guest_name)} className="text-[10px] font-bold text-rose-500 hover:text-rose-700 uppercase tracking-tighter flex items-center gap-1 group-hover:scale-105 transition">
-                            Share WhatsApp &rarr;
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
