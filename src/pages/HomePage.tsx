@@ -13,7 +13,7 @@ const HomePage: React.FC = () => (
         Digital E-Invitation
       </div>
       <h1 className="text-6xl md:text-9xl font-serif font-bold text-gray-900 mb-10 tracking-tighter leading-[0.9]">
-        Raikan Cinta <br />
+        Raikan Hubungan<br />
         <span className="text-rose-600 italic">Secara Elegan.</span>
       </h1>
       <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-16 font-light leading-relaxed font-sans">

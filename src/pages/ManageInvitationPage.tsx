@@ -300,43 +300,41 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
           </div>
         )}
 
-        {!canAccess('magic_link') && (
-          <div className="mb-12">
-            <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1 text-center md:text-left">
-                <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">Kongsi Kad Anda</span>
-                <h3 className="text-xl font-serif italic font-bold text-gray-800">Sedia untuk dikongsi?</h3>
-                <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
-                  <p className="text-sm text-gray-400 italic max-w-md truncate">{invitationLink}</p>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(invitationLink);
-                      alert('Pautan disalin!');
-                    }}
-                    className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-rose-600 transition"
-                    title="Salin Pautan"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
+        <div className="mb-12">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex-1 text-center md:text-left">
+              <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">Kongsi Kad Anda</span>
+              <h3 className="text-xl font-serif italic font-bold text-gray-800">Sedia untuk dikongsi?</h3>
+              <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
+                <p className="text-sm text-gray-400 italic max-w-md truncate">{invitationLink}</p>
                 <button
                   onClick={() => {
-                    setShareToGuest('');
-                    setIsShareModalOpen(true);
+                    navigator.clipboard.writeText(invitationLink);
+                    alert('Pautan disalin!');
                   }}
-                  className="bg-green-500 text-white px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-green-100 hover:bg-green-600 transition group"
+                  className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-rose-600 transition"
+                  title="Salin Pautan"
                 >
-                  <span className="text-lg">📱</span>
-                  WhatsApp / Share Popup
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
                 </button>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setShareToGuest('');
+                  setIsShareModalOpen(true);
+                }}
+                className="bg-green-500 text-white px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-green-100 hover:bg-green-600 transition group"
+              >
+                <span className="text-lg">📱</span>
+                WhatsApp / Share Popup
+              </button>
+            </div>
           </div>
-        )}
+        </div>
 
         {/* Share Modal */}
         {isShareModalOpen && (

@@ -160,6 +160,8 @@ export const seedSampleInvitations = async () => {
             } else {
                 console.log(`ℹ️ Invitation ${sample.slug} already exists, updating...`);
                 await inv.update({
+                    groom_name: sample.slug.includes('aswa') ? 'Ahmad' : (sample.slug.includes('asmaradana') ? 'Firas' : 'Zaim'),
+                    bride_name: sample.slug.includes('aswa') ? 'Sarah' : (sample.slug.includes('asmaradana') ? 'Aisyah' : 'Sofea'),
                     settings,
                     is_paid: true,
                     is_published: true,
