@@ -197,14 +197,14 @@ const ManageInvitationPage: React.FC = () => {
   const handleGenerateMagic = () => {
     if (!magicGuest) return;
     const encoded = encodeURIComponent(magicGuest);
-    const baseUrl = window.location.origin + window.location.pathname;
+    const baseUrl = window.location.origin;
     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     setMagicLink(`${cleanBase}/i/${invitation.slug}?to=${encoded}`);
   };
 
   const shareSpecificLink = (guestName: string) => {
     const encoded = encodeURIComponent(guestName);
-    const baseUrl = window.location.origin + window.location.pathname;
+    const baseUrl = window.location.origin;
     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     const link = `${cleanBase}/i/${invitation.slug}?to=${encoded}`;
     const text = `Assalamualaikum! Ini kad jemputan khas buat anda: ${link}`;
@@ -279,7 +279,7 @@ const ManageInvitationPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
-                    const baseUrl = window.location.origin + window.location.pathname;
+                    const baseUrl = window.location.origin;
                     const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
                     const link = `${cleanBase}/i/${invitation.slug}`;
                     navigator.clipboard.writeText(link);
