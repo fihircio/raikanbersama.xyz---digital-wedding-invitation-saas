@@ -127,7 +127,7 @@ const ContactManagement: React.FC = () => {
                                         )}
                                         <div className="flex justify-between items-start mb-1">
                                             <span className={`text-xs font-bold truncate max-w-[150px] ${message.status === 'new' ? 'text-gray-900' : 'text-gray-500'}`}>{message.name}</span>
-                                            <span className="text-[9px] text-gray-400 font-medium">{new Date(message.created_at).toLocaleDateString()}</span>
+                                            <span className="text-[9px] text-gray-400 font-medium">{message.created_at || (message as any).createdAt ? new Date(message.created_at || (message as any).createdAt).toLocaleDateString() : 'Invalid Date'}</span>
                                         </div>
                                         <span className={`text-xs font-serif italic truncate ${message.status === 'new' ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>{message.subject}</span>
                                         <p className="text-[10px] text-gray-400 truncate mt-1">{message.message}</p>

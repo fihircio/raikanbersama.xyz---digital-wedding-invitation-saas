@@ -78,5 +78,6 @@ router.get('/coupons', adminController.getCoupons);
 router.post('/coupons', adminController.createCoupon);
 router.put('/coupons/:id', adminController.updateCoupon);
 router.delete('/coupons/:id', adminController.deleteCoupon);
+router.delete('/invitations/:id', adminController.deleteInvitation);
 
 export default router;

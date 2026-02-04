@@ -9,7 +9,8 @@ import {
     ShieldCheckIcon,
     UserCircleIcon,
     StarIcon,
-    ArrowPathIcon
+    ArrowPathIcon,
+    XMarkIcon
 } from '@heroicons/react/24/outline';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
@@ -21,6 +22,13 @@ interface User {
     role: 'user' | 'admin';
     membership_tier: 'free' | 'elite' | 'pro';
     created_at: string;
+    invitations: {
+        id: string;
+        slug: string;
+        bride_name: string;
+        groom_name: string;
+        orders: { status: string }[];
+    }[];
 }
 
 const UserManagement: React.FC = () => {
@@ -78,6 +86,27 @@ const UserManagement: React.FC = () => {
         }
     };
 
+    const handleDeleteInvitation = async (userId: string, invitationId: string) => {
+        if (!token || !window.confirm('Adakah anda pasti mahu memadam kad ini?')) return;
+        try {
+            const response = await fetch(buildApiUrl(`/admin/invitations/${invitationId}`), {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setUsers(users.map(u => u.id === userId ? {
+                    ...u,
+                    invitations: u.invitations.filter(i => i.id !== invitationId)
+                } : u));
+            } else {
+                alert(data.error || 'Gagal memadam kad');
+            }
+        } catch (err) {
+            console.error('Failed to delete invitation');
+        }
+    };
+
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         setPage(1);
@@ -114,6 +143,7 @@ const UserManagement: React.FC = () => {
                                     <th className="px-8 py-5">Pengguna</th>
                                     <th className="px-8 py-5">Peranan</th>
                                     <th className="px-8 py-5">Pakej</th>
+                                    <th className="px-8 py-5">Kad Dijana</th>
                                     <th className="px-8 py-5">Tarikh Daftar</th>
                                     <th className="px-8 py-5 text-right">Tindakan</th>
                                 </tr>
@@ -164,8 +194,42 @@ const UserManagement: React.FC = () => {
                                                 <option value="pro">PRO</option>
                                             </select>
                                         </td>
+                                        <td className="px-8 py-6">
+                                            <div className="flex flex-col gap-2">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-md inline-block w-fit">
+                                                    {u.invitations?.length || 0} Kad
+                                                </span>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {u.invitations?.map(inv => {
+                                                        const isPaid = inv.orders && inv.orders.length > 0;
+                                                        return (
+                                                            <div key={inv.id} className="group/pill inline-flex items-center bg-rose-50 rounded-full border border-rose-100/50 hover:bg-rose-100 transition whitespace-nowrap overflow-hidden">
+                                                                <a
+                                                                    href={`/i/${inv.slug}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[9px] font-bold text-rose-600 px-2 py-0.5"
+                                                                    title={`${inv.bride_name} & ${inv.groom_name}`}
+                                                                >
+                                                                    {inv.bride_name && inv.groom_name ? `${inv.bride_name} & ${inv.groom_name}` : inv.slug}
+                                                                </a>
+                                                                {!isPaid && (
+                                                                    <button
+                                                                        onClick={() => handleDeleteInvitation(u.id, inv.id)}
+                                                                        className="p-1 text-rose-300 hover:text-rose-600 border-l border-rose-100/50 transition opacity-0 group-hover/pill:opacity-100"
+                                                                        title="Padam Kad"
+                                                                    >
+                                                                        <XMarkIcon className="w-2.5 h-2.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-8 py-6 text-gray-400 text-xs">
-                                            {new Date(u.created_at).toLocaleDateString()}
+                                            {u.created_at || (u as any).createdAt ? new Date(u.created_at || (u as any).createdAt).toLocaleDateString() : 'Invalid Date'}
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             {isUpdating === u.id ? (

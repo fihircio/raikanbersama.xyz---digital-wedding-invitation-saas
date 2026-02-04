@@ -91,17 +91,31 @@ class AdminController {
                 limit,
                 offset,
                 order: [['created_at', 'DESC']],
-                attributes: { exclude: ['password'] }
+                attributes: { exclude: ['password'] },
+                include: [{
+                    model: Invitation,
+                    as: 'invitations',
+                    attributes: ['id', 'slug', 'bride_name', 'groom_name'],
+                    include: [{
+                        model: Order,
+                        as: 'orders',
+                        attributes: ['status'],
+                        where: { status: OrderStatus.COMPLETED },
+                        required: false
+                    }]
+                }]
             });
 
             res.status(200).json({
                 success: true,
-                data: users,
-                pagination: {
-                    total: count,
-                    page,
-                    limit,
-                    pages: Math.ceil(count / limit)
+                data: {
+                    users,
+                    pagination: {
+                        total: count,
+                        page,
+                        limit,
+                        totalPages: Math.ceil(count / limit)
+                    }
                 }
             });
         } catch (error) {
@@ -131,12 +145,14 @@ class AdminController {
 
             res.status(200).json({
                 success: true,
-                data: orders,
-                pagination: {
-                    total: count,
-                    page,
-                    limit,
-                    pages: Math.ceil(count / limit)
+                data: {
+                    orders,
+                    pagination: {
+                        total: count,
+                        page,
+                        limit,
+                        totalPages: Math.ceil(count / limit)
+                    }
                 }
             });
         } catch (error) {
@@ -496,6 +512,53 @@ class AdminController {
             res.status(500).json({
                 success: false,
                 error: 'Failed to delete coupon.'
+            });
+        }
+    }
+
+    public async deleteInvitation(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+
+            const invitation = await Invitation.findByPk(id, {
+                include: [{
+                    model: Order,
+                    as: 'orders',
+                    where: { status: OrderStatus.COMPLETED },
+                    required: false
+                }]
+            });
+
+            if (!invitation) {
+                res.status(404).json({
+                    success: false,
+                    error: 'Invitation not found.'
+                });
+                return;
+            }
+
+            // Check if there are any completed orders
+            const hasCompletedOrder = (invitation as any).orders && (invitation as any).orders.length > 0;
+
+            if (hasCompletedOrder) {
+                res.status(403).json({
+                    success: false,
+                    error: 'Cannot delete a paid invitation.'
+                });
+                return;
+            }
+
+            await invitation.destroy();
+
+            res.status(200).json({
+                success: true,
+                message: 'Invitation deleted successfully.'
+            });
+        } catch (error) {
+            logger.error('Error deleting invitation:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to delete invitation.'
             });
         }
     }

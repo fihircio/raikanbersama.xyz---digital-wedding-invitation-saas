@@ -74,7 +74,7 @@ const OrderManagement: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Sales</p>
-                            <p className="text-sm font-bold text-gray-900">RM {orders.reduce((acc, curr) => acc + (curr.status === 'completed' ? curr.amount : 0), 0).toLocaleString()}</p>
+                            <p className="text-sm font-bold text-gray-900">RM {orders.reduce((acc, curr) => acc + (curr.status === 'completed' ? Number(curr.amount) : 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ const OrderManagement: React.FC = () => {
                                             <StatusBadge status={o.status} />
                                         </td>
                                         <td className="px-8 py-6 text-right text-gray-400 text-xs">
-                                            {new Date(o.created_at).toLocaleDateString()}
+                                            {o.created_at || (o as any).createdAt ? new Date(o.created_at || (o as any).createdAt).toLocaleDateString() : 'Invalid Date'}
                                         </td>
                                     </tr>
                                 ))}

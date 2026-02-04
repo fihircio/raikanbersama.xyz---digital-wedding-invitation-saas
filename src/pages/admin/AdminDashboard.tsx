@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 text-right text-gray-400 font-medium whitespace-nowrap">
-                                                {new Date(order.created_at).toLocaleDateString()}
+                                                {order.created_at || (order as any).createdAt ? new Date(order.created_at || (order as any).createdAt).toLocaleDateString() : 'Invalid Date'}
                                             </td>
                                         </tr>
                                     ))}

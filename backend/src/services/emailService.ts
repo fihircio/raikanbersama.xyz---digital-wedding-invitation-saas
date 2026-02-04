@@ -30,20 +30,38 @@ class EmailService {
         }
 
         try {
+            const formattedDate = new Date().toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+
             const mailOptions = {
                 from: `"RaikanBersama System" <${process.env.GMAIL_USER}>`,
-                to: process.env.GMAIL_USER, // Send to yourself (the admin)
+                to: process.env.GMAIL_USER,
+                replyTo: data.email,
                 subject: `Peti Masuk Baru: ${data.subject}`,
                 html: `
-          <div style="font-family: sans-serif; padding: 20px; color: #333;">
-            <h2 style="color: #e11d48;">Mesej Baru dari Borang Hubungi</h2>
-            <p><strong>Nama:</strong> ${data.name}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-            <p><strong>Subjek:</strong> ${data.subject}</p>
-            <div style="background: #f4f4f4; padding: 15px; border-radius: 10px; margin-top: 10px;">
-              <p style="white-space: pre-wrap;">${data.message}</p>
+          <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 15px;">
+            <h2 style="color: #e11d48; border-bottom: 2px solid #fecdd3; padding-bottom: 10px;">Mesej Baru dari Borang Hubungi</h2>
+            <div style="margin: 20px 0;">
+                <p><strong>Nama:</strong> ${data.name}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Subjek:</strong> ${data.subject}</p>
+                <p><strong>Tarikh:</strong> ${formattedDate}</p>
             </div>
-            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+            <div style="background: #fff5f7; padding: 20px; border-radius: 12px; border-left: 4px solid #e11d48; margin-top: 10px;">
+              <p style="white-space: pre-wrap; margin: 0; font-size: 15px; line-height: 1.6;">${data.message}</p>
+            </div>
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="mailto:${data.email}?subject=Re: ${data.subject}" 
+                   style="background: #e11d48; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block;">
+                   Balas Terus ke Gmail
+                </a>
+            </div>
+            <p style="font-size: 12px; color: #999; margin-top: 30px; text-align: center; border-top: 1px solid #eee; pt: 15px;">
               Dihantar secara automatik oleh sistem RaikanBersama.xyz
             </p>
           </div>
