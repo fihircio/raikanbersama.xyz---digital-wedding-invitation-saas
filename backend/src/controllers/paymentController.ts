@@ -4,7 +4,7 @@ import { OrderStatus, MembershipTier, DiscountType } from '../types/models';
 import { Op } from 'sequelize';
 import logger from '../utils/logger';
 
-const CHIP_API_KEY = 'JAzcbKJSUaFSieI1RloCfDYwyvqzY583WOrW6GKkcMdVUbLDSN-bqmpZxZiocPyw3j-fOE9vyzsMwbjVL4vkOg==';
+const CHIP_API_KEY = 'HIaL-SR_EVia0YQoGLH2J7nfG_U3OJkbbYxTFdD-IgQ9gcW4pgKt4C0lgWjkAavPN5nCFGnBq_bGi5Bu1oI5Ww==';
 const CHIP_BRAND_ID = '72ffa539-afc9-412f-bdc5-b1368145e6b9';
 const CHIP_ENDPOINT = 'https://gate.chip-in.asia/api/v1/purchases/';
 
