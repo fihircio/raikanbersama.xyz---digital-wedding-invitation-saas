@@ -11,7 +11,7 @@ import logger from '../utils/logger';
  */
 const uploadDesignImages = async () => {
     try {
-        logger.info('Starting design image upload process...');
+        logger.info('Starting dynamic design image upload process...');
 
         // Connect to database
         await connectDatabase();
@@ -21,78 +21,92 @@ const uploadDesignImages = async () => {
         const adminUser = await User.findOne({ where: { role: 'admin' } });
         const userId = adminUser ? adminUser.id : 'system-admin';
 
-        // Path to public directory - Try multiple locations for environment compatibility
-        let publicDir = path.resolve(__dirname, '../../../public');
-        if (!fs.existsSync(publicDir)) {
-            publicDir = path.resolve(__dirname, '../../public');
-        }
-        if (!fs.existsSync(publicDir)) {
-            // Check for relocated design_assets (to bypass gitignore)
-            publicDir = path.resolve(__dirname, '../../design_assets');
-        }
-        if (!fs.existsSync(publicDir)) {
-            // Fallback for Railway if executing from app root
-            publicDir = path.resolve(process.cwd(), 'public');
-        }
-        if (!fs.existsSync(publicDir)) {
-            // Fallback for Railway if relocated
-            publicDir = path.resolve(process.cwd(), 'design_assets');
+        // Specific path for design uploads - search root and backend parent
+        let designDir = path.resolve(process.cwd(), 'public/design');
+
+        if (!fs.existsSync(designDir)) {
+            designDir = path.resolve(process.cwd(), '../public/design');
         }
 
-        logger.info(`Using public directory: ${publicDir}`);
+        if (!fs.existsSync(designDir)) {
+            logger.error(`Design directory not found. Please ensure files are placed in public/design/`);
+            process.exit(1);
+        }
 
-        // List of files to process
-        const files = [
-            { name: 'Islamic Elegant 01', filename: 'islamic_01.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#1a4e3a' }, // Deep green
-            { name: 'Islamic Elegant 02', filename: 'islamic_02.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#4a3a1a' }, // Bronze
-            { name: 'Islamic Elegant 03', filename: 'islamic_03.png', category: 'Islamic', theme: 'Islamic', tags: ['islamic', 'elegant'], primary_color: '#1a2b4e' }, // Navy
-            { name: 'Minimalist White 01', filename: 'minimal_01.png', category: 'Minimalist', theme: 'Minimalist', tags: ['minimal', 'white'], primary_color: '#4B5563' }, // Charcoal
-            { name: 'Modern Style 01', filename: 'modern_01.png', category: 'Modern', theme: 'Modern', tags: ['modern', 'clean'], primary_color: '#1F2937' }, // Dark Slate
-            { name: 'Ramadan Mubarak 01', filename: 'ramadhan_01.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'], primary_color: '#1a4e3a' }, // Emerald
-            { name: 'Ramadan Mubarak 02', filename: 'ramadhan_02.png', category: 'Islamic', theme: 'Ramadan', tags: ['ramadan', 'islamic'], primary_color: '#8B4513' }, // Saddle Brown
-            { name: 'Raya Celebration 01', filename: 'raya_01.png', category: 'Islamic', theme: 'Raya', tags: ['raya', 'islamic', 'eid'], primary_color: '#1a4e3a' }, // Green
-            { name: 'Rustic Floral 01', filename: 'rustic_01.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'], primary_color: '#8B4513' }, // Brown
-            { name: 'Rustic Floral 02', filename: 'rustic_02.png', category: 'Rustic', theme: 'Rustic', tags: ['rustic', 'floral'], primary_color: '#a81c3c' }, // Crimson
-            { name: 'Nature Scenery 01', filename: 'scenery_01.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'], primary_color: '#1c3c1c' }, // Dark Forest
-            { name: 'Nature Scenery 02', filename: 'scenery_02.png', category: 'Scenery', theme: 'Nature', tags: ['scenery', 'nature'], primary_color: '#1c1c3c' }, // Midnight
-            { name: 'Vintage Rose 01', filename: 'vintage_01.png', category: 'Vintage', theme: 'Vintage', tags: ['vintage', 'rose'], primary_color: '#a81c3c' }, // Rose
-        ];
+        const files = fs.readdirSync(designDir).filter(f =>
+            f.toLowerCase().endsWith('.png') ||
+            f.toLowerCase().endsWith('.jpg') ||
+            f.toLowerCase().endsWith('.jpeg')
+        );
 
-        for (const fileItem of files) {
-            const filePath = path.join(publicDir, fileItem.filename);
+        if (files.length === 0) {
+            logger.warn('No design files found in public/design. Exiting...');
+            process.exit(0);
+        }
 
-            if (!fs.existsSync(filePath)) {
-                logger.warn(`File not found: ${filePath}, skipping...`);
-                continue;
+        logger.info(`Found ${files.length} design files to process.`);
+
+        for (const filename of files) {
+            const filePath = path.join(designDir, filename);
+
+            // Generate a readable name from filename (e.g. floral_01.png -> Floral 01)
+            let rawName = filename.split('.')[0]
+                .split(/[-_]/)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+
+            let finalName = rawName;
+
+            // Name Conflict Mitigation: Check if already in database
+            let count = 1;
+            while (await BackgroundImage.findOne({ where: { name: finalName } })) {
+                logger.info(`Design name "${finalName}" already exists. Trying a variation...`);
+                finalName = `${rawName} (v${++count})`;
             }
 
-            // Check if already in database (by name)
-            const existing = await BackgroundImage.findOne({ where: { name: fileItem.name } });
-            if (existing) {
-                logger.info(`Background image "${fileItem.name}" already exists, skipping upload...`);
-                continue;
-            }
-
-            logger.info(`Uploading ${fileItem.filename} to S3...`);
+            logger.info(`Uploading ${filename} as "${finalName}" to S3...`);
             const buffer = fs.readFileSync(filePath);
 
             const uploadResult = await fileStorageService.uploadFile(
                 buffer,
                 FileType.BACKGROUND,
                 userId,
-                fileItem.filename
+                filename
             );
 
-            logger.info(`Registering ${fileItem.name} in database...`);
+            // Determine theme/category from filename prefix if possible
+            const prefix = filename.split(/[-_]/)[0].toLowerCase();
+            const categoryMap: Record<string, string> = {
+                'floral': 'Floral',
+                'islamic': 'Islamic',
+                'minimal': 'Minimalist',
+                'modern': 'Modern',
+                'ramadhan': 'Islamic',
+                'raya': 'Islamic',
+                'rustic': 'Rustic',
+                'traditional': 'Traditional',
+                'vintage': 'Vintage',
+                'watercolor': 'Watercolor'
+            };
+
+            const themeMap: Record<string, string> = {
+                'ramadhan': 'Ramadan',
+                'raya': 'Raya'
+            };
+
+            const category = categoryMap[prefix] || 'Modern';
+            const theme = themeMap[prefix] || category;
+
+            logger.info(`Registering ${finalName} in database...`);
             await BackgroundImage.create({
-                name: fileItem.name,
+                name: finalName,
                 url: uploadResult.url,
                 thumbnail: uploadResult.thumbnails?.medium || uploadResult.url,
-                category: fileItem.category,
-                theme: fileItem.theme,
+                category: category,
+                theme: theme,
                 primary_color: 'Varies',
-                isPremium: true, // New designs set to premium by default
-                tags: fileItem.tags,
+                isPremium: true,
+                tags: [category.toLowerCase(), theme.toLowerCase(), 'new'],
                 layout_settings: {
                     cover_layout: 'standard',
                     font_family: 'serif',
@@ -100,10 +114,15 @@ const uploadDesignImages = async () => {
                 }
             } as any);
 
-            logger.info(`Successfully processed ${fileItem.name}`);
+            logger.info(`Successfully processed ${finalName}`);
         }
 
-        logger.info('Design image upload process completed!');
+        logger.info('Design image upload process completed! Starting cleanup...');
+
+        // Automated Cleanup: Delete the public/design folder
+        fs.rmSync(designDir, { recursive: true, force: true });
+        logger.info(`Deleted local design directory: ${designDir}`);
+
         await closeDatabase();
         process.exit(0);
     } catch (error) {

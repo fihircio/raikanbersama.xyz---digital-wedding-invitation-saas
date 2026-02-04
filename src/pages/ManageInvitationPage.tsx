@@ -14,6 +14,10 @@ const ManageInvitationPage: React.FC = () => {
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(true);
   const [rsvps, setRsvps] = useState<RSVP[]>([]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<'A' | 'B'>('A');
+  const [shareText, setShareText] = useState('');
+  const [shareToGuest, setShareToGuest] = useState(''); // New state for 'to=' parameter
 
   useEffect(() => {
     const fetchInvitation = async () => {
@@ -194,21 +198,53 @@ const ManageInvitationPage: React.FC = () => {
 
   if (!invitation) return <div className="pt-32 text-center font-serif italic text-gray-400">Invitation not found.</div>;
 
+  const invitationLink = `${window.location.origin}/i/${invitation.slug}`;
+  const weddingDate = invitation.event_date ? new Date(invitation.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA';
+
+  useEffect(() => {
+    if (isShareModalOpen) {
+      const linkWithGuest = shareToGuest ? `${invitationLink}?to=${encodeURIComponent(shareToGuest)}` : invitationLink;
+
+      const dynamicTemplates = {
+        A: `Bismillahirrahmanirrahim..
+
+Dengan penuh kesyukuran, kami mempersilakan Dato' | Datin | Tuan | Puan | Encik | Cik seisi keluarga hadir ke majlis perkahwinan anakanda kami ${invitation.groom_name} & ${invitation.bride_name}
+
+🔗 ${linkWithGuest}
+
+🗓️ ${weddingDate}
+
+Untuk maklumat lanjut mengenai majlis dan lokasi, sila klik pada pautan kad digital di atas.
+
+Kehadiran pihak para hadirin sekalian amat kami alu-alukan. Terima kasih.`,
+        B: `Assalamualaikum & Salam Sejahtera,
+
+Kami dengan sukacitanya menjemput anda ke majlis perkahwinan:
+✨ ${invitation.groom_name} & ${invitation.bride_name} ✨
+
+Buka Kad Sini:
+👉 ${linkWithGuest}
+
+Tarikh: ${weddingDate}
+
+Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
+      };
+
+      setShareText(dynamicTemplates[selectedTemplate]);
+    }
+  }, [isShareModalOpen, selectedTemplate, invitation, shareToGuest, invitationLink, weddingDate]);
+
   const handleGenerateMagic = () => {
     if (!magicGuest) return;
     const encoded = encodeURIComponent(magicGuest);
-    const baseUrl = window.location.origin;
-    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    setMagicLink(`${cleanBase}/i/${invitation.slug}?to=${encoded}`);
+    setMagicLink(`${invitationLink}?to=${encoded}`);
+    setShareToGuest(magicGuest);
+    setIsShareModalOpen(true);
   };
 
   const shareSpecificLink = (guestName: string) => {
-    const encoded = encodeURIComponent(guestName);
-    const baseUrl = window.location.origin;
-    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    const link = `${cleanBase}/i/${invitation.slug}?to=${encoded}`;
-    const text = `Assalamualaikum! Ini kad jemputan khas buat anda: ${link}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    setShareToGuest(guestName);
+    setIsShareModalOpen(true);
   };
 
   return (
@@ -274,29 +310,151 @@ const ManageInvitationPage: React.FC = () => {
               <div className="flex-1 text-center md:text-left">
                 <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">Kongsi Kad Anda</span>
                 <h3 className="text-xl font-serif italic font-bold text-gray-800">Sedia untuk dikongsi?</h3>
-                <p className="text-sm text-gray-400 mt-2 italic max-w-md">Salin pautan di bawah untuk jemput tetamu anda. Pautan ini boleh dikongsi terus ke WhatsApp, Telegram, atau Media Sosial.</p>
+                <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
+                  <p className="text-sm text-gray-400 italic max-w-md truncate">{invitationLink}</p>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(invitationLink);
+                      alert('Pautan disalin!');
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-rose-600 transition"
+                    title="Salin Pautan"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
-                    const baseUrl = window.location.origin;
-                    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-                    const link = `${cleanBase}/i/${invitation.slug}`;
-                    navigator.clipboard.writeText(link);
-                    alert('Pautan disalin!');
+                    setShareToGuest('');
+                    setIsShareModalOpen(true);
                   }}
-                  className="bg-white text-gray-700 px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-sm border border-gray-100 hover:bg-gray-50 transition"
+                  className="bg-green-500 text-white px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-green-100 hover:bg-green-600 transition group"
                 >
-                  Salin Pautan
+                  <span className="text-lg">📱</span>
+                  WhatsApp / Share Popup
                 </button>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent('Assalamualaikum! Ini kad jemputan perkahwinan kami: ' + window.location.origin + '/i/' + invitation.slug)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-green-500 text-white px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition"
-                >
-                  WhatsApp
-                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Share Modal */}
+        {isShareModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden relative animate-scale-in">
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 hover:rotate-90 transition-all duration-300"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="p-10">
+                <h3 className="text-2xl font-serif font-bold text-center text-gray-900 mb-8 italic">Share it to your family & friends!</h3>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">Pilih Template</label>
+                    <select
+                      value={selectedTemplate}
+                      onChange={(e) => setSelectedTemplate(e.target.value as 'A' | 'B')}
+                      className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-rose-200 transition text-sm font-bold text-gray-700 appearance-none cursor-pointer"
+                    >
+                      <option value="A">Template A (Formal)</option>
+                      <option value="B">Template B (Modern/Casual)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">Edit Mesej</label>
+                    <textarea
+                      value={shareText}
+                      onChange={(e) => setShareText(e.target.value)}
+                      rows={10}
+                      className="w-full px-6 py-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-rose-200 transition text-sm font-medium text-gray-600 resize-none font-sans"
+                    />
+                    <p className="text-[10px] text-gray-400 mt-2 italic text-center">You can edit the text above before sharing</p>
+                  </div>
+
+                  <div className="flex justify-center gap-4 pt-4 flex-wrap">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(shareText);
+                        alert('Mesej disalin!');
+                      }}
+                      className="w-11 h-11 rounded-full bg-gray-400 text-white flex items-center justify-center hover:bg-gray-500 transition shadow-lg shadow-gray-100"
+                      title="Salin Pautan"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                    </button>
+
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-11 h-11 rounded-full bg-[#25D366] text-white flex items-center justify-center hover:opacity-90 transition shadow-lg shadow-green-100"
+                      title="Share to WhatsApp"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.224-3.82c1.516.903 3.124 1.396 4.772 1.396 5.232 0 9.491-4.259 9.493-9.492.002-2.533-.986-4.915-2.783-6.712s-4.181-2.783-6.713-2.785c-5.236 0-9.494 4.259-9.496 9.492-.001 1.83.522 3.618 1.51 5.161l-1.005 3.668 3.759-.986zm11.367-6.413c-.31-.155-1.837-.906-2.121-.1.009-.284-.131-.382-.272-.459-.253-.138-1.662-.77-1.823-.843-.162-.072-.279-.108-.396.071-.117.181-.454.57-.557.689-.102.118-.205.133-.515-.022-.31-.155-1.308-.482-2.491-1.538-.919-.821-1.54-1.834-1.72-2.145-.181-.31-.019-.477.136-.632.14-.139.31-.362.466-.544.156-.181.208-.31.311-.518.104-.207.052-.388-.026-.544-.078-.155-.7-1.688-.96-2.315-.253-.611-.51-.527-.7-.527-.181-.001-.388-.002-.596-.002-.207 0-.544.077-.828.388-.285.31-1.088 1.062-1.088 2.589 0 1.527 1.114 3.003 1.269 3.21.155.207 2.193 3.35 5.313 4.697.742.32 1.32.511 1.77.653.745.237 1.423.204 1.959.124.597-.09 1.837-.751 2.096-1.474.259-.724.259-1.346.181-1.474-.077-.129-.285-.207-.595-.362z" />
+                      </svg>
+                    </a>
+
+                    <a
+                      href={`https://t.me/share/url?url=${encodeURIComponent(invitationLink)}&text=${encodeURIComponent(shareText)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-11 h-11 rounded-full bg-[#0088cc] text-white flex items-center justify-center hover:opacity-90 transition shadow-lg shadow-blue-100"
+                      title="Share to Telegram"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.891 8.146l-2.003 9.445c-.149.659-.539.822-1.089.511l-3.054-2.25-1.473 1.417c-.163.163-.299.299-.614.299l.219-3.107 5.654-5.109c.246-.219-.054-.341-.381-.124l-6.99 4.402-3.012-.942c-.655-.205-.667-.655.137-.97l11.77-4.537c.545-.198 1.022.129.832.858z" />
+                      </svg>
+                    </a>
+
+                    <a
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(invitationLink)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-11 h-11 rounded-full bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 transition shadow-lg shadow-blue-100"
+                      title="Share to Facebook"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.791-4.667 4.53-4.667 1.312 0 2.686.234 2.686.234v2.953H15.83c-1.491 0-1.951.925-1.951 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                      </svg>
+                    </a>
+
+                    <a
+                      href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(invitationLink)}&text=${encodeURIComponent(shareText)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 transition shadow-lg shadow-gray-200"
+                      title="Share to X (Twitter)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.13l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                      </svg>
+                    </a>
+
+                    <a
+                      href={`mailto:?subject=${encodeURIComponent('Kad Jemputan Perkahwinan: ' + invitation.groom_name + ' & ' + invitation.bride_name)}&body=${encodeURIComponent(shareText)}`}
+                      className="w-11 h-11 rounded-full bg-rose-500 text-white flex items-center justify-center hover:opacity-90 transition shadow-lg shadow-rose-100"
+                      title="Share via Email"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -431,7 +589,18 @@ const ManageInvitationPage: React.FC = () => {
                         >
                           Salin Link
                         </button>
-                        <a href={`https://wa.me/?text=${encodeURIComponent('Assalamualaikum! Ini kad jemputan khas buat anda: ' + magicLink)}`} target="_blank" rel="noreferrer" className="bg-green-500 text-white py-4 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition">
+                        <a
+                          onClick={(e) => {
+                            if (!shareToGuest) {
+                              e.preventDefault();
+                              alert('Sila jana link terlebih dahulu');
+                              return;
+                            }
+                            handleGenerateMagic();
+                          }}
+                          href="#"
+                          className="bg-green-500 text-white py-4 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition"
+                        >
                           Hantar WhatsApp
                         </a>
                       </div>
