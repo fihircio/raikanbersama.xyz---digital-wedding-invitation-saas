@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CatalogPage from './components/Catalog/CatalogPage';
@@ -178,6 +179,7 @@ const App: React.FC = () => {
                 </AdminRoute>
               } />
             </Routes>
+            <Analytics />
           </div>
         </BrowserRouter>
       </AuthProvider>
