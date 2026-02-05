@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { Affiliate } from '../models';
+import { Affiliate, AffiliateEarning, Order } from '../models';
 import { AuthenticatedRequest } from '../types/api';
 import { AffiliateStatus } from '../types/models';
 import logger from '../utils/logger';
@@ -69,6 +69,42 @@ class AffiliateController {
             res.status(500).json({
                 success: false,
                 error: 'Failed to fetch affiliate status.'
+            });
+        }
+    }
+
+    /**
+     * Get current user's affiliate earnings history
+     */
+    public async getMyEarnings(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const affiliate = await Affiliate.findOne({ where: { user_id: userId } });
+
+            if (!affiliate) {
+                res.status(404).json({ success: false, error: 'Affiliate profile not found.' });
+                return;
+            }
+
+            const earnings = await AffiliateEarning.findAll({
+                where: { affiliate_id: affiliate.id },
+                include: [{
+                    model: Order,
+                    as: 'order',
+                    attributes: ['amount', 'created_at', 'id']
+                }],
+                order: [['created_at', 'DESC']]
+            });
+
+            res.status(200).json({
+                success: true,
+                data: earnings
+            });
+        } catch (error) {
+            logger.error('Error fetching affiliate earnings:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to fetch earnings history.'
             });
         }
     }

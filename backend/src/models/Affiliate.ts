@@ -10,6 +10,7 @@ export class Affiliate extends Model {
     public referral_code!: string;
     public status!: AffiliateStatus;
     public earnings_total!: number;
+    public commission_rate!: number;
     public readonly created_at!: Date;
     public readonly updated_at!: Date;
 
@@ -55,6 +56,11 @@ export class Affiliate extends Model {
                     type: DataTypes.DECIMAL(10, 2),
                     allowNull: false,
                     defaultValue: 0,
+                },
+                commission_rate: {
+                    type: DataTypes.DECIMAL(5, 2),
+                    allowNull: false,
+                    defaultValue: 20.00,
                 },
             },
             {

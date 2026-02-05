@@ -17,5 +17,6 @@ router.post('/apply', authenticate, affiliateController.apply);
  * @access  Private (Authenticated)
  */
 router.get('/my-status', authenticate, affiliateController.getMyStatus);
+router.get('/my-earnings', authenticate, affiliateController.getMyEarnings);
 
 export default router;

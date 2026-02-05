@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { Order, Invitation, User, Coupon } from '../models';
+import { Order, Invitation, User, Coupon, Affiliate, AffiliateEarning } from '../models';
 import { OrderStatus, MembershipTier, DiscountType } from '../types/models';
 import { Op } from 'sequelize';
 import logger from '../utils/logger';
 
-const CHIP_API_KEY = 'HIaL-SR_EVia0YQoGLH2J7nfG_U3OJkbbYxTFdD-IgQ9gcW4pgKt4C0lgWjkAavPN5nCFGnBq_bGi5Bu1oI5Ww==';
+const CHIP_API_KEY = 'JAzcbKJSUaFSieI1RloCfDYwyvqzY583WOrW6GKkcMdVUbLDSN-bqmpZxZiocPyw3j-fOE9vyzsMwbjVL4vkOg==';
 const CHIP_BRAND_ID = '72ffa539-afc9-412f-bdc5-b1368145e6b9';
 const CHIP_ENDPOINT = 'https://gate.chip-in.asia/api/v1/purchases/';
 
@@ -140,10 +140,35 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
         if (status === 'paid') {
             await order.update({ status: OrderStatus.COMPLETED });
 
-            // Increment coupon usage if applicable
+            // Increment coupon usage and calculate affiliate commission if applicable
             if (order.coupon_id) {
-                await Coupon.increment('current_uses', { where: { id: order.coupon_id } });
-                logger.info(`Incremented usage for coupon ID: ${order.coupon_id}`);
+                const coupon = await Coupon.findByPk(order.coupon_id, {
+                    include: [{
+                        model: Affiliate,
+                        as: 'affiliate'
+                    }]
+                });
+
+                if (coupon) {
+                    await coupon.increment('current_uses');
+                    logger.info(`Incremented usage for coupon ID: ${order.coupon_id}`);
+
+                    // Calculate and record affiliate commission if coupon is linked to an affiliate
+                    if (coupon.affiliate_id && coupon.affiliate) {
+                        const commissionAmount = Number(order.amount) * (Number(coupon.affiliate.commission_rate) / 100);
+
+                        await AffiliateEarning.create({
+                            affiliate_id: coupon.affiliate_id,
+                            order_id: order.id,
+                            amount: commissionAmount,
+                            commission_rate: coupon.affiliate.commission_rate,
+                            status: 'pending' // Default from enum
+                        } as any);
+
+                        await coupon.affiliate.increment('earnings_total', { by: commissionAmount });
+                        logger.info(`Recorded commission of RM ${commissionAmount} for affiliate ${coupon.affiliate_id}`);
+                    }
+                }
             }
 
             // Update associated invitation

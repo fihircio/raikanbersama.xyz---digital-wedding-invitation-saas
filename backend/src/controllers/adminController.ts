@@ -210,7 +210,10 @@ class AdminController {
                 limit,
                 offset,
                 order: [['created_at', 'DESC']],
-                include: [{ model: User, as: 'user', attributes: ['name', 'email'] }]
+                include: [
+                    { model: User, as: 'user', attributes: ['name', 'email'] },
+                    { model: Coupon, as: 'coupons' } // Assuming the association alias is 'coupons' or just Coupon
+                ]
             });
 
             res.status(200).json({
@@ -238,7 +241,7 @@ class AdminController {
     public async updateAffiliateStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const { status, referral_code } = req.body;
+            const { status, referral_code, commission_rate } = req.body;
 
             const affiliate = await Affiliate.findByPk(id);
             if (!affiliate) {
@@ -247,6 +250,7 @@ class AdminController {
             }
 
             if (status) affiliate.status = status;
+            if (commission_rate !== undefined) affiliate.commission_rate = commission_rate;
             const oldReferralCode = affiliate.referral_code;
             if (referral_code) affiliate.referral_code = referral_code;
 
@@ -372,12 +376,44 @@ class AdminController {
             const limit = parseInt(req.query.limit as string) || 10;
             const offset = (page - 1) * limit;
 
-            const { count, rows: coupons } = await Coupon.findAndCountAll({
+            // Step 1: Get paginated IDs and Count
+            const { count, rows: couponIds } = await Coupon.findAndCountAll({
+                attributes: ['id'],
                 limit,
                 offset,
-                order: [['created_at', 'DESC']],
-                include: [{ model: Affiliate, as: 'affiliate', include: [{ model: User, as: 'user', attributes: ['name'] }] }]
+                order: [['created_at', 'DESC']]
             });
+
+            // Step 2: Fetch full data for these IDs
+            let coupons: Coupon[] = [];
+            if (couponIds.length > 0) {
+                const unsortedCoupons = await Coupon.findAll({
+                    where: {
+                        '$Coupon.id$': {
+                            [Op.in]: couponIds.map(c => c.id)
+                        }
+                    },
+                    // subQuery: false, // Not strictly needed without limit/offset
+                    include: [
+                        { model: Affiliate, as: 'affiliate', include: [{ model: User, as: 'user', attributes: ['name'] }] },
+                        {
+                            model: Order,
+                            as: 'orders',
+                            attributes: ['id', 'status', 'created_at'],
+                            required: false, // Left join
+                            include: [{
+                                model: Invitation,
+                                as: 'invitation',
+                                attributes: ['id', 'bride_name', 'groom_name', 'slug']
+                            }]
+                        }
+                    ]
+                });
+
+                // Sort coupons in memory to match the order of IDs from Step 1
+                const couponMap = new Map(unsortedCoupons.map(c => [c.id, c]));
+                coupons = couponIds.map(idObj => couponMap.get(idObj.id)).filter(Boolean) as Coupon[];
+            }
 
             res.status(200).json({
                 success: true,
@@ -442,9 +478,11 @@ class AdminController {
     public async updateCoupon(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const { code, discount_type, discount_value, affiliate_id, max_uses, expiry_date, is_active } = req.body;
+            const { code, discount_type, discount_value, affiliate_id, max_uses, expiry_date, is_active, commission_rate } = req.body;
 
-            const coupon = await Coupon.findByPk(id);
+            const coupon = await Coupon.findByPk(id, {
+                include: [{ model: Affiliate, as: 'affiliate' }]
+            });
             if (!coupon) {
                 res.status(404).json({ success: false, error: 'Coupon not found.' });
                 return;
@@ -464,6 +502,12 @@ class AdminController {
             // Handle expiry_date conversion
             if (expiry_date !== undefined) {
                 coupon.expiry_date = (!expiry_date || expiry_date === '' || expiry_date === 'Invalid date') ? null : expiry_date as any;
+            }
+
+            // Update commission rate on the linked affiliate if provided
+            if (commission_rate !== undefined && coupon.affiliate) {
+                await (coupon.affiliate as any).update({ commission_rate });
+                logger.info(`Updated commission rate to ${commission_rate}% for affiliate ${coupon.affiliate_id} via coupon ${coupon.id}`);
             }
 
             await coupon.save();
@@ -559,6 +603,39 @@ class AdminController {
             res.status(500).json({
                 success: false,
                 error: 'Failed to delete invitation.'
+            });
+        }
+    }
+
+    /**
+     * Delete affiliate profile
+     */
+    public async deleteAffiliate(req: AuthenticatedRequest, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const affiliate = await Affiliate.findByPk(id);
+            if (!affiliate) {
+                res.status(404).json({ success: false, error: 'Affiliate not found.' });
+                return;
+            }
+
+            // Deactivate and unlink any coupons first
+            await Coupon.update(
+                { affiliate_id: null, is_active: false },
+                { where: { affiliate_id: id } }
+            );
+
+            await affiliate.destroy();
+
+            res.json({
+                success: true,
+                message: 'Affiliate profile deleted successfully.'
+            });
+        } catch (error) {
+            logger.error('Error deleting affiliate:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to delete affiliate profile.'
             });
         }
     }

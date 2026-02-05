@@ -11,7 +11,8 @@ import {
     ArrowPathIcon,
     BriefcaseIcon,
     TrashIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 interface Coupon {
@@ -22,12 +23,26 @@ interface Coupon {
     affiliate_id?: string | null;
     affiliate?: {
         business_name: string;
+        commission_rate: number;
+        earnings_total: number;
     };
     expiry_date?: string;
     max_uses?: number;
     current_uses: number;
     is_active: boolean;
     created_at: string;
+    commission_rate?: number; // For manual tracking if needed or passing to API
+    orders?: Array<{
+        id: string;
+        status: string;
+        created_at: string;
+        invitation?: {
+            id: string;
+            bride_name: string;
+            groom_name: string;
+            slug: string;
+        };
+    }>;
 }
 
 const CouponManagement: React.FC = () => {
@@ -198,9 +213,11 @@ const CouponManagement: React.FC = () => {
                                 <tr>
                                     <th className="px-8 py-5">Kod Kupon</th>
                                     <th className="px-8 py-5">Diskaun</th>
-                                    <th className="px-8 py-5">Kaitan Vendor</th>
+                                    <th className="px-8 py-5">Vendor & Komisen (%)</th>
+                                    <th className="px-8 py-5">Earned</th>
                                     <th className="px-8 py-5">Penggunaan</th>
                                     <th className="px-8 py-5">Tamat Tempoh</th>
+                                    <th className="px-8 py-5">Kad Dijana</th>
                                     <th className="px-8 py-5 text-right">Tindakan</th>
                                 </tr>
                             </thead>
@@ -225,12 +242,30 @@ const CouponManagement: React.FC = () => {
                                         </td>
                                         <td className="px-8 py-6">
                                             {coupon.affiliate ? (
-                                                <div className="flex items-center gap-2">
-                                                    <BriefcaseIcon className="w-4 h-4 text-indigo-400" />
-                                                    <span className="text-xs font-medium text-gray-700">{coupon.affiliate.business_name}</span>
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <BriefcaseIcon className="w-4 h-4 text-indigo-400" />
+                                                        <span className="text-xs font-bold text-gray-700">{coupon.affiliate.business_name}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rate</span>
+                                                        <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">
+                                                            {coupon.affiliate.commission_rate}%
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-300 text-xs italic">Umum</span>
+                                                <span className="text-gray-300 text-xs italic">Umum (Bukan Affiliate)</span>
+                                            )}
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            {coupon.affiliate ? (
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-tight">RM {Number(coupon.affiliate.earnings_total).toFixed(2)}</span>
+                                                    <span className="text-[9px] text-gray-400 font-medium">Total Paid Out</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-gray-300 text-[10px]">—</span>
                                             )}
                                         </td>
                                         <td className="px-8 py-6">
@@ -238,7 +273,7 @@ const CouponManagement: React.FC = () => {
                                                 <div className="flex justify-between items-center text-[10px] font-bold uppercase text-gray-400">
                                                     <span>{coupon.current_uses} / {coupon.max_uses || '∞'}</span>
                                                 </div>
-                                                <div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-rose-500"
                                                         style={{ width: `${coupon.max_uses ? (coupon.current_uses / coupon.max_uses) * 100 : 0}%` }}
@@ -247,9 +282,33 @@ const CouponManagement: React.FC = () => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <div className="flex items-center gap-1.5 text-gray-500 font-medium">
+                                            <div className="flex items-center gap-1.5 text-gray-500 font-medium text-xs">
                                                 <CalendarIcon className="w-3.5 h-3.5" />
-                                                {coupon.expiry_date ? new Date(coupon.expiry_date).toLocaleDateString() : 'Tiada'}
+                                                {coupon.expiry_date ? new Date(coupon.expiry_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Tiada'}
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <div className="flex flex-wrap gap-1 w-48">
+                                                {coupon.orders && coupon.orders.length > 0 ? (
+                                                    // Deduplicate invitations
+                                                    Array.from(new Set(coupon.orders.filter(o => o.invitation).map(o => JSON.stringify(o.invitation)))).map((invStr, idx) => {
+                                                        const invitation = JSON.parse(invStr as string);
+                                                        return (
+                                                            <a
+                                                                key={`${invitation.id}-${idx}`}
+                                                                href={`/${invitation.slug}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-600 rounded border border-gray-100 text-[9px] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition whitespace-nowrap"
+                                                            >
+                                                                <TicketIcon className="w-2.5 h-2.5" />
+                                                                <span className="truncate max-w-[80px]">{invitation.bride_name} & {invitation.groom_name}</span>
+                                                            </a>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <span className="text-gray-300 text-[10px] italic">Tiada Order</span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
@@ -274,7 +333,7 @@ const CouponManagement: React.FC = () => {
                                 ))}
                                 {coupons.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan={6} className="px-8 py-20 text-center opacity-30">
+                                        <td colSpan={8} className="px-8 py-20 text-center opacity-30">
                                             <TicketIcon className="w-12 h-12 mx-auto mb-4" />
                                             <p className="text-xs font-bold uppercase tracking-widest italic">Belum ada kupon dicipta.</p>
                                         </td>
@@ -444,6 +503,34 @@ const CouponManagement: React.FC = () => {
                                         />
                                     </div>
                                 </div>
+                                {editingCoupon.affiliate && (
+                                    <div className="p-5 bg-rose-50 rounded-2xl border border-rose-100 space-y-3">
+                                        <label className="text-[10px] font-bold text-rose-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <CurrencyDollarIcon className="w-3.5 h-3.5" />
+                                            Affiliate Komisen Setting
+                                        </label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-1">
+                                                <p className="text-[10px] text-gray-400 font-medium mb-1">Set Peratus Komisen (%)</p>
+                                                <input
+                                                    type="number"
+                                                    value={editingCoupon.commission_rate ?? editingCoupon.affiliate.commission_rate}
+                                                    onChange={(e) => setEditingCoupon({ ...editingCoupon, commission_rate: parseFloat(e.target.value) })}
+                                                    className="w-full px-4 py-2.5 bg-white border border-rose-100 rounded-xl text-sm font-bold focus:border-rose-300 outline-none transition"
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-[10px] text-gray-400 font-medium mb-1">Total Earned Vendor</p>
+                                                <p className="text-base font-black text-rose-900 leading-none mt-1.5">
+                                                    RM {Number(editingCoupon.affiliate.earnings_total).toFixed(2)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <p className="text-[9px] text-rose-400 italic">
+                                            Komisen dikira berdasarkan jumlah yang pelanggan bayar (selepas diskaun).
+                                        </p>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-3 px-1">
                                     <input
                                         type="checkbox"

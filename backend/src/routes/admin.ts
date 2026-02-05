@@ -48,6 +48,7 @@ router.get('/affiliates', adminController.getAffiliates);
  * @access  Admin
  */
 router.put('/affiliates/:id', adminController.updateAffiliateStatus);
+router.delete('/affiliates/:id', adminController.deleteAffiliate);
 
 /**
  * @route   GET /api/admin/contacts

@@ -12,6 +12,7 @@ import { Order } from './Order';
 import { Affiliate } from './Affiliate';
 import { ContactMessage } from './ContactMessage';
 import { Coupon } from './Coupon';
+import { AffiliateEarning } from './AffiliateEarning';
 
 const models = {
   User,
@@ -26,7 +27,8 @@ const models = {
   Order,
   Affiliate,
   ContactMessage,
-  Coupon
+  Coupon,
+  AffiliateEarning
 };
 
 // Setup model associations
@@ -162,6 +164,26 @@ export const setupAssociations = (): void => {
     foreignKey: 'coupon_id',
     as: 'coupon'
   });
+
+  // Affiliate has many Earnings
+  Affiliate.hasMany(AffiliateEarning, {
+    foreignKey: 'affiliate_id',
+    as: 'earnings'
+  });
+  AffiliateEarning.belongsTo(Affiliate, {
+    foreignKey: 'affiliate_id',
+    as: 'affiliate'
+  });
+
+  // Order has one Earning (optional)
+  Order.hasOne(AffiliateEarning, {
+    foreignKey: 'order_id',
+    as: 'affiliateEarning'
+  });
+  AffiliateEarning.belongsTo(Order, {
+    foreignKey: 'order_id',
+    as: 'order'
+  });
 };
 
 // Initialize all models
@@ -191,7 +213,8 @@ export {
   Order,
   Affiliate,
   ContactMessage,
-  Coupon
+  Coupon,
+  AffiliateEarning
 };
 
 export default models;
