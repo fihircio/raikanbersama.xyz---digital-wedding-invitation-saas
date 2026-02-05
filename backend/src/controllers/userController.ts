@@ -5,6 +5,7 @@ import databaseService from '../services/databaseService';
 import authService from '../services/authService';
 import { userRepository } from '../repositories';
 import logger from '../utils/logger';
+import { verifyRecaptcha } from '../utils/recaptcha';
 
 /**
  * User Controller
@@ -18,7 +19,16 @@ import logger from '../utils/logger';
  */
 export const register = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { email, name, password }: RegisterRequest = req.body;
+    const { email, name, password, recaptchaToken }: RegisterRequest & { recaptchaToken?: string } = req.body;
+
+    // Verify reCAPTCHA
+    if (!recaptchaToken || !(await verifyRecaptcha(recaptchaToken))) {
+      res.status(400).json({
+        success: false,
+        error: 'reCAPTCHA verification failed. Please try again.'
+      } as ApiResponse);
+      return;
+    }
 
     // Check if user already exists
     const existingUser = await databaseService.getUserByEmail(email);
@@ -85,7 +95,16 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
  */
 export const login = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { email, password }: LoginRequest = req.body;
+    const { email, password, recaptchaToken }: LoginRequest & { recaptchaToken?: string } = req.body;
+
+    // Verify reCAPTCHA
+    if (!recaptchaToken || !(await verifyRecaptcha(recaptchaToken))) {
+      res.status(400).json({
+        success: false,
+        error: 'reCAPTCHA verification failed. Please try again.'
+      } as ApiResponse);
+      return;
+    }
 
     // Find user by email (using repository to get the full User model with password)
     const user = await userRepository.findByEmail(email);
