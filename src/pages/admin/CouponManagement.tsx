@@ -296,7 +296,7 @@ const CouponManagement: React.FC = () => {
                                                         return (
                                                             <a
                                                                 key={`${invitation.id}-${idx}`}
-                                                                href={`/${invitation.slug}`}
+                                                                href={`/i/${invitation.slug}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-600 rounded border border-gray-100 text-[9px] hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition whitespace-nowrap"
