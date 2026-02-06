@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from './logger';
 
 /**
  * Verify reCAPTCHA v2 token with Google's API
@@ -7,6 +8,13 @@ import axios from 'axios';
  */
 export async function verifyRecaptcha(token: string): Promise<boolean> {
     if (!token) {
+        logger.warn('reCAPTCHA verification failed: Token is missing');
+        return false;
+    }
+
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) {
+        logger.error('reCAPTCHA verification failed: RECAPTCHA_SECRET_KEY is not defined in environment');
         return false;
     }
 
@@ -16,16 +24,23 @@ export async function verifyRecaptcha(token: string): Promise<boolean> {
             null,
             {
                 params: {
-                    secret: process.env.RECAPTCHA_SECRET_KEY,
+                    secret: secretKey,
                     response: token
                 }
             }
         );
 
-        // For v2, just check if success is true
-        return response.data.success === true;
+        if (response.data.success) {
+            return true;
+        } else {
+            logger.error('reCAPTCHA verification failed from Google:', {
+                errorCodes: response.data['error-codes'],
+                success: response.data.success
+            });
+            return false;
+        }
     } catch (error) {
-        console.error('reCAPTCHA verification failed:', error);
+        logger.error('reCAPTCHA verification system error:', error);
         return false;
     }
 }
