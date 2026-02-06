@@ -29,6 +29,18 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
 
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  PlusIcon,
+  TagIcon,
+  CalendarIcon,
+  ArrowPathIcon,
+  BriefcaseIcon,
+  TrashIcon,
+  PencilSquareIcon,
+  CurrencyDollarIcon,
+  EyeIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline';
 
 const LockedOverlay: React.FC = () => {
   const navigate = useNavigate();
@@ -67,6 +79,7 @@ const EditorPage: React.FC = () => {
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [discountInfo, setDiscountInfo] = useState<{ type: string, value: number, businessName: string } | null>(null);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   const isDemo = id === 'demo' || !user;
 
@@ -1998,8 +2011,8 @@ const EditorPage: React.FC = () => {
         </div >
       </div >
 
-      {/* Preview Panel */}
-      < div className="flex-1 bg-gray-100 flex items-center justify-center p-6 md:p-12 relative overflow-hidden" >
+      {/* Preview Panel - Hidden on Mobile */}
+      <div className="hidden md:flex flex-1 bg-gray-100 items-center justify-center p-6 md:p-12 relative overflow-hidden">
         <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10 px-6 py-2 bg-white/90 backdrop-blur-md rounded-full border border-white/50 shadow-xl text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 flex items-center space-x-3">
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -2015,8 +2028,53 @@ const EditorPage: React.FC = () => {
             <InvitationContent invitation={inv} isPreview={true} />
           </div>
         </div>
-      </div >
-    </div >
+      </div>
+
+      {/* Mobile Preview FAB */}
+      <button
+        onClick={() => setShowMobilePreview(true)}
+        className="md:hidden fixed bottom-6 right-6 z-50 bg-rose-600 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-2 font-bold text-[10px] uppercase tracking-widest animate-bounce-slow"
+      >
+        <EyeIcon className="w-5 h-5 text-white" />
+        Lihat Design
+      </button>
+
+      {/* Mobile Preview Modal */}
+      {showMobilePreview && (
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-slide-up no-scrollbar overflow-hidden">
+          <div className="p-6 border-b flex justify-between items-center bg-white sticky top-0 shadow-sm z-10">
+            <div>
+              <h3 className="text-lg font-serif italic font-bold text-gray-900 border-l-4 border-rose-500 pl-3">Preview Kad</h3>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Live Representation</p>
+            </div>
+            <button
+              onClick={() => setShowMobilePreview(false)}
+              className="p-2 bg-gray-50 text-gray-400 hover:text-rose-600 rounded-full transition"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto no-scrollbar bg-gray-100 p-4 pb-32">
+            <div className="mx-auto w-full max-w-[375px] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
+              <InvitationContent invitation={inv} isPreview={true} />
+            </div>
+          </div>
+
+          {/* Fixed Button in Modal */}
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 w-full px-8 max-w-sm">
+            <button
+              onClick={() => setShowMobilePreview(false)}
+              className="w-full bg-gray-900 text-white py-5 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition active:scale-95 flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5L6 10L11 15M6 10H18"></path></svg>
+              Kembali Edit
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
