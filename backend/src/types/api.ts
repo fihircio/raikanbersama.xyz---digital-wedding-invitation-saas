@@ -33,6 +33,7 @@ export interface User {
   role: UserRole;
   membership_tier: MembershipTier;
   membership_expires_at?: string;
+  phone_number?: string;
   email_verified?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -46,6 +47,7 @@ export interface ApiUser {
   role: UserRole;
   membership_tier: MembershipTier;
   membership_expires_at?: string;
+  phone_number?: string;
   email_verified?: boolean;
   created_at: string;
   updated_at: string;

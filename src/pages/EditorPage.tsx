@@ -67,6 +67,7 @@ const EditorPage: React.FC = () => {
   const [inv, setInv] = useState<Invitation | null>(null);
   const [activeTab, setActiveTab] = useState('utama');
   const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
+  const [isDesignDropdownOpen, setIsDesignDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
@@ -74,11 +75,6 @@ const EditorPage: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null);
   const [initialPackagePlan, setInitialPackagePlan] = useState<string>('free');
-  // Coupon state
-  const [couponCode, setCouponCode] = useState('');
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
-  const [couponError, setCouponError] = useState<string | null>(null);
-  const [discountInfo, setDiscountInfo] = useState<{ type: string, value: number, businessName: string } | null>(null);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   const isDemo = id === 'demo' || !user;
@@ -584,46 +580,6 @@ const EditorPage: React.FC = () => {
     updateField('rsvp_settings', newSettings);
   };
 
-  const handleValidateCoupon = async () => {
-    const cleanCode = couponCode.trim().toUpperCase();
-    if (!cleanCode) return;
-    setIsValidatingCoupon(true);
-    setCouponError(null);
-    try {
-      const response = await fetch(buildApiUrl('/payments/validate'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ code: cleanCode })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setDiscountInfo({
-          type: data.data.discount_type,
-          value: Number(data.data.discount_value),
-          businessName: data.data.business_name
-        });
-      } else {
-        setCouponError(data.message || 'Kupon tidak sah.');
-        setDiscountInfo(null);
-      }
-    } catch (error) {
-      setCouponError('Ralat rangkaian.');
-    } finally {
-      setIsValidatingCoupon(false);
-    }
-  };
-
-  const calculateDiscountedPrice = (originalPrice: number) => {
-    if (!discountInfo) return originalPrice;
-    if (discountInfo.type === 'percentage') {
-      return originalPrice * (1 - discountInfo.value / 100);
-    } else {
-      return Math.max(0, originalPrice - discountInfo.value);
-    }
-  };
 
   if (!inv) {
     return (
@@ -688,8 +644,6 @@ const EditorPage: React.FC = () => {
           <PaymentModal
             plan={selectedPlanForPayment}
             invitationId={id}
-            couponCode={discountInfo ? couponCode : undefined}
-            discountedPrice={discountInfo ? calculateDiscountedPrice(Number(selectedPlanForPayment.price)) : undefined}
             onClose={() => setShowPaymentModal(false)}
           />
         )}
@@ -712,238 +666,225 @@ const EditorPage: React.FC = () => {
               <section className="space-y-8">
                 <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Pakej & Konsep</h3>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Pakej</label>
                   <div className="relative">
-                    {/* Trigger Button */}
-                    <div className="space-y-4">
-                      {initialPackagePlan !== 'free' ? (
-                        <div className="w-full bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 flex flex-col items-center text-center shadow-inner">
-                          <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">Pakej Langganan Aktif</span>
-                          <span className="text-2xl font-black text-rose-600 capitalize mb-2">{PACKAGE_PLANS.find(p => p.id === initialPackagePlan)?.label}</span>
-                          <div className="flex items-center gap-2 px-4 py-1.5 bg-white rounded-full border border-rose-100 shadow-sm">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Plan Active</span>
-                          </div>
+                    {initialPackagePlan !== 'free' ? (
+                      <div className="w-full bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 flex flex-col items-center text-center shadow-inner">
+                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">Pakej Langganan Aktif</span>
+                        <span className="text-2xl font-black text-rose-600 capitalize mb-2">{PACKAGE_PLANS.find(p => p.id === initialPackagePlan)?.label}</span>
+                        <div className="flex items-center gap-2 px-4 py-1.5 bg-white rounded-full border border-rose-100 shadow-sm">
+                          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Plan Active</span>
                         </div>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => setIsPackageDropdownOpen(!isPackageDropdownOpen)}
-                            className={`w-full bg-white border-2 rounded-3xl p-5 flex items-center justify-between transition-all shadow-sm group ${isPackageDropdownOpen ? 'border-rose-400 ring-4 ring-rose-50' : 'border-rose-100 hover:border-rose-300'}`}
-                          >
-                            <div className="text-left">
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pelan Dipilih</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Free'}</span>
-                                {inv.settings.package_plan !== initialPackagePlan && (
-                                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-bold rounded-full uppercase tracking-tighter">Preview</span>
-                                )}
-                              </div>
-                              <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">Tukar Pakej</span>
-                            </div>
-                            <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isPackageDropdownOpen ? 'rotate-180' : ''}`}>
-                              <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                          </button>
-
-                          {/* Purchase Button - Only show if current selected plan is NOT the initial plan and NOT 'free' */}
-                          {inv.settings.package_plan !== initialPackagePlan && inv.settings.package_plan !== 'free' && (
-                            <div className="p-5 bg-rose-600 rounded-[2.5rem] shadow-2xl shadow-rose-200 animate-slide-up">
-                              <div className="flex justify-between items-center mb-4">
-                                <div>
-                                  <p className="text-[9px] font-bold text-rose-100 uppercase tracking-widest opacity-80">Buka Semua Fungsi</p>
-                                  <p className="text-white font-bold text-lg">Pakej {PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.label}</p>
-                                </div>
-                                <p className="text-2xl font-bold text-white">RM{PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.price}</p>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  const planData = PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan);
-                                  if (planData) {
-                                    setSelectedPlanForPayment(planData as any);
-                                    setShowPaymentModal(true);
-                                  }
-                                }}
-                                className="w-full py-4 bg-white text-rose-600 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-rose-50 transition-colors shadow-lg"
-                              >
-                                Beli & Aktifkan Sekarang
-                              </button>
-                              <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk setiap invite</p>
-                            </div>
-                          )}
-
-                          {/* Coupon Field */}
-                          {initialPackagePlan === 'free' && (
-                            <div className="pt-4 border-t border-gray-100 mt-6 animate-slide-up">
-                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Kod Kupon / Affiliate</label>
-                              <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                  <input
-                                    type="text"
-                                    value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                    placeholder="CONTOH: KASIH10"
-                                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl text-xs font-bold transition outline-none ${couponError ? 'border-red-300 focus:border-red-400' : 'border-transparent focus:border-rose-300 focus:bg-white'}`}
-                                  />
-                                  {discountInfo && (
-                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                      <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
-                                    </div>
-                                  )}
-                                </div>
-                                <button
-                                  onClick={handleValidateCoupon}
-                                  disabled={isValidatingCoupon || !couponCode}
-                                  className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-black transition disabled:opacity-50"
-                                >
-                                  {isValidatingCoupon ? '...' : 'Tebus'}
-                                </button>
-                              </div>
-                              {couponError && <p className="text-[10px] text-red-500 font-bold mt-2 ml-1">{couponError}</p>}
-                              {discountInfo && (
-                                <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between animate-fade-in">
-                                  <div>
-                                    <p className="text-[10px] text-green-700 font-bold uppercase tracking-wider">Kupon Aktif: {couponCode}</p>
-                                    <p className="text-[9px] text-green-600 font-medium">Oleh: {discountInfo.businessName}</p>
-                                  </div>
-                                  <p className="text-xs font-black text-green-700">-{discountInfo.type === 'percentage' ? `${discountInfo.value}%` : `RM${discountInfo.value}`}</p>
-                                </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Trigger Button - Only visible if not purchased */}
+                        <button
+                          onClick={() => setIsPackageDropdownOpen(!isPackageDropdownOpen)}
+                          className={`w-full bg-white border-2 rounded-3xl p-5 flex items-center justify-between transition-all shadow-sm group ${isPackageDropdownOpen ? 'border-rose-400 ring-4 ring-rose-50' : 'border-rose-100 hover:border-rose-300'}`}
+                        >
+                          <div className="text-left">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pelan Dipilih</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Free'}</span>
+                              {inv.settings.package_plan !== initialPackagePlan && initialPackagePlan === 'free' && (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-bold rounded-full uppercase tracking-tighter">Preview</span>
                               )}
                             </div>
-                          )}
-                        </>
-                      )}
-                    </div>
+                            <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">Tukar Pakej</span>
+                          </div>
+                          <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isPackageDropdownOpen ? 'rotate-180' : ''}`}>
+                            <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </div>
+                        </button>
 
-                    {/* Dropdown Content */}
-                    {isPackageDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-4 z-50 bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-4 max-h-[600px] overflow-y-auto no-scrollbar space-y-4 animate-scale-in origin-top">
-                        {PACKAGE_PLANS.filter(p => p.id !== 'free').map(plan => (
-                          <button
-                            key={plan.id}
-                            onClick={() => {
-                              if (inv.settings.package_plan !== plan.id) {
-                                updateSettings('package_plan', plan.id);
-                              }
-                              setIsPackageDropdownOpen(false);
-                            }}
-                            className={`w-full relative p-6 rounded-3xl border text-left transition-all group ${inv.settings.package_plan === plan.id
-                              ? 'border-rose-500 bg-rose-50 shadow-md ring-1 ring-rose-200'
-                              : 'border-gray-100 bg-white hover:border-rose-300 hover:shadow-md'
-                              }`}
-                          >
-                            {plan.isPopular && (
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <span className="bg-rose-600 text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm">
-                                  Most Popular
-                                </span>
-                              </div>
-                            )}
+                        {/* Dropdown Content */}
+                        {isPackageDropdownOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-4 z-50 bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-4 max-h-[600px] overflow-y-auto no-scrollbar space-y-4 animate-scale-in origin-top">
+                            {PACKAGE_PLANS.filter(p => p.id !== 'free').map(plan => (
+                              <button
+                                key={plan.id}
+                                onClick={() => {
+                                  if (inv.settings.package_plan !== plan.id) {
+                                    updateSettings('package_plan', plan.id);
+                                  }
+                                  setIsPackageDropdownOpen(false);
+                                }}
+                                className={`w-full relative p-6 rounded-3xl border text-left transition-all group ${inv.settings.package_plan === plan.id
+                                  ? 'border-rose-500 bg-rose-50 shadow-md ring-1 ring-rose-200'
+                                  : 'border-gray-100 bg-white hover:border-rose-300 hover:shadow-md'
+                                  }`}
+                              >
+                                {plan.isPopular && (
+                                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                    <span className="bg-rose-600 text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                                      Most Popular
+                                    </span>
+                                  </div>
+                                )}
 
-                            <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <h4 className="text-lg font-bold text-gray-900">{plan.name}</h4>
+                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{plan.description}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-xl font-bold text-rose-600">RM{plan.price}</p>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Purchase Button - Only show if current selected plan is NOT the initial plan and NOT 'free' */}
+                        {inv.settings.package_plan !== initialPackagePlan && inv.settings.package_plan !== 'free' && (
+                          <div className="p-5 bg-rose-600 rounded-[2.5rem] shadow-2xl shadow-rose-200 animate-slide-up mt-4">
+                            <div className="flex justify-between items-center mb-4">
                               <div>
-                                <h4 className="text-lg font-bold text-gray-900">{plan.name}</h4>
-                                <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{plan.description}</p>
+                                <p className="text-[9px] font-bold text-rose-100 uppercase tracking-widest opacity-80">Buka Semua Fungsi</p>
+                                <p className="text-white font-bold text-lg">Pakej {PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.label}</p>
                               </div>
-                              <div className="text-right">
-                                <p className="text-xl font-bold text-rose-600">RM{plan.price}</p>
-                              </div>
+                              <p className="text-2xl font-bold text-white">RM{PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.price}</p>
                             </div>
-                          </button>
-                        ))}
-                      </div>
+                            <button
+                              onClick={() => {
+                                const planData = PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan);
+                                if (planData) {
+                                  setSelectedPlanForPayment(planData as any);
+                                  setShowPaymentModal(true);
+                                }
+                              }}
+                              className="w-full py-4 bg-white text-rose-600 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-rose-50 transition-colors shadow-lg"
+                            >
+                              Beli & Aktifkan Sekarang
+                            </button>
+                            <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk setiap invite</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Design Katalog</label>
-                    <button onClick={() => navigate('/catalog')} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 underline">Browse All</button>
-                  </div>
-                  <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl text-center">
-                    <p className="text-xs text-gray-400 font-medium mb-3">Tukar design kad anda dari koleksi kami.</p>
+                <div className="space-y-4 pt-6 border-t border-gray-100">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Design Katalog</label>
+                  <div className="relative">
                     <button
-                      onClick={() => navigate('/catalog')}
-                      className="px-6 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 shadow-sm hover:bg-gray-50 transition"
+                      onClick={() => setIsDesignDropdownOpen(!isDesignDropdownOpen)}
+                      className={`w-full bg-white border-2 rounded-3xl p-5 flex items-center justify-between transition-all shadow-sm group ${isDesignDropdownOpen ? 'border-rose-400 ring-4 ring-rose-50' : 'border-rose-100 hover:border-rose-300'}`}
                     >
-                      Pilih Design Baru
+                      <div className="text-left flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                          {inv.settings.background_image ? (
+                            <img src={inv.settings.background_image} alt="Target" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
+                              <EyeIcon className="w-6 h-6" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Design Terpilih</span>
+                          <span className="text-sm font-bold text-gray-900 line-clamp-1">{inv.template_id || 'Tiada Design'}</span>
+                        </div>
+                      </div>
+                      <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isDesignDropdownOpen ? 'rotate-180' : ''}`}>
+                        <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
                     </button>
+
+                    {/* Design Dropdown - Redirect to Catalog for now or show picker */}
+                    {isDesignDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-4 z-50 bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-6 animate-scale-in origin-top">
+                        <div className="text-center space-y-4">
+                          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto">
+                            <ArrowPathIcon className="w-8 h-8 text-rose-500" />
+                          </div>
+                          <h4 className="text-lg font-black text-gray-900 tracking-tight">Tukar Design Invitation?</h4>
+                          <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
+                            Anda boleh pilih beratus-ratus lagi design premium di Katalog utama.
+                          </p>
+                          <button
+                            onClick={() => navigate('/catalog')}
+                            className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-700 transition shadow-lg shadow-rose-100"
+                          >
+                            Lihat Katalog Penuh
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
 
-              {canAccess('visual_effects') && (
-                <>
-                  <section className="space-y-8 pt-10 border-t border-gray-100">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                          <span>Jenis Animasi</span>
-                          <input
-                            type="color"
-                            value={inv.settings.opening_color || '#ffffff'}
-                            onChange={(e) => updateSettings('opening_color', e.target.value)}
-                            className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                          />
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {OPENING_TYPES.map(type => (
-                            <button
-                              key={type.id}
-                              onClick={() => updateSettings('opening_type', type.id)}
-                              className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
-                                ? 'border-rose-400 bg-rose-50 text-rose-600'
-                                : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                                }`}
-                            >
-                              <span className="text-xs font-bold">{type.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Jenis Animasi</span>
+                      <input
+                        type="color"
+                        value={inv.settings.opening_color || '#ffffff'}
+                        onChange={(e) => updateSettings('opening_color', e.target.value)}
+                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                      />
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {OPENING_TYPES.map(type => (
+                        <button
+                          key={type.id}
+                          onClick={() => updateSettings('opening_type', type.id)}
+                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
+                            ? 'border-rose-400 bg-rose-50 text-rose-600'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                            }`}
+                        >
+                          <span className="text-xs font-bold">{type.label}</span>
+                        </button>
+                      ))}
                     </div>
-                  </section>
+                  </div>
+                </div>
+              </section>
 
-                  <section className="space-y-8 pt-10 border-t border-gray-100">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
+              <section className="space-y-8 pt-10 border-t border-gray-100">
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                          <span>Jenis Effect</span>
-                          <input
-                            type="color"
-                            value={inv.settings.effect_color || '#ffffff'}
-                            onChange={(e) => updateSettings('effect_color', e.target.value)}
-                            className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                          />
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {EFFECT_STYLES.map(style => (
-                            <button
-                              key={style.id}
-                              onClick={() => updateSettings('effect_style', style.id)}
-                              className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
-                                ? 'border-rose-400 bg-rose-50 text-rose-600'
-                                : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                                }`}
-                            >
-                              <span className="text-xs font-bold">{style.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                      <span>Jenis Effect</span>
+                      <input
+                        type="color"
+                        value={inv.settings.effect_color || '#ffffff'}
+                        onChange={(e) => updateSettings('effect_color', e.target.value)}
+                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                      />
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {EFFECT_STYLES.map(style => (
+                        <button
+                          key={style.id}
+                          onClick={() => updateSettings('effect_style', style.id)}
+                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
+                            ? 'border-rose-400 bg-rose-50 text-rose-600'
+                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                            }`}
+                        >
+                          <span className="text-xs font-bold">{style.label}</span>
+                        </button>
+                      ))}
                     </div>
-                  </section>
-                </>
-              )}
+                  </div>
+                </div>
+              </section>
             </div>
           )}
-
 
           {
             activeTab === 'utama' && (
@@ -2006,10 +1947,9 @@ const EditorPage: React.FC = () => {
                   )}
                 </section>
               </div>
-            )
-          }
-        </div >
-      </div >
+            )}
+        </div>
+      </div>
 
       {/* Preview Panel - Hidden on Mobile */}
       <div className="hidden md:flex flex-1 bg-gray-100 items-center justify-center p-6 md:p-12 relative overflow-hidden">
@@ -2024,7 +1964,6 @@ const EditorPage: React.FC = () => {
         <div className="w-full max-w-[393px] h-[852px] bg-white rounded-[4.5rem] border-[14px] border-gray-900 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative scale-90 md:scale-[0.82] lg:scale-[0.88] xl:scale-[0.95] transition-all duration-700 origin-center ring-8 ring-gray-100">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-3xl z-[110]"></div>
           <div className="absolute inset-0 overflow-y-auto no-scrollbar bg-white">
-            {/* Live preview content */}
             <InvitationContent invitation={inv} isPreview={true} />
           </div>
         </div>
@@ -2062,7 +2001,6 @@ const EditorPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Fixed Button in Modal */}
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 w-full px-8 max-w-sm">
             <button
               onClick={() => setShowMobilePreview(false)}

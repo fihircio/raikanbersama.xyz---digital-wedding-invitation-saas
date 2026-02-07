@@ -197,13 +197,14 @@ export interface BackgroundImage {
   updated_at: string;
 }
 
-export interface CatalogState {
-  backgrounds: BackgroundImage[];
-  currentPage: number;
-  totalPages: number;
-  isLoading: boolean;
-  selectedBackground: BackgroundImage | null;
-  isAuthenticated: boolean;
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  role: string;
+  membership_tier: string;
+  phone_number?: string;
 }
 
 export interface Plan {

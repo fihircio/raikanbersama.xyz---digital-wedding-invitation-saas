@@ -21,6 +21,7 @@ interface AffiliateProfile {
     business_name: string;
     referral_code?: string;
     earnings_total: number;
+    commission_rate: number;
 }
 
 interface Earning {
@@ -65,31 +66,11 @@ const AffiliatePage: React.FC = () => {
                 const data = await response.json();
                 if (data.success && data.data) {
                     setAffiliateProfile(data.data);
-                    if (data.data.status === 'active') {
-                        fetchEarnings();
-                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch affiliate status');
             } finally {
                 setIsLoadingProfile(false);
-            }
-        };
-
-        const fetchEarnings = async () => {
-            setIsLoadingEarnings(true);
-            try {
-                const response = await fetch(buildApiUrl('/affiliates/my-earnings'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.success) {
-                    setEarnings(data.data);
-                }
-            } catch (err) {
-                console.error('Failed to fetch earnings');
-            } finally {
-                setIsLoadingEarnings(false);
             }
         };
 
@@ -281,47 +262,14 @@ const AffiliatePage: React.FC = () => {
                                                     <p className="text-2xl font-serif italic font-bold text-rose-600 uppercase tracking-widest">{affiliateProfile.referral_code || 'TIDAK AKTIF'}</p>
                                                 </div>
                                                 <div className="bg-rose-50 rounded-2xl p-6 border border-rose-100 text-left">
-                                                    <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">Jumlah Komisen</p>
-                                                    <p className="text-2xl font-serif italic font-bold text-gray-900">RM {Number(affiliateProfile.earnings_total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                                    <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">Kadar Komisen</p>
+                                                    <p className="text-2xl font-serif italic font-bold text-gray-900">{affiliateProfile.commission_rate}%</p>
                                                 </div>
                                             </div>
 
-                                            {/* Earnings Table */}
-                                            <div className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm">
-                                                <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
-                                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sejarah Komisen</h4>
-                                                    <button onClick={() => window.location.reload()} className="text-rose-500 hover:text-rose-600">
-                                                        <ArrowPathIcon className={`w-3.5 h-3.5 ${isLoadingEarnings ? 'animate-spin' : ''}`} />
-                                                    </button>
-                                                </div>
-                                                <div className="max-h-[300px] overflow-y-auto">
-                                                    {earnings.length > 0 ? (
-                                                        <table className="w-full text-left text-xs">
-                                                            <thead>
-                                                                <tr className="border-b border-gray-50">
-                                                                    <th className="px-6 py-3 font-bold text-gray-400 uppercase">Tarikh</th>
-                                                                    <th className="px-6 py-3 font-bold text-gray-400 uppercase">Jualan</th>
-                                                                    <th className="px-6 py-3 font-bold text-gray-400 uppercase text-right">Untung</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody className="divide-y divide-gray-50">
-                                                                {earnings.map((e) => (
-                                                                    <tr key={e.id} className="hover:bg-gray-50 transition">
-                                                                        <td className="px-6 py-4 text-gray-500 font-medium">{new Date(e.created_at).toLocaleDateString()}</td>
-                                                                        <td className="px-6 py-4 text-gray-900 font-bold">RM {Number(e.order.amount).toLocaleString()}</td>
-                                                                        <td className="px-6 py-4 text-rose-600 font-black text-right">RM {Number(e.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    ) : (
-                                                        <div className="py-12 text-center">
-                                                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Tiada rekod jualan lagi</p>
-                                                            <p className="text-[10px] text-gray-300 mt-1">Gunakan kod referral anda untuk mula menjana!</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <p className="text-gray-500 text-xs italic px-4">
+                                                Lihat sejarah komisen dan prestasi jualan anda di halaman profil.
+                                            </p>
 
                                             <div className="flex gap-4">
                                                 <button

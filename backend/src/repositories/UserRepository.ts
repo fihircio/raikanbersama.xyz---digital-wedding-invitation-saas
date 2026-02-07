@@ -67,6 +67,7 @@ export class UserRepository extends BaseRepository<User> {
   async updateProfile(id: string, userData: {
     name?: string;
     email?: string;
+    phone_number?: string;
   }): Promise<User | null> {
     try {
       return await this.updateById(id, userData);

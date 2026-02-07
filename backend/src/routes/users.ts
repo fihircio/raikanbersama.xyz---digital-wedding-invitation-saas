@@ -92,6 +92,10 @@ const updateProfileSchema = {
     type: 'string',
     min: 2,
     max: 100
+  },
+  phone_number: {
+    type: 'string',
+    max: 20
   }
 };
 

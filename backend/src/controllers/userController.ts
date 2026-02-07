@@ -61,6 +61,7 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
       role: newUser.role,
       membership_tier: newUser.membership_tier,
       membership_expires_at: newUser.membership_expires_at,
+      phone_number: newUser.phone_number,
       email_verified: newUser.email_verified,
       created_at: newUser.created_at,
       updated_at: newUser.updated_at
@@ -143,6 +144,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
       role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
+      phone_number: user.phone_number,
       email_verified: user.email_verified,
       created_at: user.created_at.toISOString(),
       updated_at: user.updated_at.toISOString()
@@ -227,7 +229,7 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
-    const { name, email } = req.body;
+    const { name, email, phone_number } = req.body;
 
     // Check if email is being changed and if it's already taken
     if (email) {
@@ -241,7 +243,7 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response): P
       }
     }
 
-    const updatedUser = await databaseService.updateUser(userId, { name, email });
+    const updatedUser = await databaseService.updateUser(userId, { name, email, phone_number });
     if (!updatedUser) {
       res.status(404).json({
         success: false,
@@ -443,6 +445,7 @@ export const forgotPassword = async (req: AuthenticatedRequest, res: Response): 
       role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
+      phone_number: user.phone_number,
       email_verified: user.email_verified,
       created_at: user.created_at.toISOString(),
       updated_at: user.updated_at.toISOString()
@@ -563,6 +566,7 @@ export const sendEmailVerification = async (req: AuthenticatedRequest, res: Resp
       role: user.role,
       membership_tier: user.membership_tier,
       membership_expires_at: user.membership_expires_at?.toISOString() || undefined,
+      phone_number: user.phone_number,
       email_verified: user.email_verified,
       created_at: user.created_at.toISOString(),
       updated_at: user.updated_at.toISOString()

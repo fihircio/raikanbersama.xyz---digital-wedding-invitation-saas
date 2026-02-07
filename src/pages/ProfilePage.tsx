@@ -1,13 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { buildApiUrl } from '../config';
+import {
+    CheckBadgeIcon,
+    ArrowPathIcon,
+    XMarkIcon,
+    CurrencyDollarIcon,
+    CalendarIcon
+} from '@heroicons/react/24/outline';
+
+interface Earning {
+    id: string;
+    amount: string;
+    commission_rate: string;
+    status: 'pending' | 'paid' | 'cancelled';
+    created_at: string;
+    order: {
+        amount: string;
+    };
+}
 
 const ProfilePage: React.FC = () => {
-    const { user, token } = useAuth();
+    const { user, token, updateUser } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [csrfToken, setCsrfToken] = useState<string | null>(null);
+    const [affiliateStatus, setAffiliateStatus] = useState<'pending' | 'active' | 'rejected' | null>(null);
+    const [earnings, setEarnings] = useState<Earning[]>([]);
+    const [isLoadingEarnings, setIsLoadingEarnings] = useState(false);
+    const [showAffiliateModal, setShowAffiliateModal] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -24,8 +46,45 @@ const ProfilePage: React.FC = () => {
     useEffect(() => {
         if (user && token) {
             fetchProfile();
+            fetchAffiliateStatus();
         }
     }, [user, token]);
+
+    const fetchAffiliateStatus = async () => {
+        try {
+            const response = await fetch(buildApiUrl('/affiliates/my-status'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success && data.data) {
+                setAffiliateStatus(data.data.status);
+            }
+        } catch (err) {
+            console.error('Failed to fetch affiliate status');
+        }
+    };
+
+    const fetchEarnings = async () => {
+        setIsLoadingEarnings(true);
+        try {
+            const response = await fetch(buildApiUrl('/affiliates/my-earnings'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.success) {
+                setEarnings(data.data);
+            }
+        } catch (err) {
+            console.error('Failed to fetch earnings');
+        } finally {
+            setIsLoadingEarnings(false);
+        }
+    };
+
+    const openAffiliateModal = () => {
+        setShowAffiliateModal(true);
+        fetchEarnings();
+    };
 
     const fetchProfile = async () => {
         try {
@@ -79,10 +138,13 @@ const ProfilePage: React.FC = () => {
             if (newToken) setCsrfToken(newToken);
 
             if (response.ok) {
+                const data = await response.json();
                 setMessage({ type: 'success', text: 'Profile updated successfully' });
                 setIsEditing(false);
-                // Optionally update user in context if needed, 
-                // but getProfile will refresh it on next load if context uses it.
+                // Update user in context to ensure it's refreshed everywhere (like Payment Modal)
+                if (data.data) {
+                    updateUser(data.data);
+                }
             } else {
                 const data = await response.json();
                 setMessage({ type: 'error', text: data.error || 'Failed to update profile' });
@@ -168,12 +230,23 @@ const ProfilePage: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setIsEditing(!isEditing)}
-                                className="bg-white text-rose-600 px-6 py-2 rounded-full font-bold hover:bg-rose-50 transition"
-                            >
-                                {isEditing ? 'Cancel Edit' : 'Edit Profile'}
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {affiliateStatus === 'active' && (
+                                    <button
+                                        onClick={openAffiliateModal}
+                                        className="bg-rose-100 text-rose-600 px-6 py-2 rounded-full font-bold hover:bg-rose-200 transition flex items-center justify-center gap-2"
+                                    >
+                                        <CheckBadgeIcon className="w-5 h-5" />
+                                        Vendor
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setIsEditing(!isEditing)}
+                                    className="bg-white text-rose-600 px-6 py-2 rounded-full font-bold hover:bg-rose-50 transition"
+                                >
+                                    {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -300,6 +373,92 @@ const ProfilePage: React.FC = () => {
                         </div>
                     </form>
                 </div>
+
+                {/* Affiliate Earnings Modal */}
+                {showAffiliateModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+                        <div className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-scale-in">
+                            {/* Modal Header */}
+                            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-rose-50/30">
+                                <div>
+                                    <h3 className="text-2xl font-serif italic font-bold text-gray-900">Sejarah Komisen</h3>
+                                    <p className="text-xs text-rose-600 font-bold uppercase tracking-widest mt-1">Akaun Vendor Aktif</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowAffiliateModal(false)}
+                                    className="p-2 hover:bg-rose-100 rounded-full text-gray-400 hover:text-rose-600 transition"
+                                >
+                                    <XMarkIcon className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="overflow-y-auto px-8 py-6" style={{ maxHeight: 'calc(90vh - 160px)' }}>
+                                {isLoadingEarnings ? (
+                                    <div className="flex flex-col items-center justify-center py-20">
+                                        <ArrowPathIcon className="w-10 h-10 text-rose-500 animate-spin mb-4" />
+                                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Memuat turun data...</p>
+                                    </div>
+                                ) : earnings.length > 0 ? (
+                                    <div className="space-y-4">
+                                        <div className="hidden sm:grid grid-cols-3 px-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">
+                                            <div>Tarikh</div>
+                                            <div>Jualan (RM)</div>
+                                            <div className="text-right">Untung (RM)</div>
+                                        </div>
+                                        <div className="divide-y divide-gray-50 border border-gray-100 rounded-[2rem] overflow-hidden">
+                                            {earnings.map((e) => (
+                                                <div key={e.id} className="p-4 sm:grid sm:grid-cols-3 items-center hover:bg-gray-50 transition gap-4">
+                                                    <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                                                        <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-500">
+                                                            <CalendarIcon className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-gray-600">
+                                                            {new Date(e.created_at || (e as any).createdAt).toLocaleDateString('ms-MY', {
+                                                                year: 'numeric',
+                                                                month: 'short',
+                                                                day: 'numeric'
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mb-1 sm:mb-0">
+                                                        <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase">Jualan:</span>
+                                                        <span className="text-sm font-bold text-gray-900">RM {Number(e.order.amount).toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between sm:justify-end gap-2">
+                                                        <span className="sm:hidden text-[10px] font-bold text-rose-400 uppercase">Untung:</span>
+                                                        <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-100">
+                                                            <CurrencyDollarIcon className="w-4 h-4" />
+                                                            <span className="text-sm font-black">RM {Number(e.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-20 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                            <CurrencyDollarIcon className="w-10 h-10 text-gray-300" />
+                                        </div>
+                                        <h4 className="text-lg font-bold text-gray-400 uppercase tracking-widest">Tiada Rekod Jualan</h4>
+                                        <p className="text-sm text-gray-300 mt-2">Gunakan kod referral anda untuk mula menjana komisen!</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-8 py-6 border-t border-gray-100 bg-gray-50 flex justify-end">
+                                <button
+                                    onClick={() => setShowAffiliateModal(false)}
+                                    className="px-8 py-3 bg-black text-white rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-gray-800 transition shadow-lg"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

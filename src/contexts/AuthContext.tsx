@@ -7,6 +7,7 @@ interface User {
   createdAt: string;
   role: string;
   membership_tier: string;
+  phone_number?: string;
 }
 
 interface AuthContextType {
@@ -18,6 +19,7 @@ interface AuthContextType {
   loginWithGoogle: () => void;
   handleOAuthCallback: (token: string, refreshToken: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  updateUser: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -132,6 +134,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const updateUser = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   const loginWithGoogle = () => {
     // Redirect to backend Google OAuth endpoint
     window.location.href = '/api/users/auth/google';
@@ -181,6 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loginWithGoogle,
     handleOAuthCallback,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

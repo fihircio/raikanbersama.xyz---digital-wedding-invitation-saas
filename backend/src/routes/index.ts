@@ -16,6 +16,7 @@ import paymentRoutes from './payments';
 import adminRoutes from './admin';
 import affiliateRoutes from './affiliates';
 import contactRoutes from './contacts';
+import couponRoutes from './coupons';
 import docsRoutes from './docs';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.use('/payments', paymentRoutes);
 router.use('/admin', adminRoutes);
 router.use('/affiliates', affiliateRoutes);
 router.use('/contacts', contactRoutes);
+router.use('/coupons', couponRoutes);
 router.use('/files', fileRoutes);
 
 // API version and info
