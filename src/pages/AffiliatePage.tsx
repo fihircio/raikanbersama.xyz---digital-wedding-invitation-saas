@@ -273,7 +273,7 @@ const AffiliatePage: React.FC = () => {
 
                                             <div className="flex gap-4">
                                                 <button
-                                                    onClick={() => navigate('/dashboard')}
+                                                    onClick={() => navigate('/profile?tab=vendor')}
                                                     className="flex-1 px-8 py-4 bg-black text-white rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-gray-800 transition flex items-center justify-center gap-2"
                                                 >
                                                     Ke Dashboard <ArrowRightIcon className="w-3 h-3" />

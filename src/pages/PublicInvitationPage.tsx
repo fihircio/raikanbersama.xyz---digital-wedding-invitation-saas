@@ -586,7 +586,20 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           setIsSuccess(false);
           setIsSubmitting(false);
           // Reset form
-          setFormData({ name: guestName || '', phone: '', pax: 1, attending: true, message: '' });
+          setFormData({
+            name: guestName || '',
+            phone: '',
+            email: '',
+            address: '',
+            company: '',
+            job_title: '',
+            car_plate: '',
+            remarks: '',
+            pax: 1,
+            attending: true,
+            message: '',
+            slot: ''
+          });
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -788,8 +801,8 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                 </div>
 
                 {canAccess('rsvp') && (() => {
-                  const rsvpSettings = invitation.rsvp_settings || { response_mode: 'rsvp_and_wish' };
-                  if (rsvpSettings.response_mode === 'none') return null;
+                  const rsvpSettings = invitation.rsvp_settings;
+                  if (!rsvpSettings || rsvpSettings.response_mode === 'none') return null;
 
                   const isClosed = rsvpSettings.closing_date && new Date(rsvpSettings.closing_date) < new Date();
 
@@ -946,26 +959,52 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
                           <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.location_name}</p>
                         </div>
                         <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
-                          {invitation.google_maps_url ? (
-                            <iframe
-                              title="location-map"
-                              width="100%"
-                              height="100%"
-                              frameBorder="0"
-                              style={{ border: 0 }}
-                              src={invitation.google_maps_url.includes('embed') ? invitation.google_maps_url : `https://www.google.com/maps/embed/v1/place?key=MAPS_API_KEY&q=${encodeURIComponent(invitation.address)}`}
-                              allowFullScreen
-                            ></iframe>
-                          ) : (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 font-serif italic text-sm p-10 text-center space-y-2">
-                              <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                              <p>Tiada Peta Ditetapkan</p>
-                            </div>
-                          )}
+                          {(() => {
+                            const embedUrl = invitation.google_maps_url?.includes('embed')
+                              ? invitation.google_maps_url
+                              : (invitation.address || invitation.location_name)
+                                ? `https://maps.google.com/maps?q=${encodeURIComponent(invitation.address || invitation.location_name)}&output=embed`
+                                : null;
+
+                            if (embedUrl) {
+                              return (
+                                <iframe
+                                  title="location-map"
+                                  width="100%"
+                                  height="100%"
+                                  frameBorder="0"
+                                  style={{ border: 0 }}
+                                  src={embedUrl}
+                                  allowFullScreen
+                                ></iframe>
+                              );
+                            }
+
+                            return (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 font-serif italic text-sm p-10 text-center space-y-2">
+                                <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                <p>Tiada Peta Ditetapkan</p>
+                              </div>
+                            );
+                          })()}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                          <a href={invitation.google_maps_url} target="_blank" rel="noreferrer" className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm">G-Maps</a>
-                          <a href={invitation.waze_url} target="_blank" rel="noreferrer" className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm">Waze App</a>
+                          <a
+                            href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address || invitation.location_name)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
+                          >
+                            G-Maps
+                          </a>
+                          <a
+                            href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.address || invitation.location_name)}&navigate=yes`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
+                          >
+                            Waze App
+                          </a>
                         </div>
                       </div>
                     )}

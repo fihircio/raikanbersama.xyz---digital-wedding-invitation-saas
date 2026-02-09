@@ -820,69 +820,73 @@ const EditorPage: React.FC = () => {
                 </div>
               </section>
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
+              {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Jenis Animasi</span>
-                      <input
-                        type="color"
-                        value={inv.settings.opening_color || '#ffffff'}
-                        onChange={(e) => updateSettings('opening_color', e.target.value)}
-                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                      />
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {OPENING_TYPES.map(type => (
-                        <button
-                          key={type.id}
-                          onClick={() => updateSettings('opening_type', type.id)}
-                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
-                            ? 'border-rose-400 bg-rose-50 text-rose-600'
-                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                            }`}
-                        >
-                          <span className="text-xs font-bold">{type.label}</span>
-                        </button>
-                      ))}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                        <span>Jenis Animasi</span>
+                        <input
+                          type="color"
+                          value={inv.settings.opening_color || '#ffffff'}
+                          onChange={(e) => updateSettings('opening_color', e.target.value)}
+                          className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                        />
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {OPENING_TYPES.map(type => (
+                          <button
+                            key={type.id}
+                            onClick={() => updateSettings('opening_type', type.id)}
+                            className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.opening_type || 'none') === type.id
+                              ? 'border-rose-400 bg-rose-50 text-rose-600'
+                              : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                              }`}
+                          >
+                            <span className="text-xs font-bold">{type.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
 
-              <section className="space-y-8 pt-10 border-t border-gray-100">
-                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
+              {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Jenis Effect</span>
-                      <input
-                        type="color"
-                        value={inv.settings.effect_color || '#ffffff'}
-                        onChange={(e) => updateSettings('effect_color', e.target.value)}
-                        className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                      />
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {EFFECT_STYLES.map(style => (
-                        <button
-                          key={style.id}
-                          onClick={() => updateSettings('effect_style', style.id)}
-                          className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
-                            ? 'border-rose-400 bg-rose-50 text-rose-600'
-                            : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
-                            }`}
-                        >
-                          <span className="text-xs font-bold">{style.label}</span>
-                        </button>
-                      ))}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
+                        <span>Jenis Effect</span>
+                        <input
+                          type="color"
+                          value={inv.settings.effect_color || '#ffffff'}
+                          onChange={(e) => updateSettings('effect_color', e.target.value)}
+                          className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
+                        />
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {EFFECT_STYLES.map(style => (
+                          <button
+                            key={style.id}
+                            onClick={() => updateSettings('effect_style', style.id)}
+                            className={`p-3 rounded-xl border text-center transition-all ${(inv.settings.effect_style || 'none') === style.id
+                              ? 'border-rose-400 bg-rose-50 text-rose-600'
+                              : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
+                              }`}
+                          >
+                            <span className="text-xs font-bold">{style.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
             </div>
           )}
 
@@ -1190,6 +1194,10 @@ const EditorPage: React.FC = () => {
                       <span className="text-[8px] bg-rose-50 text-rose-400 px-2 py-0.5 rounded-full border border-rose-100 font-bold">Use Embed Link</span>
                     </label>
                     <input type="text" value={inv.google_maps_url} placeholder="https://www.google.com/maps/embed?..." onChange={(e) => updateField('google_maps_url', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[10px] font-mono outline-none transition-all focus:ring-2 focus:ring-rose-200" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waze URL</label>
+                    <input type="text" value={inv.waze_url} placeholder="https://waze.com/ul?..." onChange={(e) => updateField('waze_url', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[10px] font-mono outline-none transition-all focus:ring-2 focus:ring-rose-200" />
                   </div>
                 </section>
 
@@ -1552,8 +1560,8 @@ const EditorPage: React.FC = () => {
                 <section className="space-y-8">
                   <div className="flex items-center justify-between p-8 bg-rose-50 rounded-[3rem] border border-rose-100 shadow-inner">
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-rose-800 tracking-tight italic">E-Angpow (DuitNow)</span>
-                      <span className="text-[10px] text-rose-300 uppercase font-bold tracking-widest">Enable digital gifts</span>
+                      <span className="text-sm font-bold text-rose-800 tracking-tight italic">Money Gift (DuitNow)</span>
+                      <span className="text-[10px] text-rose-300 uppercase font-bold tracking-widest">Enable QR Code</span>
                     </div>
                     <input type="checkbox" checked={inv.money_gift_details.enabled} onChange={(e) => updateMoneyGift('enabled', e.target.checked)} className="w-7 h-7 accent-rose-600 cursor-pointer" />
                   </div>

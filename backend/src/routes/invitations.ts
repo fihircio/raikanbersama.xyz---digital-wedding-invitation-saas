@@ -90,7 +90,7 @@ const createInvitationSchema = {
       if (!value) return true;
       try {
         new URL(value);
-        return value.startsWith('https://maps.google.com') || value.startsWith('https://www.google.com/maps');
+        return value.includes('google.com/maps') || value.includes('maps.google.com') || value.includes('goo.gl/maps') || value.includes('maps.app.goo.gl');
       } catch {
         return 'Invalid Google Maps URL';
       }
@@ -219,7 +219,7 @@ const updateInvitationSchema = {
       if (!value) return true;
       try {
         new URL(value);
-        return value.startsWith('https://maps.google.com') || value.startsWith('https://www.google.com/maps');
+        return value.includes('google.com/maps') || value.includes('maps.google.com') || value.includes('goo.gl/maps') || value.includes('maps.app.goo.gl');
       } catch {
         return 'Invalid Google Maps URL';
       }
@@ -231,7 +231,7 @@ const updateInvitationSchema = {
       if (!value) return true;
       try {
         new URL(value);
-        return value.startsWith('https://waze.com') || value.startsWith('https://www.waze.com');
+        return value.includes('waze.com');
       } catch {
         return 'Invalid Waze URL';
       }
