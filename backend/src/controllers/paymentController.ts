@@ -4,6 +4,7 @@ import { OrderStatus, MembershipTier, DiscountType } from '../types/models';
 import { Op } from 'sequelize';
 import logger from '../utils/logger';
 import crypto from 'crypto';
+import { PaymentService } from '../services/paymentService'; // Import Service
 
 const BILLPLZ_API_KEY = process.env.BILLPLZ_API_KEY;
 const BILLPLZ_COLLECTION_ID = process.env.BILLPLZ_COLLECTION_ID;
@@ -84,32 +85,13 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
             logger.info(`Updated phone number for user ${userId}: ${phone}`);
         }
 
-        // Billplz expects amount in cents as an integer
-        const billAmount = Math.round(amount * 100);
-
-        // Prepare Billplz API request
-        // Using Basic Auth: username is API key, no password
-        const auth = Buffer.from(`${BILLPLZ_API_KEY}:`).toString('base64');
-
-        // Determine base URLs for callback and redirect
-        // We use x-forwarded headers to detect ngrok/proxy tunnels correctly
-        const protocol = req.headers['x-forwarded-proto'] === 'https' || req.secure ? 'https' : 'http';
+        // Determine Frontend URL for redirect
+        // We look at Referer/Headers to support both localhost and ngrok/production
+        const headerProtocol = req.headers['x-forwarded-proto'] === 'https' || req.secure ? 'https' : 'http';
         const forwardedHost = req.headers['x-forwarded-host'] as string;
         const currentHost = req.get('host');
+        const dynamicBaseUrl = `${headerProtocol}://${forwardedHost || currentHost}`;
 
-        // If we're behind a proxy (ngrok/Vite), forwardedHost will be the original domain
-        const dynamicBaseUrl = `${protocol}://${forwardedHost || currentHost}`;
-
-        // For callback (Billplz Server -> Your Backend)
-        // Must be a publicly accessible URL for Billplz to reach it
-        const backendBaseUrl = process.env.BACKEND_URL && !process.env.BACKEND_URL.includes('localhost')
-            ? process.env.BACKEND_URL
-            : dynamicBaseUrl;
-
-        const callbackUrl = `${backendBaseUrl}/api/payments/webhook`;
-
-        // For redirect (Billplz -> Your Browser)
-        // We look at Referer to see where the user actually is (ngrok or localhost:3000)
         let frontendBaseUrl = process.env.FRONTEND_URL;
         const referer = req.headers.referer;
 
@@ -126,7 +108,40 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
             }
         }
 
-        const redirectUrl = successUrl || `${frontendBaseUrl}/#/orders?status=success`;
+        const finalSuccessUrl = successUrl || `${frontendBaseUrl}/#/orders?status=success`;
+
+        // -----------------------------------------------------
+        // HANDLE 100% DISCOUNT (Free Order)
+        // -----------------------------------------------------
+        if (amount <= 0) {
+            logger.info(`Order ${order.id} is free (100% discount). bypassing payment gateway.`);
+            await PaymentService.completeOrder(order, 'Coupon');
+
+            res.json({
+                success: true,
+                checkout_url: finalSuccessUrl // Direct redirect to success page
+            });
+            return;
+        }
+        // -----------------------------------------------------
+
+        // Billplz expects amount in cents as an integer
+        const billAmount = Math.round(amount * 100);
+
+        // Prepare Billplz API request
+        // Using Basic Auth: username is API key, no password
+        const auth = Buffer.from(`${BILLPLZ_API_KEY}:`).toString('base64');
+
+        // For callback (Billplz Server -> Your Backend)
+        // Must be a publicly accessible URL for Billplz to reach it
+        const backendBaseUrl = process.env.BACKEND_URL && !process.env.BACKEND_URL.includes('localhost')
+            ? process.env.BACKEND_URL
+            : dynamicBaseUrl;
+
+        const callbackUrl = `${backendBaseUrl}/api/payments/webhook`;
+
+        // For redirect (Billplz -> Your Browser)
+        const redirectUrl = finalSuccessUrl;
 
         logger.info(`Billplz Integration URLs:`);
         logger.info(`- Callback (Webhook): ${callbackUrl}`);
@@ -289,50 +304,8 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
         const isPaid = paid === true || paid === 'true';
 
         if (isPaid && state === 'paid') {
-            await order.update({
-                status: OrderStatus.COMPLETED,
-                payment_method: payload.payment_method || 'Billplz'
-            });
-
-            // Increment coupon usage and calculate affiliate commission if applicable
-            if (order.coupon_id) {
-                const coupon = await Coupon.findByPk(order.coupon_id, {
-                    include: [{
-                        model: Affiliate,
-                        as: 'affiliate'
-                    }]
-                });
-
-                if (coupon) {
-                    await coupon.increment('current_uses');
-                    logger.info(`Incremented usage for coupon ID: ${order.coupon_id}`);
-
-                    if (coupon.affiliate_id && coupon.affiliate) {
-                        const commissionAmount = Number(order.amount) * (Number(coupon.affiliate.commission_rate) / 100);
-
-                        await AffiliateEarning.create({
-                            affiliate_id: coupon.affiliate_id,
-                            order_id: order.id,
-                            amount: commissionAmount,
-                            commission_rate: coupon.affiliate.commission_rate,
-                            status: 'pending'
-                        } as any);
-
-                        await coupon.affiliate.increment('earnings_total', { by: commissionAmount });
-                        logger.info(`Recorded commission of RM ${commissionAmount} for affiliate ${coupon.affiliate_id}`);
-                    }
-                }
-            }
-
-            // Update associated invitation
-            if (order.invitation_id) {
-                const invitation = await Invitation.findByPk(order.invitation_id);
-                if (invitation) {
-                    const settings = { ...invitation.settings, package_plan: order.plan_tier, is_paid: true };
-                    await invitation.update({ settings });
-                    logger.info(`Invitation ${order.invitation_id} upgraded to ${order.plan_tier} and marked as PAID`);
-                }
-            }
+            // Use PaymentService to handle logic consistently
+            await PaymentService.completeOrder(order, payload.payment_method || 'Billplz');
         } else if (state === 'due' || state === 'deleted') {
             // Keep as pending or mark as failed if deleted
             if (state === 'deleted') {

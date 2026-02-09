@@ -58,7 +58,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
       if (data.success) {
         setDiscountInfo(data.data);
       } else {
-        setCouponError(data.error || 'Kod kupon tidak sah');
+        setCouponError(data.message || data.error || 'Kod kupon tidak sah');
         setDiscountInfo(null);
       }
     } catch (error) {
