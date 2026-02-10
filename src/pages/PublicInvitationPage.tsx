@@ -309,18 +309,32 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
   if (isMinimal) {
     return (
       <div className="pt-24 pb-8 px-8 text-center bg-gray-50/50">
-        <div className="max-w-[320px] mx-auto mb-10 animate-fade-in">
-          <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white">
+        <div className="max-w-[320px] mx-auto mb-10 animate-fade-in relative">
+          <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white relative">
             <img src={invitation.settings.background_image} alt="Couple" className="w-full h-full object-cover" />
+            {/* Subtle Overlay for Readability */}
+            <div className="absolute inset-0 bg-black/30 z-10" />
+
+            {/* Content Overlay */}
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-white">
+              {guestName && (
+                <div className="mb-4 animate-slide-up">
+                  <p className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-bold uppercase tracking-[0.2em] border border-white/30">
+                    Khas buat <span className="text-rose-200">{guestName}</span>
+                  </p>
+                </div>
+              )}
+              <div className="space-y-3">
+                <h2 className="font-serif italic font-bold leading-tight" style={greetingStyles}>
+                  {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
+                </h2>
+                <div className="w-8 h-px bg-white/50 mx-auto" />
+                <p className="uppercase tracking-[0.3em] font-bold text-[10px]" style={heroStyles}>
+                  {invitation.settings.hero_title || 'Raikan Cinta Kami'}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="animate-slide-up space-y-4">
-          <h2 className="font-serif italic font-bold leading-tight" style={greetingStyles}>
-            {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
-          </h2>
-          <p className="uppercase tracking-[0.4em] font-bold" style={heroStyles}>
-            {invitation.settings.hero_title || 'Raikan Cinta Kami'}
-          </p>
         </div>
       </div>
     );
@@ -360,7 +374,7 @@ const HeroSection: React.FC<{ invitation: Invitation, guestName?: string }> = ({
 };
 
 const Guestbook: React.FC<{ wishes: any[], primaryColor: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string }> = ({ wishes, primaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont }) => (
-  <div className="mt-24 text-center px-4 pb-48">
+  <div className="mt-24 text-center px-4 pb-12">
     <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 border-b pb-2 inline-block font-serif">Ucapan & Doa</h4>
     <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar py-4 px-2">
       {(wishes || []).length > 0 ? (wishes || []).map((wish) => (
@@ -394,7 +408,7 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string, hashtagText?: s
 );
 
 const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor }) => (
-  <div className="mt-24 text-center px-4 pb-16">
+  <div className="mt-24 text-center px-4 pb-8">
     <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 border-b pb-2 inline-block font-serif">Hashtag</h4>
     <span
       className="block tracking-wider break-words leading-relaxed"
@@ -629,12 +643,14 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
     color: invitation.settings.groom_color || primaryColor,
     fontFamily: invitation.settings.groom_font || 'inherit',
     fontSize: invitation.settings.groom_size ? `${invitation.settings.groom_size}px` : undefined,
+    textAlign: 'center' as const
   };
 
   const brideStyleBody = {
     color: invitation.settings.bride_color || primaryColor,
     fontFamily: invitation.settings.bride_font || 'inherit',
     fontSize: invitation.settings.bride_size ? `${invitation.settings.bride_size}px` : undefined,
+    textAlign: 'center' as const
   };
 
   const hostStyle = {
@@ -699,7 +715,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
         />
 
         {/* The Mobile "Phone" Container */}
-        <div className="relative w-full max-w-[500px] bg-white shadow-[0_0_100px_rgba(0,0,0,0.5)] z-10 overflow-hidden min-h-screen">
+        <div className="relative w-full max-w-[500px] shadow-[0_0_100px_rgba(0,0,0,0.5)] z-10 overflow-hidden min-h-screen">
 
           {/* Cover Section - Use absolute to stay within this container */}
           <div className={`absolute inset-0 z-[200] transition-all duration-1000 ${isOpen ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'}`}>
@@ -724,706 +740,784 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           )}
 
           {/* Main Content Wrapper */}
-          <div id="main-invitation-content" className={`relative min-h-screen bg-white transition-opacity duration-1000 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+          <div id="main-invitation-content" className={`relative min-h-screen transition-opacity duration-1000 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
 
             {/* Floating Back to Cover Button */}
-            {isOpen && !isPreview && (
+            {isOpen && (
               <button
                 onClick={handleCloseInvitation}
-                className="absolute bottom-6 left-6 z-[100] bg-black/50 backdrop-blur-md text-white px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/70 transition shadow-lg flex items-center gap-2"
+                className="absolute top-6 left-1/2 -translate-x-1/2 z-[100] bg-black/50 backdrop-blur-md text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-black/70 transition-all duration-300 shadow-2xl flex items-center gap-2 border border-white/20 hover:scale-105 active:scale-95"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path></svg>
                 Tutup
               </button>
             )}
 
-            <div className={`relative min-h-screen font-sans text-gray-900 bg-white transition-opacity duration-1000 ${activeModal ? 'overflow-hidden' : ''} ${isMinimal ? 'bg-gray-50/30' : ''} ${!isOpen ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100'}`}>
-              <HeroSection invitation={invitation} guestName={guestName} />
-
-
-              <div className={`relative ${isMinimal ? 'bg-transparent' : '-mt-12 bg-white rounded-t-[3.5rem] shadow-2xl'} z-20 px-8 py-16 text-center transition-all duration-700`}>
-                {/* Order: Nama Tuan Rumah -> Teks Jemputan -> Couple Names -> Date */}
-
-                <div className="mb-14 space-y-6">
-                  <p className="text-xl font-serif italic text-gray-700 font-bold" style={hostStyle}>
-                    {invitation.host_names}
-                  </p>
-
-                  <p className="leading-relaxed font-light max-w-[300px] mx-auto italic" style={invitationTextStyles}>
-                    {invitation.settings.invitation_text || `Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput anda ke majlis perkahwinan anakanda kami yang tercinta:`}
-                  </p>
-                </div>
-
-                <div className="space-y-4 mb-14 animate-fade-in px-4">
-                  <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={groomStyleBody}>
-                    {invitation.groom_name}
-                  </h3>
-                  <p className="text-gray-300 font-serif italic text-xl">&</p>
-                  <h3 className="text-5xl md:text-6xl font-cursive font-bold" style={brideStyleBody}>
-                    {invitation.bride_name}
-                  </h3>
-                </div>
-
-                <div className="mb-16">
-                  <p className="text-2xl font-serif italic mb-4 font-bold" style={dateStyle}>
-                    {formattedDate}
-                  </p>
-                  {invitation.settings.show_countdown && (
-                    <Countdown targetDate={invitation.event_date} color={invitation.settings.date_color || primaryColor} />
-                  )}
-                </div>
-
-
-                {invitation.settings.pantun && (
-                  <div className="bg-white/80 backdrop-blur-sm p-8 rounded-[2.5rem] italic text-gray-500 font-serif leading-relaxed text-sm mb-16 border border-gray-100 shadow-inner">
-                    "{invitation.settings.pantun}"
-                  </div>
-                )}
-
-                <div className={`space-y-6 p-8 bg-white rounded-[2.5rem] border border-gray-100 mb-16 shadow-sm ${isMinimal ? 'max-w-[320px] mx-auto' : ''}`}>
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
-                  </div>
-
-                  <div className="w-full h-px bg-gray-200/50" />
-
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    </div>
-                    <span className="font-bold text-gray-800 text-lg tracking-tight" style={locationStyle}>{invitation.location_name}</span>
-                    <p className="text-[10px] text-gray-400 font-medium px-4">{invitation.address}</p>
-                  </div>
-                </div>
-
-                {canAccess('rsvp') && (() => {
-                  const rsvpSettings = invitation.rsvp_settings;
-                  if (!rsvpSettings || rsvpSettings.response_mode === 'none') return null;
-
-                  const isClosed = rsvpSettings.closing_date && new Date(rsvpSettings.closing_date) < new Date();
-
-                  return (
-                    <div className="flex flex-col gap-4 sticky bottom-8 z-30 px-2 drop-shadow-2xl">
-                      <button
-                        onClick={() => {
-                          if (isClosed) {
-                            alert('RSVP telah ditutup.');
-                            return;
-                          }
-                          if (rsvpSettings.response_mode === 'external' && rsvpSettings.external_url) {
-                            window.open(rsvpSettings.external_url, '_blank');
-                          } else {
-                            setShowRsvp(true);
-                          }
-                        }}
-                        disabled={isClosed}
-                        className={`w-full py-5 text-white font-bold rounded-3xl shadow-2xl transition transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-xs uppercase ${isClosed ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
-                        style={{ backgroundColor: isClosed ? '#6B7280' : primaryColor }}
-                      >
-                        {isClosed ? 'RSVP Ditutup' : 'Sahkan Kehadiran'}
-                      </button>
-                    </div>
-                  );
-                })()}
-
-                {invitation.settings.our_story && (
-                  <div className="mt-24 text-left">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 border-b pb-2">
-                      {invitation.settings.story_title || 'Kisah Cinta Kami'}
-                    </h4>
-                    <p className="text-sm text-gray-600 leading-relaxed italic font-light">
-                      {invitation.settings.our_story}
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-24 text-left">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-10 border-b pb-2">Atur Cara Majlis</h4>
-                  <div className="space-y-8">
-                    {invitation?.itinerary && invitation.itinerary.length > 0 ? (
-                      invitation.itinerary.map((item, idx) => (
-                        <div key={item.id} className="flex space-x-6">
-                          <div className="flex flex-col items-center">
-                            <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: primaryColor }} />
-                            {idx !== invitation.itinerary.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-2 mb-2" />}
-                          </div>
-                          <div className="pb-4">
-                            <p className="text-sm font-bold text-gray-800 font-serif italic">{item.time}</p>
-                            <p className="text-sm text-gray-500 font-light">{item.activity}</p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Hashtag Section - Only for Lite users (no wishes feature) */}
-                {invitation.settings.hashtag_text && !canAccess('wishes') && (
-                  <Hashtag
-                    hashtagText={invitation.settings.hashtag_text}
-                    hashtagColor={invitation.settings.hashtag_color}
-                    hashtagSize={invitation.settings.hashtag_size}
-                    hashtagFont={invitation.settings.hashtag_font}
-                    primaryColor={primaryColor}
-                  />
-                )}
-
-                {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
-                  <div className="mt-24 text-center">
-                    <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      {(invitation.gallery || []).map((img, idx) => {
-                        const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
-                        if (!imgSrc) return null;
-
-                        return (
-                          <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
-                            <img src={imgSrc} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {canAccess('wishes') && (
-                  <Guestbook
-                    wishes={invitation.wishes}
-                    primaryColor={primaryColor}
-                    hashtagText={invitation.settings.hashtag_text}
-                    hashtagColor={invitation.settings.hashtag_color}
-                    hashtagSize={invitation.settings.hashtag_size}
-                    hashtagFont={invitation.settings.hashtag_font}
-                  />
-                )}
-              </div>
-
-              {/* Floating Bottom Nav */}
-              <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-[80] w-[85%] max-w-[340px] transition-all duration-500 ${activeModal ? 'translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}`}>
-                <div className="glass rounded-full px-6 py-4 flex justify-between items-center shadow-2xl border border-white/40 ring-2 ring-rose-50/50">
-                  <button onClick={() => setActiveModal('map')} className="flex flex-col items-center gap-1 group outline-none">
-                    <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    </div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Lokasi</span>
-                  </button>
-                  <div className="w-px h-6 bg-gray-200/50" />
-                  <button onClick={() => setActiveModal('calendar')} className="flex flex-col items-center gap-1 group outline-none">
-                    <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Kalendar</span>
-                  </button>
-                  <div className="w-px h-6 bg-gray-200/50" />
-                  <button onClick={() => setActiveModal('contact')} className="flex flex-col items-center gap-1 group outline-none">
-                    <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                    </div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hubungi</span>
-                  </button>
-                  {canAccess('gallery') && (invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
-                    <>
-                      <div className="w-px h-6 bg-gray-200/50" />
-                      <button onClick={() => setActiveModal('hadiah')} className="flex flex-col items-center gap-1 group outline-none">
-                        <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                        </div>
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hadiah</span>
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Feature Modals */}
-              {activeModal && (
-                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-                  <div className="bg-white w-full max-w-[400px] rounded-t-[3rem] sm:rounded-[3.5rem] p-10 shadow-2xl relative animate-slide-up max-h-[80vh] overflow-y-auto no-scrollbar">
-                    <button
-                      onClick={() => setActiveModal(null)}
-                      className="absolute top-6 right-8 w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-rose-600 transition shadow-inner outline-none"
-                    >
-                      &times;
-                    </button>
-
-                    {activeModal === 'map' && (
-                      <div className="space-y-8 py-4">
-                        <div className="text-center">
-                          <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Lokasi Majlis</h3>
-                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.location_name}</p>
-                        </div>
-                        <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
-                          {(() => {
-                            const embedUrl = invitation.google_maps_url?.includes('embed')
-                              ? invitation.google_maps_url
-                              : (invitation.address || invitation.location_name)
-                                ? `https://maps.google.com/maps?q=${encodeURIComponent(invitation.address || invitation.location_name)}&output=embed`
-                                : null;
-
-                            if (embedUrl) {
-                              return (
-                                <iframe
-                                  title="location-map"
-                                  width="100%"
-                                  height="100%"
-                                  frameBorder="0"
-                                  style={{ border: 0 }}
-                                  src={embedUrl}
-                                  allowFullScreen
-                                ></iframe>
-                              );
-                            }
-
-                            return (
-                              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 font-serif italic text-sm p-10 text-center space-y-2">
-                                <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                                <p>Tiada Peta Ditetapkan</p>
-                              </div>
-                            );
-                          })()}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <a
-                            href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address || invitation.location_name)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
-                          >
-                            G-Maps
-                          </a>
-                          <a
-                            href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.address || invitation.location_name)}&navigate=yes`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
-                          >
-                            Waze App
-                          </a>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeModal === 'calendar' && (
-                      <div className="space-y-8 py-4">
-                        <div className="text-center">
-                          <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Simpan Tarikh</h3>
-                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Raikan Bersama Kami</p>
-                        </div>
-                        <SimpleCalendar date={invitation.event_date} color={primaryColor} />
-                        <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Mula</span>
-                            <span className="text-sm font-bold text-gray-700">{invitation.start_time}</span>
-                          </div>
-                          <div className="flex items-center justify-between border-t border-gray-200/50 pt-3">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Tamat</span>
-                            <span className="text-sm font-bold text-gray-700">{invitation.end_time}</span>
-                          </div>
-                        </div>
-                        <button
-                          className="w-full py-5 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 uppercase text-[10px] tracking-widest"
-                          style={{ backgroundColor: primaryColor }}
-                        >
-                          Tambah Ke Kalendar
-                        </button>
-                      </div>
-                    )}
-
-                    {activeModal === 'contact' && (
-                      <div className="space-y-8 py-4">
-                        <div className="text-center">
-                          <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Hubungi Keluarga</h3>
-                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Pertanyaan & Bantuan</p>
-                        </div>
-                        <div className="space-y-4">
-                          {(invitation.contacts || []).length > 0 ? (invitation.contacts || []).map((contact) => (
-                            <a key={contact.id} href={`https://wa.me/${contact.phone}`} className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 hover:shadow-lg transition group">
-                              <div>
-                                <p className="text-sm font-bold text-gray-800">{contact.name}</p>
-                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{contact.relation}</p>
-                              </div>
-                              <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition shadow-inner">
-                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.274 1.507 4.99 1.508 5.403.002 9.802-4.398 9.804-9.802.002-5.402-4.398-9.803-9.805-9.803-5.404 0-9.803 4.399-9.805 9.803-.001 1.815.512 3.518 1.481 4.92l-.934 3.415 3.469-.911z"></path></svg>
-                              </div>
-                            </a>
-                          )) : (
-                            <div className="py-10 text-center text-gray-400 font-serif italic text-sm">Tiada kenalan ditetapkan.</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {activeModal === 'hadiah' && (
-                      <div className="space-y-12 py-4">
-                        {invitation.money_gift_details?.enabled && (
-                          <div className="text-center">
-                            <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.money_gift_details?.gift_title || 'Hadiah & Ingatan'}</h3>
-                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.money_gift_details?.gift_subtitle || 'Khas buat mempelai'}</p>
-                          </div>
-                        )}
-
-                        {/* Hadiah Section (Money Gift) */}
-                        {invitation.money_gift_details?.enabled && (
-                          <div className="space-y-6">
-                            <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 flex flex-col items-center space-y-6">
-                              {invitation.money_gift_details?.qr_url && (
-                                <div className="w-48 h-48 bg-white p-4 rounded-3xl shadow-inner border border-gray-100">
-                                  <img src={invitation.money_gift_details.qr_url} alt="QR Code" className="w-full h-full object-contain" />
-                                </div>
-                              )}
-                              <div className="text-center space-y-2">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.bank_name}</p>
-                                <p className="text-2xl font-bold tracking-tighter text-gray-800 font-mono">{invitation.money_gift_details?.account_no}</p>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.account_holder}</p>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  if (invitation.money_gift_details?.account_no) {
-                                    navigator.clipboard.writeText(invitation.money_gift_details.account_no);
-                                    alert('Nombor akaun disalin!');
-                                  }
-                                }}
-                                className="px-8 py-3 bg-white border border-gray-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition shadow-sm"
-                              >
-                                Salin No. Akaun
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Wishlist Section */}
-                        {invitation.wishlist_details?.enabled && (
-                          <div className="space-y-10">
-                            <div className="text-center" style={{ borderColor: primaryColor }}>
-                              <div>
-                                <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.wishlist_details?.wishlist_title || 'Physical Wishlist'}</h3>
-                                <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.wishlist_details?.wishlist_subtitle || 'Gifts requested'}</p>
-                              </div>
-                            </div>
-
-                            <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50 space-y-6">
-                              <div className="space-y-2">
-                                <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">No. Telefon Penerima</p>
-                                <p className="text-sm font-bold text-gray-700 font-mono">{invitation.wishlist_details?.receiver_phone || 'Belum disediakan'}</p>
-                              </div>
-                              <div className="space-y-2">
-                                <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">Alamat Penghantaran</p>
-                                <p className="text-sm text-gray-600 leading-relaxed font-medium">{invitation.wishlist_details?.receiver_address || 'Belum disediakan'}</p>
-                              </div>
-                            </div>
-
-                            {/* Items Listing */}
-                            {invitation.wishlist_details?.items && invitation.wishlist_details.items.length > 0 && (
-                              <div className="space-y-6">
-                                <div className="flex items-center space-x-4 border-l-4 pl-4" style={{ borderColor: primaryColor }}>
-                                  <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Physical Gift Request</p>
-                                    <p className="text-lg font-bold text-gray-800 font-serif italic">Permintaan Hadiah</p>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-4">
-                                  {invitation.wishlist_details.items.map((item) => (
-                                    <div key={item.id} className="p-4 bg-white border border-gray-100 rounded-[2rem] shadow-sm flex items-center space-x-6 group hover:shadow-md transition">
-                                      <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-100">
-                                        {item.item_image ? (
-                                          <img src={item.item_image} alt={item.item_name} className="w-full h-full object-cover" />
-                                        ) : (
-                                          <div className="w-full h-full flex items-center justify-center text-gray-200">
-                                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="flex-1 pr-4">
-                                        <p className="text-sm font-bold text-gray-800 mb-1">{item.item_name}</p>
-                                        {item.item_link && (
-                                          <a
-                                            href={item.item_link}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="inline-flex items-center text-[9px] font-bold uppercase tracking-widest text-rose-400 hover:text-rose-600 transition"
-                                          >
-                                            Beli Secara Online
-                                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                          </a>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-
-                      </div>
-                    )}
-                  </div>
-                </div>
+            <div className={`relative min-h-screen font-sans text-gray-900 transition-opacity duration-1000 ${activeModal ? 'overflow-hidden' : ''} ${isMinimal ? 'bg-gray-50/30' : ''} ${!isOpen ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100'}`}>
+              {/* Fixed Background Layer - Perfect scale, constrained to card width on desktop */}
+              {invitation.settings.background_image && (
+                <div
+                  className="fixed inset-0 pointer-events-none z-0 max-w-[500px] w-full left-1/2 -translate-x-1/2"
+                  style={{
+                    backgroundImage: (() => {
+                      const color = invitation.settings.background_color || '#ffffff';
+                      const opacity = invitation.settings.background_opacity ?? 1;
+                      const r = parseInt(color.slice(1, 3), 16);
+                      const g = parseInt(color.slice(3, 5), 16);
+                      const b = parseInt(color.slice(5, 7), 16);
+                      const overlay = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                      return `linear-gradient(${overlay}, ${overlay}), url(${invitation.settings.background_image})`;
+                    })(),
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                />
               )}
 
-              {showRsvp && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all animate-fade-in">
-                  <div className="bg-white w-full max-w-[360px] rounded-[3.5rem] p-10 shadow-2xl relative overflow-hidden transition-all duration-500 ease-in-out">
-                    {isSuccess ? (
-                      <div className="text-center py-10 animate-scale-in">
-                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <h3 className="text-2xl font-serif font-bold text-gray-800 mb-2 italic">Alhamdulillah!</h3>
-                        <p className="text-sm text-gray-400 leading-relaxed px-4">Terima kasih atas maklum balas anda. Jumpa nanti!</p>
+              {/* Background Color fallback (if no image) - Constrained to card width */}
+              {!invitation.settings.background_image && (
+                <div
+                  className="fixed inset-0 pointer-events-none z-0 max-w-[500px] w-full left-1/2 -translate-x-1/2"
+                  style={{
+                    backgroundColor: (() => {
+                      const color = invitation.settings.background_color || '#ffffff';
+                      const opacity = invitation.settings.background_opacity ?? 1;
+                      const r = parseInt(color.slice(1, 3), 16);
+                      const g = parseInt(color.slice(3, 5), 16);
+                      const b = parseInt(color.slice(5, 7), 16);
+                      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                    })()
+                  }}
+                />
+              )}
+
+              {/* Content Wrap */}
+              <div className="relative z-10 w-full">
+                <HeroSection invitation={invitation} guestName={guestName} />
+
+
+                <div className={`relative ${isMinimal ? 'bg-transparent' : '-mt-12 rounded-t-[3.5rem] shadow-2xl'} z-20 px-8 py-16 text-center transition-all duration-700`}>
+                  {/* Order: Nama Tuan Rumah -> Teks Jemputan -> Couple Names -> Date */}
+
+                  <div className="mb-14 space-y-6">
+                    <p className="text-xl font-serif italic text-gray-700 font-bold" style={hostStyle}>
+                      {invitation.host_names}
+                    </p>
+
+                    <p className="leading-relaxed font-light max-w-[300px] mx-auto italic" style={invitationTextStyles}>
+                      {invitation.settings.invitation_text || `Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput anda ke majlis perkahwinan anakanda kami yang tercinta:`}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 mb-14 animate-fade-in px-4">
+                    <h3 className="text-5xl md:text-6xl font-cursive font-bold w-full text-center leading-tight break-words" style={groomStyleBody}>
+                      {invitation.groom_name?.trim()}
+                    </h3>
+                    <p className="text-gray-300 font-serif italic text-xl text-center">&</p>
+                    <h3 className="text-5xl md:text-6xl font-cursive font-bold w-full text-center leading-tight break-words" style={brideStyleBody}>
+                      {invitation.bride_name?.trim()}
+                    </h3>
+                  </div>
+
+                  <div className="mb-16">
+                    <p className="text-2xl font-serif italic mb-4 font-bold" style={dateStyle}>
+                      {formattedDate}
+                    </p>
+                    {invitation.settings.show_countdown && (
+                      <Countdown targetDate={invitation.event_date} color={invitation.settings.date_color || primaryColor} />
+                    )}
+                  </div>
+
+
+                  {invitation.settings.pantun && (
+                    <div className="p-8 rounded-[2.5rem] italic text-gray-500 font-serif leading-relaxed text-sm mb-16 border border-gray-100 shadow-inner">
+                      "{invitation.settings.pantun}"
+                    </div>
+                  )}
+
+                  <div className={`space-y-6 p-8 rounded-[2.5rem] border border-gray-100 mb-16 shadow-sm ${isMinimal ? 'max-w-[320px] mx-auto' : ''}`}>
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex justify-between items-center mb-8">
-                          <h3 className="text-2xl font-serif font-bold text-gray-800 italic">Sahkan Kehadiran</h3>
-                          <button onClick={() => setShowRsvp(false)} className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 transform active:rotate-90">
-                            &times;
-                          </button>
-                        </div>
-                        <div className="space-y-8">
-                          {/* Note from Host */}
-                          {invitation.rsvp_settings?.note && (
-                            <div className="bg-rose-50 p-4 rounded-xl text-xs text-rose-700 font-medium italic mb-4">
-                              Note: {invitation.rsvp_settings.note}
+                      <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
+                      <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
+                    </div>
+
+                    <div className="w-full h-px bg-gray-200/50" />
+
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                      </div>
+                      <span className="font-bold text-gray-800 text-lg tracking-tight" style={locationStyle}>{invitation.location_name}</span>
+                      <p className="text-[10px] text-gray-400 font-medium px-4">{invitation.address}</p>
+                    </div>
+                  </div>
+
+                  {canAccess('rsvp') && (() => {
+                    const rsvpSettings = invitation.rsvp_settings;
+                    if (!rsvpSettings || rsvpSettings.response_mode === 'none') return null;
+
+                    const isClosed = rsvpSettings.closing_date && new Date(rsvpSettings.closing_date) < new Date();
+
+                    return (
+                      <div className="flex flex-col gap-4 sticky bottom-8 z-30 px-2 drop-shadow-2xl">
+                        <button
+                          onClick={() => {
+                            if (isClosed) {
+                              alert('RSVP telah ditutup.');
+                              return;
+                            }
+                            if (rsvpSettings.response_mode === 'external' && rsvpSettings.external_url) {
+                              window.open(rsvpSettings.external_url, '_blank');
+                            } else {
+                              setShowRsvp(true);
+                            }
+                          }}
+                          disabled={isClosed}
+                          className={`w-full py-5 text-white font-bold rounded-3xl shadow-2xl transition transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-xs uppercase ${isClosed ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
+                          style={{ backgroundColor: isClosed ? '#6B7280' : primaryColor }}
+                        >
+                          {isClosed ? 'RSVP Ditutup' : 'Sahkan Kehadiran'}
+                        </button>
+                      </div>
+                    );
+                  })()}
+
+                  {invitation.settings.our_story && (
+                    <div className="mt-24 text-center">
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 border-b pb-2 inline-block font-serif">
+                        {invitation.settings.story_title || 'Kisah Cinta Kami'}
+                      </h4>
+                      <p className="text-sm text-gray-600 leading-relaxed italic font-light px-4">
+                        {invitation.settings.our_story}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="mt-24 text-center">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Atur Cara Majlis</h4>
+                    <div className="space-y-8 max-w-[280px] mx-auto">
+                      {invitation?.itinerary && invitation.itinerary.length > 0 ? (
+                        invitation.itinerary.map((item, idx) => (
+                          <div key={item.id} className="flex space-x-6 text-left">
+                            <div className="flex flex-col items-center">
+                              <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: primaryColor }} />
+                              {idx !== invitation.itinerary.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-2 mb-2" />}
                             </div>
-                          )}
-
-                          <div className="space-y-4 text-left">
-                            {/* Always show Name if mode is not none */}
-                            <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Tetamu*</label>
-                              <input
-                                placeholder="Masukkan nama penuh"
-                                className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                value={formData.name}
-                                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                              />
+                            <div className="pb-4">
+                              <p className="text-sm font-bold text-gray-800 font-serif italic">{item.time}</p>
+                              <p className="text-sm text-gray-500 font-light">{item.activity}</p>
                             </div>
-
-                            {/* Phone - Conditional */}
-                            {(invitation.rsvp_settings?.fields?.phone ?? true) && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Telefon</label>
-                                <input
-                                  placeholder="No. telefon"
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.phone}
-                                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Email - Conditional */}
-                            {invitation.rsvp_settings?.fields?.email && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Emel</label>
-                                <input
-                                  type="email"
-                                  placeholder="example@mail.com"
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.email}
-                                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Address - Conditional */}
-                            {invitation.rsvp_settings?.fields?.address && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Rumah</label>
-                                <textarea
-                                  rows={2}
-                                  placeholder="Alamat penuh..."
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.address}
-                                  onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Company - Conditional */}
-                            {invitation.rsvp_settings?.fields?.company && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Syarikat</label>
-                                <input
-                                  type="text"
-                                  placeholder="Nama Syarikat"
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.company}
-                                  onChange={e => setFormData({ ...formData, company: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Job Title - Conditional */}
-                            {invitation.rsvp_settings?.fields?.job_title && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Jawatan</label>
-                                <input
-                                  type="text"
-                                  placeholder="Jawatan"
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.job_title}
-                                  onChange={e => setFormData({ ...formData, job_title: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Car Plate - Conditional */}
-                            {invitation.rsvp_settings?.fields?.car_plate && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Plat Kenderaan</label>
-                                <input
-                                  type="text"
-                                  placeholder="ABC 1234"
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.car_plate}
-                                  onChange={e => setFormData({ ...formData, car_plate: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Remarks - Conditional */}
-                            {invitation.rsvp_settings?.fields?.remarks && (
-                              <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Catatan</label>
-                                <textarea
-                                  rows={2}
-                                  placeholder="Catatan tambahan..."
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
-                                  value={formData.remarks}
-                                  onChange={e => setFormData({ ...formData, remarks: e.target.value })}
-                                />
-                              </div>
-                            )}
-
-                            {/* Attendance Toggle - Hide if wish_only */}
-                            {invitation.rsvp_settings?.response_mode !== 'wish_only' && (
-                              <>
-                                <div className="flex gap-2 p-1.5 bg-gray-100 rounded-[2rem] animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                                  <button
-                                    onClick={() => setFormData({ ...formData, attending: true })}
-                                    className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${formData.attending ? 'bg-green-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
-                                  >
-                                    Hadir
-                                  </button>
-                                  <button
-                                    onClick={() => setFormData({ ...formData, attending: false })}
-                                    className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${!formData.attending ? 'bg-rose-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
-                                  >
-                                    Maaf
-                                  </button>
-                                </div>
-
-                                <div className="overflow-hidden">
-                                  {formData.attending ? (
-                                    <div className="animate-scale-in pt-2 space-y-4">
-
-                                      {(invitation.rsvp_settings?.has_slots && (invitation.rsvp_settings?.slots_options || []).length > 0) && (
-                                        <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Pilih Slot / Kategori</label>
-                                          <div className="relative">
-                                            <select
-                                              className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium appearance-none"
-                                              value={formData.slot || ''}
-                                              onChange={e => setFormData({ ...formData, slot: e.target.value })}
-                                            >
-                                              <option value="" disabled>Sila pilih satu...</option>
-                                              {(invitation.rsvp_settings?.slots_options || []).map((slot, i) => (
-                                                <option key={i} value={slot}>{slot}</option>
-                                              ))}
-                                            </select>
-                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                              </svg>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      <div className="flex items-center bg-gray-50 border border-gray-100 rounded-[1.5rem] px-6 py-5 justify-between shadow-inner">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bilangan Tetamu</span>
-                                        <div className="flex items-center space-x-6">
-                                          <button
-                                            onClick={() => setFormData({ ...formData, pax: Math.max(1, formData.pax - 1) })}
-                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
-                                          >
-                                            -
-                                          </button>
-                                          <span className="font-bold text-lg w-6 text-center">{formData.pax}</span>
-                                          <button
-                                            onClick={() => setFormData({ ...formData, pax: Math.min(invitation.rsvp_settings?.pax_limit_per_rsvp || 10, formData.pax + 1) })}
-                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
-                                          >
-                                            +
-                                          </button>
-                                        </div>
-                                      </div>
-                                      <p className="text-[9px] text-gray-400 text-right px-2">Max {invitation.rsvp_settings?.pax_limit_per_rsvp || 10} orang</p>
-                                    </div>
-                                  ) : (
-                                    <div className="animate-fade-in pt-2">
-                                      <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">Kami mendoakan yang terbaik untuk urusan anda.</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-
-                            {/* Wish / Message */}
-                            {(invitation.rsvp_settings?.fields?.wish ?? true) && (
-                              <div className="relative pt-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">Titipkan Ucapan</label>
-                                <textarea
-                                  placeholder="Selamat pengantin baru..."
-                                  rows={3}
-                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium italic"
-                                  value={formData.message}
-                                  onChange={e => setFormData({ ...formData, message: e.target.value })}
-                                />
-                              </div>
-                            )}
                           </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
+                      )}
+                    </div>
+                  </div>
 
-                          <button
-                            onClick={handleRsvpSubmit}
-                            disabled={isSubmitting || isSuccess}
-                            className={`w-full py-5 text-white font-bold rounded-[1.5rem] shadow-2xl transition-all duration-500 transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-[10px] uppercase animate-slide-up shadow-rose-100 ${(isSubmitting || isSuccess) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            style={{ backgroundColor: primaryColor, animationDelay: '0.4s' }}
-                          >
-                            {isSubmitting ? 'Menghantar...' : isSuccess ? 'Terkirim!' : 'Hantar RSVP'}
-                          </button>
-                        </div>
+                  {/* Hashtag Section - Only for Lite users (no wishes feature) */}
+                  {invitation.settings.hashtag_text && !canAccess('wishes') && (
+                    <Hashtag
+                      hashtagText={invitation.settings.hashtag_text}
+                      hashtagColor={invitation.settings.hashtag_color}
+                      hashtagSize={invitation.settings.hashtag_size}
+                      hashtagFont={invitation.settings.hashtag_font}
+                      primaryColor={primaryColor}
+                    />
+                  )}
+
+                  {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
+                    <div className="mt-24 text-center">
+                      <h4 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-10 border-b pb-2 inline-block font-serif">Kenangan Abadi</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {(invitation.gallery || []).map((img, idx) => {
+                          const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
+                          if (!imgSrc) return null;
+
+                          return (
+                            <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
+                              <img src={imgSrc} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {canAccess('wishes') && (
+                    <Guestbook
+                      wishes={invitation.wishes}
+                      primaryColor={primaryColor}
+                      hashtagText={invitation.settings.hashtag_text}
+                      hashtagColor={invitation.settings.hashtag_color}
+                      hashtagSize={invitation.settings.hashtag_size}
+                      hashtagFont={invitation.settings.hashtag_font}
+                    />
+                  )}
+                </div>
+
+                {/* Floating Bottom Nav */}
+                <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-[80] w-[85%] max-w-[340px] transition-all duration-500 ${activeModal ? 'translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}`}>
+                  <div className="glass rounded-full px-6 py-4 flex justify-between items-center shadow-2xl border border-white/40 ring-2 ring-rose-50/50">
+                    <button onClick={() => setActiveModal('map')} className="flex flex-col items-center gap-1 group outline-none">
+                      <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                      </div>
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Lokasi</span>
+                    </button>
+                    <div className="w-px h-6 bg-gray-200/50" />
+                    <button onClick={() => setActiveModal('calendar')} className="flex flex-col items-center gap-1 group outline-none">
+                      <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      </div>
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Kalendar</span>
+                    </button>
+                    <div className="w-px h-6 bg-gray-200/50" />
+                    <button onClick={() => setActiveModal('contact')} className="flex flex-col items-center gap-1 group outline-none">
+                      <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                      </div>
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hubungi</span>
+                    </button>
+                    {canAccess('gallery') && (invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
+                      <>
+                        <div className="w-px h-6 bg-gray-200/50" />
+                        <button onClick={() => setActiveModal('hadiah')} className="flex flex-col items-center gap-1 group outline-none">
+                          <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                          </div>
+                          <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hadiah</span>
+                        </button>
                       </>
                     )}
                   </div>
                 </div>
-              )}
 
-              <div className="py-24 text-center bg-gray-50">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em] mb-4">Ikhlas Daripada</p>
-                <p className="text-xl font-serif italic text-gray-600 px-10">{invitation.host_names}</p>
-                <div className="mt-16 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Powered by</p>
-                  <Link to="/" className="group relative">
-                    <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
-                      <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>
-                      <img
-                        src="/logo.png"
-                        alt="RaikanBersama Logo"
-                        className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                      />
+                {/* Feature Modals */}
+                {activeModal && (
+                  <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-white w-full max-w-[400px] rounded-t-[3rem] sm:rounded-[3.5rem] p-10 shadow-2xl relative animate-slide-up max-h-[80vh] overflow-y-auto no-scrollbar">
+                      <button
+                        onClick={() => setActiveModal(null)}
+                        className="absolute top-6 right-8 w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-rose-600 transition shadow-inner outline-none"
+                      >
+                        &times;
+                      </button>
+
+                      {activeModal === 'map' && (
+                        <div className="space-y-8 py-4">
+                          <div className="text-center">
+                            <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Lokasi Majlis</h3>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.location_name}</p>
+                          </div>
+                          <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
+                            {(() => {
+                              const embedUrl = invitation.google_maps_url?.includes('embed')
+                                ? invitation.google_maps_url
+                                : (invitation.address || invitation.location_name)
+                                  ? `https://maps.google.com/maps?q=${encodeURIComponent(invitation.address || invitation.location_name)}&output=embed`
+                                  : null;
+
+                              if (embedUrl) {
+                                return (
+                                  <iframe
+                                    title="location-map"
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                    style={{ border: 0 }}
+                                    src={embedUrl}
+                                    allowFullScreen
+                                  ></iframe>
+                                );
+                              }
+
+                              return (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 font-serif italic text-sm p-10 text-center space-y-2">
+                                  <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                  <p>Tiada Peta Ditetapkan</p>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <a
+                              href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address || invitation.location_name)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
+                            >
+                              G-Maps
+                            </a>
+                            <a
+                              href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.address || invitation.location_name)}&navigate=yes`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
+                            >
+                              Waze App
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeModal === 'calendar' && (
+                        <div className="space-y-8 py-4">
+                          <div className="text-center">
+                            <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Simpan Tarikh</h3>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Raikan Bersama Kami</p>
+                          </div>
+                          <SimpleCalendar date={invitation.event_date} color={primaryColor} />
+                          <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Mula</span>
+                              <span className="text-sm font-bold text-gray-700">{invitation.start_time}</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-gray-200/50 pt-3">
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Tamat</span>
+                              <span className="text-sm font-bold text-gray-700">{invitation.end_time}</span>
+                            </div>
+                          </div>
+                          <button
+                            className="w-full py-5 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 uppercase text-[10px] tracking-widest"
+                            style={{ backgroundColor: primaryColor }}
+                          >
+                            Tambah Ke Kalendar
+                          </button>
+                        </div>
+                      )}
+
+                      {activeModal === 'contact' && (
+                        <div className="space-y-8 py-4">
+                          <div className="text-center">
+                            <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Hubungi Keluarga</h3>
+                            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Pertanyaan & Bantuan</p>
+                          </div>
+                          <div className="space-y-4">
+                            {(invitation.contacts || []).length > 0 ? (invitation.contacts || []).map((contact) => (
+                              <a key={contact.id} href={`https://wa.me/${contact.phone}`} className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 hover:shadow-lg transition group">
+                                <div>
+                                  <p className="text-sm font-bold text-gray-800">{contact.name}</p>
+                                  <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">{contact.relation}</p>
+                                </div>
+                                <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition shadow-inner">
+                                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.274 1.507 4.99 1.508 5.403.002 9.802-4.398 9.804-9.802.002-5.402-4.398-9.803-9.805-9.803-5.404 0-9.803 4.399-9.805 9.803-.001 1.815.512 3.518 1.481 4.92l-.934 3.415 3.469-.911z"></path></svg>
+                                </div>
+                              </a>
+                            )) : (
+                              <div className="py-10 text-center text-gray-400 font-serif italic text-sm">Tiada kenalan ditetapkan.</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeModal === 'hadiah' && (
+                        <div className="space-y-12 py-4">
+                          {invitation.money_gift_details?.enabled && (
+                            <div className="text-center">
+                              <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.money_gift_details?.gift_title || 'Hadiah & Ingatan'}</h3>
+                              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.money_gift_details?.gift_subtitle || 'Khas buat mempelai'}</p>
+                            </div>
+                          )}
+
+                          {/* Hadiah Section (Money Gift) */}
+                          {invitation.money_gift_details?.enabled && (
+                            <div className="space-y-6">
+                              <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 flex flex-col items-center space-y-6">
+                                {invitation.money_gift_details?.qr_url && (
+                                  <div className="w-48 h-48 bg-white p-4 rounded-3xl shadow-inner border border-gray-100">
+                                    <img src={invitation.money_gift_details.qr_url} alt="QR Code" className="w-full h-full object-contain" />
+                                  </div>
+                                )}
+                                <div className="text-center space-y-2">
+                                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.bank_name}</p>
+                                  <p className="text-2xl font-bold tracking-tighter text-gray-800 font-mono">{invitation.money_gift_details?.account_no}</p>
+                                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{invitation.money_gift_details?.account_holder}</p>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    if (invitation.money_gift_details?.account_no) {
+                                      navigator.clipboard.writeText(invitation.money_gift_details.account_no);
+                                      alert('Nombor akaun disalin!');
+                                    }
+                                  }}
+                                  className="px-8 py-3 bg-white border border-gray-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition shadow-sm"
+                                >
+                                  Salin No. Akaun
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Wishlist Section */}
+                          {invitation.wishlist_details?.enabled && (
+                            <div className="space-y-10">
+                              <div className="text-center" style={{ borderColor: primaryColor }}>
+                                <div>
+                                  <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.wishlist_details?.wishlist_title || 'Physical Wishlist'}</h3>
+                                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.wishlist_details?.wishlist_subtitle || 'Gifts requested'}</p>
+                                </div>
+                              </div>
+
+                              <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50 space-y-6">
+                                <div className="space-y-2">
+                                  <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">No. Telefon Penerima</p>
+                                  <p className="text-sm font-bold text-gray-700 font-mono">{invitation.wishlist_details?.receiver_phone || 'Belum disediakan'}</p>
+                                </div>
+                                <div className="space-y-2">
+                                  <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">Alamat Penghantaran</p>
+                                  <p className="text-sm text-gray-600 leading-relaxed font-medium">{invitation.wishlist_details?.receiver_address || 'Belum disediakan'}</p>
+                                </div>
+                              </div>
+
+                              {/* Items Listing */}
+                              {invitation.wishlist_details?.items && invitation.wishlist_details.items.length > 0 && (
+                                <div className="space-y-6">
+                                  <div className="flex items-center space-x-4 border-l-4 pl-4" style={{ borderColor: primaryColor }}>
+                                    <div>
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Physical Gift Request</p>
+                                      <p className="text-lg font-bold text-gray-800 font-serif italic">Permintaan Hadiah</p>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-1 gap-4">
+                                    {invitation.wishlist_details.items.map((item) => (
+                                      <div key={item.id} className="p-4 bg-white border border-gray-100 rounded-[2rem] shadow-sm flex items-center space-x-6 group hover:shadow-md transition">
+                                        <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-100">
+                                          {item.item_image ? (
+                                            <img src={item.item_image} alt={item.item_name} className="w-full h-full object-cover" />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-200">
+                                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 pr-4">
+                                          <p className="text-sm font-bold text-gray-800 mb-1">{item.item_name}</p>
+                                          {item.item_link && (
+                                            <a
+                                              href={item.item_link}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="inline-flex items-center text-[9px] font-bold uppercase tracking-widest text-rose-400 hover:text-rose-600 transition"
+                                            >
+                                              Beli Secara Online
+                                              <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            </a>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+
+                        </div>
+                      )}
                     </div>
-                  </Link>
+                  </div>
+                )}
+
+                {showRsvp && (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all animate-fade-in">
+                    <div className="bg-white w-full max-w-[360px] rounded-[3.5rem] p-10 shadow-2xl relative overflow-hidden transition-all duration-500 ease-in-out">
+                      {isSuccess ? (
+                        <div className="text-center py-10 animate-scale-in">
+                          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                          </div>
+                          <h3 className="text-2xl font-serif font-bold text-gray-800 mb-2 italic">Alhamdulillah!</h3>
+                          <p className="text-sm text-gray-400 leading-relaxed px-4">Terima kasih atas maklum balas anda. Jumpa nanti!</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-serif font-bold text-gray-800 italic">Sahkan Kehadiran</h3>
+                            <button onClick={() => setShowRsvp(false)} className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 transform active:rotate-90">
+                              &times;
+                            </button>
+                          </div>
+                          <div className="space-y-8">
+                            {/* Note from Host */}
+                            {invitation.rsvp_settings?.note && (
+                              <div className="bg-rose-50 p-4 rounded-xl text-xs text-rose-700 font-medium italic mb-4">
+                                Note: {invitation.rsvp_settings.note}
+                              </div>
+                            )}
+
+                            <div className="space-y-4 text-left">
+                              {/* Always show Name if mode is not none */}
+                              <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Tetamu*</label>
+                                <input
+                                  placeholder="Masukkan nama penuh"
+                                  className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                  value={formData.name}
+                                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                />
+                              </div>
+
+                              {/* Phone - Conditional */}
+                              {(invitation.rsvp_settings?.fields?.phone ?? true) && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Telefon</label>
+                                  <input
+                                    placeholder="No. telefon"
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.phone}
+                                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Email - Conditional */}
+                              {invitation.rsvp_settings?.fields?.email && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Emel</label>
+                                  <input
+                                    type="email"
+                                    placeholder="example@mail.com"
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.email}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Address - Conditional */}
+                              {invitation.rsvp_settings?.fields?.address && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Rumah</label>
+                                  <textarea
+                                    rows={2}
+                                    placeholder="Alamat penuh..."
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.address}
+                                    onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Company - Conditional */}
+                              {invitation.rsvp_settings?.fields?.company && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Syarikat</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Nama Syarikat"
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.company}
+                                    onChange={e => setFormData({ ...formData, company: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Job Title - Conditional */}
+                              {invitation.rsvp_settings?.fields?.job_title && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Jawatan</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Jawatan"
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.job_title}
+                                    onChange={e => setFormData({ ...formData, job_title: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Car Plate - Conditional */}
+                              {invitation.rsvp_settings?.fields?.car_plate && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Plat Kenderaan</label>
+                                  <input
+                                    type="text"
+                                    placeholder="ABC 1234"
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.car_plate}
+                                    onChange={e => setFormData({ ...formData, car_plate: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Remarks - Conditional */}
+                              {invitation.rsvp_settings?.fields?.remarks && (
+                                <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Catatan</label>
+                                  <textarea
+                                    rows={2}
+                                    placeholder="Catatan tambahan..."
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
+                                    value={formData.remarks}
+                                    onChange={e => setFormData({ ...formData, remarks: e.target.value })}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Attendance Toggle - Hide if wish_only */}
+                              {invitation.rsvp_settings?.response_mode !== 'wish_only' && (
+                                <>
+                                  <div className="flex gap-2 p-1.5 bg-gray-100 rounded-[2rem] animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                                    <button
+                                      onClick={() => setFormData({ ...formData, attending: true })}
+                                      className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${formData.attending ? 'bg-green-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                      Hadir
+                                    </button>
+                                    <button
+                                      onClick={() => setFormData({ ...formData, attending: false })}
+                                      className={`flex-1 py-4 rounded-[1.5rem] font-bold text-[10px] uppercase tracking-widest transition-all duration-500 transform active:scale-95 ${!formData.attending ? 'bg-rose-600 text-white shadow-xl translate-y-[-2px]' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                      Maaf
+                                    </button>
+                                  </div>
+
+                                  <div className="overflow-hidden">
+                                    {formData.attending ? (
+                                      <div className="animate-scale-in pt-2 space-y-4">
+
+                                        {(invitation.rsvp_settings?.has_slots && (invitation.rsvp_settings?.slots_options || []).length > 0) && (
+                                          <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Pilih Slot / Kategori</label>
+                                            <div className="relative">
+                                              <select
+                                                className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium appearance-none"
+                                                value={formData.slot || ''}
+                                                onChange={e => setFormData({ ...formData, slot: e.target.value })}
+                                              >
+                                                <option value="" disabled>Sila pilih satu...</option>
+                                                {(invitation.rsvp_settings?.slots_options || []).map((slot, i) => (
+                                                  <option key={i} value={slot}>{slot}</option>
+                                                ))}
+                                              </select>
+                                              <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        <div className="flex items-center bg-gray-50 border border-gray-100 rounded-[1.5rem] px-6 py-5 justify-between shadow-inner">
+                                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bilangan Tetamu</span>
+                                          <div className="flex items-center space-x-6">
+                                            <button
+                                              onClick={() => setFormData({ ...formData, pax: Math.max(1, formData.pax - 1) })}
+                                              className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
+                                            >
+                                              -
+                                            </button>
+                                            <span className="font-bold text-lg w-6 text-center">{formData.pax}</span>
+                                            <button
+                                              onClick={() => setFormData({ ...formData, pax: Math.min(invitation.rsvp_settings?.pax_limit_per_rsvp || 10, formData.pax + 1) })}
+                                              className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-rose-500 font-bold text-xl hover:bg-rose-50 transition active:scale-90"
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <p className="text-[9px] text-gray-400 text-right px-2">Max {invitation.rsvp_settings?.pax_limit_per_rsvp || 10} orang</p>
+                                      </div>
+                                    ) : (
+                                      <div className="animate-fade-in pt-2">
+                                        <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">Kami mendoakan yang terbaik untuk urusan anda.</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {/* Wish / Message */}
+                              {(invitation.rsvp_settings?.fields?.wish ?? true) && (
+                                <div className="relative pt-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">Titipkan Ucapan</label>
+                                  <textarea
+                                    placeholder="Selamat pengantin baru..."
+                                    rows={3}
+                                    className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium italic"
+                                    value={formData.message}
+                                    onChange={e => setFormData({ ...formData, message: e.target.value })}
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={handleRsvpSubmit}
+                              disabled={isSubmitting || isSuccess}
+                              className={`w-full py-5 text-white font-bold rounded-[1.5rem] shadow-2xl transition-all duration-500 transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-[10px] uppercase animate-slide-up shadow-rose-100 ${(isSubmitting || isSuccess) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              style={{ backgroundColor: primaryColor, animationDelay: '0.4s' }}
+                            >
+                              {isSubmitting ? 'Menghantar...' : isSuccess ? 'Terkirim!' : 'Hantar RSVP'}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  className={`py-24 text-center relative overflow-hidden`}
+                  style={{
+                    backgroundImage: (() => {
+                      const color = invitation.settings.background_color || '#ffffff';
+                      const opacity = invitation.settings.background_opacity ?? 1;
+                      const r = parseInt(color.slice(1, 3), 16);
+                      const g = parseInt(color.slice(3, 5), 16);
+                      const b = parseInt(color.slice(5, 7), 16);
+                      const overlay = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+
+                      if (invitation.settings.background_image) {
+                        return `linear-gradient(${overlay}, ${overlay}), url(${invitation.settings.background_image})`;
+                      }
+                      return 'none';
+                    })(),
+                    backgroundColor: !invitation.settings.background_image ? (() => {
+                      const color = invitation.settings.background_color || '#ffffff';
+                      const opacity = invitation.settings.background_opacity ?? 1;
+                      const r = parseInt(color.slice(1, 3), 16);
+                      const g = parseInt(color.slice(3, 5), 16);
+                      const b = parseInt(color.slice(5, 7), 16);
+                      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                    })() : 'transparent',
+                    backgroundSize: '100% auto',
+                    backgroundPosition: 'bottom',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  {/* Overlay for Footer Consistency */}
+                  {isMinimal ? (
+                    <div className="absolute inset-0 bg-white/40 z-0"></div>
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0"></div>
+                  )}
+
+                  <div className="relative z-10 px-8">
+                    <p className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-4 ${isMinimal ? 'text-gray-400' : 'text-white/60'}`}>Ikhlas Daripada</p>
+                    <p className={`text-xl font-serif italic px-10 font-bold ${isMinimal ? 'text-gray-600' : 'text-white'}`}>{invitation.host_names}</p>
+                    <div className="mt-16 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
+                      <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isMinimal ? 'text-gray-400' : 'text-white/60'}`}>Powered by</p>
+                      <Link to="/" className="group relative">
+                        <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
+                          <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>
+                          <img
+                            src="/logo.png"
+                            alt="RaikanBersama Logo"
+                            className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                          />
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

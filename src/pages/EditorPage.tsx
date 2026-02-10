@@ -818,6 +818,57 @@ const EditorPage: React.FC = () => {
                     )}
                   </div>
                 </div>
+
+                {/* Background Color Picker */}
+                <div className="space-y-4 pt-6 border-t border-gray-100">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Latar Belakang</label>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="color"
+                        value={inv.settings.background_color || '#ffffff'}
+                        onChange={(e) => updateSettings('background_color', e.target.value)}
+                        className="w-16 h-16 rounded-2xl border-2 border-gray-200 cursor-pointer shadow-sm hover:shadow-md transition"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-gray-900 mb-1">{inv.settings.background_color || '#ffffff'}</p>
+                        <p className="text-[9px] text-gray-400 leading-relaxed">Pilih warna latar untuk keseluruhan kad jemputan anda</p>
+                      </div>
+                    </div>
+                    {/* Preset Colors */}
+                    <div className="grid grid-cols-6 gap-2">
+                      {['#ffffff', '#f9fafb', '#fef2f2', '#fef3c7', '#f0fdf4', '#ede9fe'].map(color => (
+                        <button
+                          key={color}
+                          onClick={() => updateSettings('background_color', color)}
+                          className={`w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${(inv.settings.background_color || '#ffffff') === color
+                            ? 'border-rose-400 ring-2 ring-rose-100'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                    {/* Opacity Slider */}
+                    <div className="space-y-2 pt-2">
+                      <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                        <span>Ketelusan (Opacity)</span>
+                        <span>{Math.round((inv.settings.background_opacity ?? 1) * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={inv.settings.background_opacity ?? 1}
+                        onChange={(e) => updateSettings('background_opacity', parseFloat(e.target.value))}
+                        className="w-full accent-rose-600 h-2 rounded-full"
+                      />
+                      <p className="text-[8px] text-gray-400 italic">0% = Lutsinar, 100% = Pejal</p>
+                    </div>
+                  </div>
+                </div>
               </section>
 
               {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (

@@ -105,6 +105,8 @@ export interface Invitation {
     show_gallery: boolean;
     is_published: boolean;
     background_image?: string;
+    background_color?: string;
+    background_opacity?: number;
     pantun?: string;
     our_story?: string;
     // Customizable wording fields
