@@ -1341,7 +1341,7 @@ const EditorPage: React.FC = () => {
 
                   <div className="space-y-6">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color</label>
-                    <div className="flex flex-wrap gap-4">
+                    <div className="flex flex-wrap gap-4 items-center">
                       {THEME_COLORS.map(color => (
                         <button
                           key={color.value}
@@ -1350,6 +1350,38 @@ const EditorPage: React.FC = () => {
                           className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.primary_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
                         />
                       ))}
+                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
+                        <input
+                          type="color"
+                          value={inv.settings.primary_color}
+                          onChange={(e) => updateSettings('primary_color', e.target.value)}
+                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
+                        />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 pt-6 border-t border-gray-50">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Secondary Theme Color (Titles & Accent)</label>
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {THEME_COLORS.map(color => (
+                        <button
+                          key={color.value}
+                          onClick={() => updateSettings('secondary_theme_color', color.value)}
+                          style={{ backgroundColor: color.value }}
+                          className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.secondary_theme_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
+                        />
+                      ))}
+                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
+                        <input
+                          type="color"
+                          value={inv.settings.secondary_theme_color || '#9ca3af'}
+                          onChange={(e) => updateSettings('secondary_theme_color', e.target.value)}
+                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
+                        />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
+                      </div>
                     </div>
                   </div>
 
@@ -2011,17 +2043,10 @@ const EditorPage: React.FC = () => {
       </div>
 
       {/* Preview Panel - Hidden on Mobile */}
-      <div className="hidden md:flex flex-1 bg-gray-100 items-center justify-center p-6 md:p-12 relative overflow-hidden">
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10 px-6 py-2 bg-white/90 backdrop-blur-md rounded-full border border-white/50 shadow-xl text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 flex items-center space-x-3">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          <span>Live Preview</span>
-        </div>
+      <div className="hidden md:flex flex-1 bg-gray-100 items-center justify-center p-3 md:p-4 lg:p-6 relative overflow-y-auto">
 
-        <div className="w-full max-w-[393px] h-[852px] bg-white rounded-[4.5rem] border-[14px] border-gray-900 shadow-[0_60px_120px_-20px_rgba(0,0,0,0.4)] overflow-hidden relative scale-90 md:scale-[0.82] lg:scale-[0.88] xl:scale-[0.95] transition-all duration-700 origin-center ring-8 ring-gray-100">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-3xl z-[110]"></div>
+        <div className="mx-auto w-full max-w-[375px] aspect-[9/19.5] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative transform translate-z-0 flex-shrink-0 my-3 scale-[0.84] lg:scale-[0.88] xl:scale-[0.92] 2xl:scale-100 origin-center">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-[110]"></div>
           <div className="absolute inset-0 overflow-y-auto no-scrollbar bg-white">
             <InvitationContent invitation={inv} isPreview={true} />
           </div>
@@ -2039,36 +2064,24 @@ const EditorPage: React.FC = () => {
 
       {/* Mobile Preview Modal */}
       {showMobilePreview && (
-        <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-slide-up no-scrollbar overflow-hidden">
-          <div className="p-6 border-b flex justify-between items-center bg-white sticky top-0 shadow-sm z-10">
-            <div>
-              <h3 className="text-lg font-serif italic font-bold text-gray-900 border-l-4 border-rose-500 pl-3">Preview Kad</h3>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Live Representation</p>
-            </div>
-            <button
-              onClick={() => setShowMobilePreview(false)}
-              className="p-2 bg-gray-50 text-gray-400 hover:text-rose-600 rounded-full transition"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
-          </div>
+        <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col animate-scale-in no-scrollbar overflow-hidden backdrop-blur-sm">
+          {/* Floating Close Button */}
+          <button
+            onClick={() => setShowMobilePreview(false)}
+            className="fixed top-6 right-6 z-[110] p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 transition-all border border-white/20 shadow-xl"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar bg-gray-100 p-4 pb-32">
-            <div className="mx-auto w-full max-w-[375px] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative">
+          <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
+            <div className="mx-auto w-full max-w-[375px] h-full max-h-[92vh] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative transform translate-z-0 flex flex-col">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
-              <InvitationContent invitation={inv} isPreview={true} />
+              <div className="w-full h-full overflow-y-auto no-scrollbar relative bg-gray-900">
+                <InvitationContent invitation={inv} isPreview={true} />
+              </div>
             </div>
           </div>
 
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 w-full px-8 max-w-sm">
-            <button
-              onClick={() => setShowMobilePreview(false)}
-              className="w-full bg-gray-900 text-white py-5 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition active:scale-95 flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5L6 10L11 15M6 10H18"></path></svg>
-              Kembali Edit
-            </button>
-          </div>
         </div>
       )}
     </div>

@@ -46,7 +46,7 @@ const CoverLayout: React.FC<CoverLayoutProps> = ({ invitation, formattedDate, is
                         </p>
                         <div className="space-y-2">
                             <h1 className="text-4xl font-cursive font-bold" style={groomStyle}>{invitation.groom_name}</h1>
-                            <p className="text-xl font-serif italic text-gray-500">&</p>
+                            <p className="text-xl font-serif italic" style={{ color: invitation.settings?.secondary_theme_color || '#9ca3af' }}>&</p>
                             <h1 className="text-4xl font-cursive font-bold" style={brideStyle}>{invitation.bride_name}</h1>
                         </div>
                         <div className="mt-6 pt-4 border-t border-gray-400/30 w-16 mx-auto">
@@ -68,7 +68,7 @@ const CoverLayout: React.FC<CoverLayoutProps> = ({ invitation, formattedDate, is
                         </p>
                         <div className="space-y-4">
                             <h1 className="text-5xl font-cursive font-bold" style={groomStyle}>{invitation.groom_name}</h1>
-                            <p className="text-2xl font-serif italic text-gray-400">&</p>
+                            <p className="text-2xl font-serif italic" style={{ color: invitation.settings?.secondary_theme_color || '#9ca3af' }}>&</p>
                             <h1 className="text-5xl font-cursive font-bold" style={brideStyle}>{invitation.bride_name}</h1>
                         </div>
                         <div className="mt-10 space-y-1">
@@ -85,7 +85,7 @@ const CoverLayout: React.FC<CoverLayoutProps> = ({ invitation, formattedDate, is
                     <div className="text-center space-y-6">
                         <div className="space-y-2">
                             <h1 className="text-6xl font-cursive font-bold drop-shadow-lg" style={groomStyle}>{invitation.groom_name}</h1>
-                            <p className="text-3xl font-serif italic text-white/80">&</p>
+                            <p className="text-3xl font-serif italic drop-shadow-md" style={{ color: invitation.settings?.secondary_theme_color || 'rgba(255,255,255,0.8)' }}>&</p>
                             <h1 className="text-6xl font-cursive font-bold drop-shadow-lg" style={brideStyle}>{invitation.bride_name}</h1>
                         </div>
                         <div className="flex flex-col gap-2 items-center">
@@ -108,7 +108,7 @@ const CoverLayout: React.FC<CoverLayoutProps> = ({ invitation, formattedDate, is
                         </p>
                         <div className="space-y-6">
                             <h1 className="text-5xl font-cursive font-bold" style={groomStyle}>{invitation.groom_name}</h1>
-                            <div className="w-8 h-px bg-white/30 mx-auto"></div>
+                            <div className="w-8 h-px mx-auto" style={{ backgroundColor: invitation.settings?.secondary_theme_color || 'rgba(255,255,255,0.3)' }}></div>
                             <h1 className="text-5xl font-cursive font-bold" style={brideStyle}>{invitation.bride_name}</h1>
                         </div>
                         <div className="mt-12 text-white/80 space-y-2">
@@ -131,7 +131,7 @@ const CoverLayout: React.FC<CoverLayoutProps> = ({ invitation, formattedDate, is
                         <h1 className="text-5xl md:text-6xl font-cursive font-bold" style={groomStyle}>
                             {invitation.groom_name}
                         </h1>
-                        <p className="text-3xl font-serif italic text-gray-400">&</p>
+                        <p className="text-3xl font-serif italic" style={{ color: invitation.settings?.secondary_theme_color || '#9ca3af' }}>&</p>
                         <h1 className="text-5xl md:text-6xl font-cursive font-bold" style={brideStyle}>
                             {invitation.bride_name}
                         </h1>

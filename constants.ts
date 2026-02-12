@@ -164,5 +164,6 @@ export const EFFECT_STYLES = [
   { id: 'none', label: 'Tiada (None)' },
   { id: 'bubble', label: 'Floating Bubbles' },
   { id: 'snow', label: 'Snow Fall' },
-  { id: 'stars', label: 'Shining Stars' }
+  { id: 'stars', label: 'Shining Stars' },
+  { id: 'flowery', label: 'Flowery' }
 ];

@@ -101,6 +101,7 @@ export interface Invitation {
   settings: {
     music_url: string;
     primary_color: string;
+    secondary_theme_color?: string;
     show_countdown: boolean;
     show_gallery: boolean;
     is_published: boolean;

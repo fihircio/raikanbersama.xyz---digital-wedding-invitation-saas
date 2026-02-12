@@ -99,3 +99,43 @@
 .animate-bounce-subtle {
   animation: bounceSubtle 2s ease-in-out infinite;
 }
+
+@keyframes flowerRollRight {
+  0% {
+    transform: translateX(-10vw) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(110vw) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes flowerRollLeft {
+  0% {
+    transform: translateX(10vw) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-110vw) rotate(-360deg);
+    opacity: 0;
+  }
+}
+
+.animate-flower-roll-right {
+  animation: flowerRollRight linear infinite;
+}
+
+.animate-flower-roll-left {
+  animation: flowerRollLeft linear infinite;
+}
