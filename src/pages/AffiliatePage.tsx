@@ -187,15 +187,90 @@ const AffiliatePage: React.FC = () => {
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 text-center">
                                     <p className="text-3xl font-bold mb-2">0%</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Kos Permulaan</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Kos Permulaan ! Sertai secara percuma</p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 text-center">
                                     <p className="text-3xl font-bold mb-2">10%</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">referal kod percuma untuk 10 jemputan pertama</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">untuk 10 jemputan pertama</p>
                                 </div>
                                 <div className="col-span-2 bg-rose-600 p-8 rounded-[2.5rem] text-center shadow-2xl shadow-rose-900/20">
-                                    <p className="text-lg font-serif italic mb-1">Rakan Kongsi Dipercayai</p>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">Wedding Industry Expert</p>
+                                    <p className="text-lg font-serif italic mb-1">Paparan Cashback</p>
+                                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">Semuanya di hujung jari anda !</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Tier System Section */}
+                <div className="mb-32">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic">Sistem Tier & Komisen</h2>
+                        <p className="text-gray-500 max-w-2xl mx-auto">
+                            Tingkatkan pendapatan anda dengan mencapai tier yang lebih tinggi. Semakin banyak jualan, semakin tinggi komisen anda.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Tier 1 */}
+                        <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-lg relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
+                            <div className="absolute top-0 right-0 bg-gray-100 text-gray-600 text-xs font-bold px-4 py-2 rounded-bl-2xl">
+                                STARTER
+                            </div>
+                            <div className="mb-6">
+                                <h3 className="text-2xl font-serif font-bold text-gray-900">Tier 1</h3>
+                                <p className="text-gray-500 text-sm">Permulaan perjalanan anda</p>
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                    <span className="text-gray-600 text-sm">Diskaun Pelanggan</span>
+                                    <span className="font-bold text-gray-900">10%</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-gray-50 pb-2 bg-rose-50 p-2 rounded-lg">
+                                    <span className="text-rose-600 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="font-bold text-rose-600 text-xl">20%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tier 2 */}
+                        <div className="bg-gradient-to-br from-rose-50 to-white rounded-[2.5rem] p-8 border border-rose-100 shadow-xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 scale-105 z-10">
+                            <div className="absolute top-0 right-0 bg-rose-600 text-white text-xs font-bold px-4 py-2 rounded-bl-2xl">
+                                POPULAR
+                            </div>
+                            <div className="mb-6">
+                                <h3 className="text-2xl font-serif font-bold text-gray-900">Tier 2</h3>
+                                <p className="text-gray-500 text-sm">Untuk vendor aktif</p>
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between items-center border-b border-rose-100 pb-2">
+                                    <span className="text-gray-600 text-sm">Diskaun Pelanggan</span>
+                                    <span className="font-bold text-gray-900">10%</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-rose-100 pb-2 bg-white p-2 rounded-lg shadow-sm">
+                                    <span className="text-rose-600 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="font-bold text-rose-600 text-xl">22%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tier 3 */}
+                        <div className="bg-gray-900 rounded-[2.5rem] p-8 border border-gray-800 shadow-lg relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 text-white">
+                            <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-4 py-2 rounded-bl-2xl">
+                                ELITE
+                            </div>
+                            <div className="mb-6">
+                                <h3 className="text-2xl font-serif font-bold text-white">Tier 3</h3>
+                                <p className="text-gray-400 text-sm">Pencapaian tertinggi</p>
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between items-center border-b border-gray-800 pb-2">
+                                    <span className="text-gray-400 text-sm">Diskaun Pelanggan</span>
+                                    <span className="font-bold text-white">10%</span>
+                                </div>
+                                <div className="flex justify-between items-center border-b border-gray-800 pb-2 bg-gray-800 p-2 rounded-lg">
+                                    <span className="text-yellow-400 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="font-bold text-yellow-400 text-xl">25%</span>
                                 </div>
                             </div>
                         </div>

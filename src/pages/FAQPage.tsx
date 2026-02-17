@@ -20,6 +20,23 @@ const FAQPage: React.FC = () => {
         }
     ];
 
+    const affiliateFaqs = [
+        {
+            question: 'Bagaimana Program Affiliate berfungsi?',
+            answer: 'Anda daftar sebagai vendor, dapatkan kod referral unik, dan kongsikan kepada pelanggan anda. Setiap pembelian menggunakan kod anda akan memberikan anda komisen.'
+        },
+        {
+            question: 'Berapakah kadar komisen yang ditawarkan?',
+            answer: 'Komisen bermula dari 20% (Tier 1) dan boleh meningkat sehingga 25% (Tier 3) bergantung kepada prestasi jualan anda. Pelanggan anda juga akan mendapat diskaun 10%.'
+        },
+        {
+            question: 'Adakah terdapat yuran penyertaan?',
+            answer: 'Tidak. Penyertaan Program Affiliate RaikanBersama adalah percuma sepenuhnya.'
+        }
+    ];
+
+    const allFaqs = [...faqs, ...affiliateFaqs];
+
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,7 +50,7 @@ const FAQPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-6">
-                    {faqs.map((faq, index) => (
+                    {allFaqs.map((faq, index) => (
                         <div
                             key={index}
                             className="bg-gray-50 rounded-3xl p-8 border border-gray-100 hover:border-rose-200 transition duration-500 group"

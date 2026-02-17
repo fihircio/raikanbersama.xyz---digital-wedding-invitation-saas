@@ -2054,13 +2054,30 @@ const EditorPage: React.FC = () => {
       </div>
 
       {/* Mobile Preview FAB */}
-      <button
-        onClick={() => setShowMobilePreview(true)}
-        className="md:hidden fixed bottom-6 right-6 z-50 bg-rose-600 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-2 font-bold text-[10px] uppercase tracking-widest animate-bounce-slow"
-      >
-        <EyeIcon className="w-5 h-5 text-white" />
-        Lihat Design
-      </button>
+      {/* Mobile Live Preview Thumbnail */}
+      <div className="md:hidden fixed bottom-6 right-6 z-50 animate-bounce-slow">
+        <button
+          onClick={() => setShowMobilePreview(true)}
+          className="relative w-[80px] h-[140px] bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-gray-900 group hover:scale-105 transition-transform transform translate-z-0"
+        >
+          {/* Scaled Content */}
+          <div className="absolute top-0 left-0 w-[375px] h-[667px] origin-top-left transform scale-[0.195] pointer-events-none bg-gray-50">
+            <InvitationContent invitation={inv} isPreview={true} />
+          </div>
+
+          {/* Overlay for Touch */}
+          <div className="absolute inset-0 bg-transparent z-10"></div>
+
+          {/* Label Badge */}
+          <div className="absolute bottom-0 inset-x-0 bg-gray-900/90 py-1.5 flex flex-col items-center justify-center backdrop-blur-sm z-20">
+            <span className="text-[8px] font-bold text-white uppercase tracking-wider leading-none">Live</span>
+            <span className="text-[6px] font-medium text-gray-300 uppercase tracking-widest leading-none mt-0.5">Preview</span>
+          </div>
+
+          {/* Notch */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1.5 bg-gray-900 rounded-b-md z-20"></div>
+        </button>
+      </div>
 
       {/* Mobile Preview Modal */}
       {showMobilePreview && (
