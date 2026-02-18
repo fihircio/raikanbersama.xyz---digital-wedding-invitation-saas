@@ -11,6 +11,13 @@ import logger from '../utils/logger';
  */
 const exportDesignSeeder = async () => {
     try {
+        // Guard: prevent running in production (would overwrite seeder with stale prod data)
+        if (process.env.NODE_ENV === 'production') {
+            logger.error('❌ sync-designs cannot run in production! This command is local-only.');
+            logger.error('It would overwrite the seeder file with current prod DB data.');
+            process.exit(1);
+        }
+
         logger.info('Starting design seeder export process...');
 
         // Connect to database

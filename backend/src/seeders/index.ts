@@ -108,9 +108,9 @@ const seedOrders = async (): Promise<void> => {
 /**
  * Seed background images
  */
-const seedBackgroundImages = async (): Promise<void> => {
-  // Clear existing backgrounds to ensure fresh set
-  await BackgroundImage.destroy({ where: {}, truncate: true, cascade: true });
+export const seedBackgroundImages = async (): Promise<void> => {
+  // Smart upsert: match by name, update if exists, create if new, remove if deleted from seeder.
+  // This preserves UUIDs and FK references (e.g. Favorites) across restarts.
 
   const backgroundImages = [
     // BEGIN_BACKGROUND_IMAGES
@@ -122,8 +122,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Gold",
       isPremium: false,
-      tags: ["birthday","party","celebration"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["birthday", "party", "celebration"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Classic Vintage 01",
@@ -133,8 +133,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Vintage",
       primary_color: "White",
       isPremium: true,
-      tags: ["vintage","classic","white"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["vintage", "classic", "white"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Cny Circular 768x1408",
@@ -144,8 +144,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Cny Frame 768x1408 Resized",
@@ -155,8 +155,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Cny Octagon 768x1408",
@@ -166,8 +166,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Cny Oval 768x1408",
@@ -177,8 +177,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Deepavali Arch 768x1408",
@@ -188,8 +188,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Deepavali Circular 768x1408",
@@ -199,8 +199,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Deepavali Frame 768x1408 Resized",
@@ -210,8 +210,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Deepavali Lotus 768x1408",
@@ -221,8 +221,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Design Cny Border",
@@ -232,8 +232,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Design Deepavali Border",
@@ -243,8 +243,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Ethereal Flowery 01",
@@ -254,8 +254,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Pink",
       isPremium: false,
-      tags: ["flower","ethereal","floral"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["flower", "ethereal", "floral"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Ethereal Flowery 02",
@@ -265,8 +265,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Emerald",
       isPremium: false,
-      tags: ["flower","ethereal","floral"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["flower", "ethereal", "floral"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Ethereal Flowery 03",
@@ -276,8 +276,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "White",
       isPremium: true,
-      tags: ["flower","ethereal","floral"],
-      layout_settings: {"cover_layout":"top-bordered","font_family":"serif","overlay_opacity":0.4},
+      tags: ["flower", "ethereal", "floral"],
+      layout_settings: { "cover_layout": "top-bordered", "font_family": "serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Ethereal Flowery 04",
@@ -287,8 +287,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Traditional",
       primary_color: "Gold",
       isPremium: true,
-      tags: ["flower","ethereal","floral"],
-      layout_settings: {"cover_layout":"centered-circle","font_family":"cursive","overlay_opacity":0.3},
+      tags: ["flower", "ethereal", "floral"],
+      layout_settings: { "cover_layout": "centered-circle", "font_family": "cursive", "overlay_opacity": 0.3 },
     },
     {
       name: "Floral 01",
@@ -298,8 +298,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["floral","floral","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["floral", "floral", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Floral 02",
@@ -309,8 +309,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["floral","floral","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["floral", "floral", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery 003",
@@ -320,8 +320,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery 004",
@@ -331,8 +331,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery 005",
@@ -342,8 +342,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery 006",
@@ -353,8 +353,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery 007",
@@ -364,8 +364,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Flowery Elegance",
@@ -375,8 +375,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Pink",
       isPremium: false,
-      tags: ["flowery","floral","elegant"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["flowery", "floral", "elegant"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Garden Party 01",
@@ -386,8 +386,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Pink",
       isPremium: false,
-      tags: ["party","garden","floral"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["party", "garden", "floral"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Garden Party 02",
@@ -397,8 +397,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Emerald",
       isPremium: true,
-      tags: ["party","modern","emerald"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["party", "modern", "emerald"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Islamic 01",
@@ -408,8 +408,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","islamic","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "islamic", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Islamic 02",
@@ -419,8 +419,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","islamic","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "islamic", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Majestic Birthday",
@@ -430,8 +430,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: false,
-      tags: ["birthday","baby","blue"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["birthday", "baby", "blue"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Minimal 01",
@@ -441,8 +441,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["minimalist","minimalist","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["minimalist", "minimalist", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Minimal Chic",
@@ -452,8 +452,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: true,
-      tags: ["minimal","chic","premium"],
-      layout_settings: {"cover_layout":"bottom-accent","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["minimal", "chic", "premium"],
+      layout_settings: { "cover_layout": "bottom-accent", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Minimal Clean",
@@ -463,8 +463,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: false,
-      tags: ["minimal","clean","simple"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["minimal", "clean", "simple"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Minimal Soft",
@@ -474,8 +474,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: false,
-      tags: ["minimal","soft","elegant"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["minimal", "soft", "elegant"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Modern Flow",
@@ -485,8 +485,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: false,
-      tags: ["modern","flow","contemporary"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.3},
+      tags: ["modern", "flow", "contemporary"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Modern Flow 01",
@@ -496,8 +496,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: false,
-      tags: ["modern","flow","blue"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.3},
+      tags: ["modern", "flow", "blue"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Modern Gradient",
@@ -507,8 +507,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: true,
-      tags: ["modern","gradient","premium"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"sans-serif","overlay_opacity":0.3},
+      tags: ["modern", "gradient", "premium"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "sans-serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Modern Minimalist",
@@ -518,8 +518,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: false,
-      tags: ["minimalist","modern","clean"],
-      layout_settings: {"cover_layout":"bottom-accent","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["minimalist", "modern", "clean"],
+      layout_settings: { "cover_layout": "bottom-accent", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Neon Glow",
@@ -529,8 +529,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Pink",
       isPremium: true,
-      tags: ["neon","glow","party"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.4},
+      tags: ["neon", "glow", "party"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Ornament 01",
@@ -540,8 +540,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 01",
@@ -551,8 +551,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Pink",
       isPremium: true,
-      tags: ["premium","floral","elegant"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["premium", "floral", "elegant"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 02",
@@ -562,8 +562,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: true,
-      tags: ["premium","minimalist","clean"],
-      layout_settings: {"cover_layout":"bottom-accent","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["premium", "minimalist", "clean"],
+      layout_settings: { "cover_layout": "bottom-accent", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Premium Collection 03",
@@ -573,8 +573,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: true,
-      tags: ["premium","modern","dynamic"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.3},
+      tags: ["premium", "modern", "dynamic"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 04",
@@ -584,8 +584,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Emerald",
       isPremium: true,
-      tags: ["premium","islamic","traditional"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"serif","overlay_opacity":0.4},
+      tags: ["premium", "islamic", "traditional"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Premium Collection 05",
@@ -595,8 +595,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Rustic",
       primary_color: "Gold",
       isPremium: true,
-      tags: ["premium","rustic","nature"],
-      layout_settings: {"cover_layout":"centered-circle","font_family":"serif","overlay_opacity":0.3},
+      tags: ["premium", "rustic", "nature"],
+      layout_settings: { "cover_layout": "centered-circle", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 06",
@@ -606,8 +606,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Party",
       primary_color: "Pink",
       isPremium: true,
-      tags: ["premium","party","fun"],
-      layout_settings: {"cover_layout":"standard","font_family":"sans-serif","overlay_opacity":0.4},
+      tags: ["premium", "party", "fun"],
+      layout_settings: { "cover_layout": "standard", "font_family": "sans-serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Premium Collection 07",
@@ -617,8 +617,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Traditional",
       primary_color: "Gold",
       isPremium: true,
-      tags: ["premium","traditional","motif"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["premium", "traditional", "motif"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 08",
@@ -628,8 +628,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Vintage",
       primary_color: "White",
       isPremium: true,
-      tags: ["premium","vintage","classic"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["premium", "vintage", "classic"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Premium Collection 09",
@@ -639,8 +639,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Watercolor",
       primary_color: "Pink",
       isPremium: true,
-      tags: ["premium","watercolor","soft"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["premium", "watercolor", "soft"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Premium Collection 10",
@@ -650,8 +650,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Blue",
       isPremium: true,
-      tags: ["premium","modern","gradient"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"sans-serif","overlay_opacity":0.3},
+      tags: ["premium", "modern", "gradient"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "sans-serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Premium Collection 11",
@@ -661,8 +661,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Minimalist",
       primary_color: "White",
       isPremium: true,
-      tags: ["premium","minimalist","vogue"],
-      layout_settings: {"cover_layout":"bottom-accent","font_family":"sans-serif","overlay_opacity":0.2},
+      tags: ["premium", "minimalist", "vogue"],
+      layout_settings: { "cover_layout": "bottom-accent", "font_family": "sans-serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Ramadhan 01",
@@ -672,8 +672,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Ramadan",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","ramadan","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "ramadan", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Ramadhan 02",
@@ -683,8 +683,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Ramadan",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","ramadan","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "ramadan", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Ramadhan Mubarak",
@@ -694,8 +694,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Emerald",
       isPremium: false,
-      tags: ["ramadhan","islamic","eid"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"serif","overlay_opacity":0.4},
+      tags: ["ramadhan", "islamic", "eid"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Ramadhan Special 01",
@@ -705,8 +705,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Emerald",
       isPremium: true,
-      tags: ["ramadhan","islamic","emerald"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"serif","overlay_opacity":0.4},
+      tags: ["ramadhan", "islamic", "emerald"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "serif", "overlay_opacity": 0.4 },
     },
     {
       name: "Raya 01",
@@ -716,8 +716,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Raya",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","raya","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "raya", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Raya Arch 768x1408",
@@ -727,8 +727,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Raya",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","raya","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "raya", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Raya Circular 768x1408",
@@ -738,8 +738,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Raya",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","raya","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "raya", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Raya Frame 768x1408 Resized",
@@ -749,8 +749,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Raya",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","raya","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "raya", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Raya Hexagon 768x1408",
@@ -760,8 +760,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Raya",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["islamic","raya","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["islamic", "raya", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Royal Islamic Motif",
@@ -771,8 +771,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Islamic",
       primary_color: "Gold",
       isPremium: true,
-      tags: ["islamic","royal","gold"],
-      layout_settings: {"cover_layout":"glass-card","font_family":"serif","overlay_opacity":0.5},
+      tags: ["islamic", "royal", "gold"],
+      layout_settings: { "cover_layout": "glass-card", "font_family": "serif", "overlay_opacity": 0.5 },
     },
     {
       name: "Rustic Charm 01",
@@ -782,8 +782,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Traditional",
       primary_color: "Gold",
       isPremium: true,
-      tags: ["rustic","traditional","gold"],
-      layout_settings: {"cover_layout":"centered-circle","font_family":"serif","overlay_opacity":0.3},
+      tags: ["rustic", "traditional", "gold"],
+      layout_settings: { "cover_layout": "centered-circle", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Rustic Nature",
@@ -793,8 +793,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Rustic",
       primary_color: "Gold",
       isPremium: false,
-      tags: ["rustic","nature","earthy"],
-      layout_settings: {"cover_layout":"centered-circle","font_family":"serif","overlay_opacity":0.3},
+      tags: ["rustic", "nature", "earthy"],
+      layout_settings: { "cover_layout": "centered-circle", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Traditional 01",
@@ -804,8 +804,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Traditional",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["traditional","traditional","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["traditional", "traditional", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR001",
@@ -815,8 +815,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR001 (v2)",
@@ -826,8 +826,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR002",
@@ -837,8 +837,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR003",
@@ -848,8 +848,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR004",
@@ -859,8 +859,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "WTRCLR005",
@@ -870,8 +870,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Modern",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["modern","modern","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["modern", "modern", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Watercolor 01",
@@ -881,8 +881,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Watercolor",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["watercolor","watercolor","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["watercolor", "watercolor", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Watercolor 02",
@@ -892,8 +892,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Watercolor",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["watercolor","watercolor","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["watercolor", "watercolor", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Watercolor 03",
@@ -903,8 +903,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Watercolor",
       primary_color: "Varies",
       isPremium: true,
-      tags: ["watercolor","watercolor","new"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.3},
+      tags: ["watercolor", "watercolor", "new"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.3 },
     },
     {
       name: "Watercolor Bloom 01",
@@ -914,8 +914,8 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Vintage",
       primary_color: "Blue",
       isPremium: false,
-      tags: ["watercolor","bloom","soft"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["watercolor", "bloom", "soft"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     {
       name: "Watercolor Bloom 02",
@@ -925,41 +925,46 @@ const seedBackgroundImages = async (): Promise<void> => {
       theme: "Floral",
       primary_color: "Pink",
       isPremium: false,
-      tags: ["watercolor","bloom","soft"],
-      layout_settings: {"cover_layout":"standard","font_family":"serif","overlay_opacity":0.2},
+      tags: ["watercolor", "bloom", "soft"],
+      layout_settings: { "cover_layout": "standard", "font_family": "serif", "overlay_opacity": 0.2 },
     },
     // END_BACKGROUND_IMAGES
   ];
+
+  const seederNames = new Set(backgroundImages.map(bg => bg.name));
+  let created = 0, updated = 0, removed = 0;
 
   for (const bg of backgroundImages) {
     const exists = await BackgroundImage.findOne({ where: { name: bg.name } });
     if (!exists) {
       await BackgroundImage.create(bg as any);
+      created++;
     } else {
-      // Update fields if needed
-      let changed = false;
-      if (exists.category !== bg.category) {
-        exists.category = bg.category;
-        changed = true;
-      }
-      if (exists.url !== bg.url) {
-        exists.url = bg.url;
-        changed = true;
-      }
-      if (exists.thumbnail !== bg.thumbnail) {
-        exists.thumbnail = bg.thumbnail;
-        changed = true;
-      }
-      if (JSON.stringify(exists.layout_settings) !== JSON.stringify(bg.layout_settings)) {
-        exists.layout_settings = bg.layout_settings as any;
-        changed = true;
-      }
-      if (changed) {
-        await exists.save();
-      }
+      // Update all fields to stay in sync with seeder
+      await exists.update({
+        url: bg.url,
+        thumbnail: bg.thumbnail,
+        category: bg.category,
+        theme: bg.theme,
+        primary_color: bg.primary_color,
+        isPremium: bg.isPremium,
+        tags: bg.tags,
+        layout_settings: bg.layout_settings,
+      });
+      updated++;
     }
   }
-  logger.info(`Seeded background images checked/created`);
+
+  // Remove designs that are no longer in the seeder file
+  const allExisting = await BackgroundImage.findAll({ attributes: ['id', 'name'] });
+  for (const existing of allExisting) {
+    if (!seederNames.has(existing.name)) {
+      await existing.destroy();
+      removed++;
+    }
+  }
+
+  logger.info(`Background images synced: ${created} created, ${updated} updated, ${removed} removed`);
 };
 
 /**
