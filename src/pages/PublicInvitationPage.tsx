@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useNotification } from '../contexts/NotificationContext';
 import { Invitation } from '../../types';
 import { MOCK_INVITATIONS, FONT_FAMILIES } from '../../constants';
 import CoverLayout from '../../components/Invitation/CoverLayout';
@@ -14,6 +15,11 @@ const GoogleFontLoader: React.FC<{ settings: any }> = ({ settings }) => {
     if (settings.groom_font) fonts.add(settings.groom_font);
     if (settings.bride_font) fonts.add(settings.bride_font);
     if (settings.host_font) fonts.add(settings.host_font);
+    if (settings.cover_title_font) fonts.add(settings.cover_title_font);
+    if (settings.cover_hero_font) fonts.add(settings.cover_hero_font);
+    if (settings.cover_date_font) fonts.add(settings.cover_date_font);
+    if (settings.cover_location_font) fonts.add(settings.cover_location_font);
+    if (settings.cover_symbol_font) fonts.add(settings.cover_symbol_font);
     if (settings.greeting_font) fonts.add(settings.greeting_font);
     if (settings.hero_font) fonts.add(settings.hero_font);
     if (settings.invitation_font) fonts.add(settings.invitation_font);
@@ -569,6 +575,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
     slot: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showNotification } = useNotification();
 
   const currentTier = invitation?.settings?.package_plan || 'free';
 
@@ -576,10 +583,10 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
     switch (feature) {
       case 'rsvp':
       case 'wishes':
-        return ['pro', 'elite'].includes(currentTier);
       case 'visual_effects':
       case 'gallery':
       case 'money_gift':
+        return ['pro', 'elite'].includes(currentTier);
       case 'wish_list':
       case 'custom_link':
         return currentTier === 'elite';
@@ -719,12 +726,12 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
       } else {
         const errorData = await response.json();
         console.error('❌ Failed to submit RSVP:', errorData);
-        alert(`Failed to submit RSVP: ${errorData.error || 'Unknown error'}`);
+        showNotification(`Failed to submit RSVP: ${errorData.error || 'Unknown error'}`, 'error');
         setIsSubmitting(false);
       }
     } catch (error) {
       console.error('❌ Error submitting RSVP:', error);
-      alert('Error submitting RSVP. Please try again.');
+      showNotification('Error submitting RSVP. Please try again.', 'error');
       setIsSubmitting(false);
     }
   };
@@ -932,6 +939,7 @@ const InvitationBody: React.FC<{
   hostStyle, invitationTextStyles, groomStyleBody, brideStyleBody, dateStyleBody, locationStyleBody,
   guestName, showRsvp, setShowRsvp, isSuccess, isSubmitting, handleRsvpSubmit, formData, setFormData
 }) => {
+    const { showNotification } = useNotification();
     return (
       <>
         {/* Persistent Visual Effects Overlay - Now stays visible after opening */}
@@ -1090,7 +1098,7 @@ const InvitationBody: React.FC<{
                       <button
                         onClick={() => {
                           if (isClosed) {
-                            alert('RSVP telah ditutup.');
+                            showNotification('RSVP telah ditutup.', 'warning');
                             return;
                           }
                           if (rsvpSettings.response_mode === 'external' && rsvpSettings.external_url) {
@@ -1374,7 +1382,7 @@ const InvitationBody: React.FC<{
                                 onClick={() => {
                                   if (invitation.money_gift_details?.account_no) {
                                     navigator.clipboard.writeText(invitation.money_gift_details.account_no);
-                                    alert('Nombor akaun disalin!');
+                                    showNotification('Nombor akaun disalin!', 'success');
                                   }
                                 }}
                                 className="px-8 py-3 bg-white border border-gray-200 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition shadow-sm"

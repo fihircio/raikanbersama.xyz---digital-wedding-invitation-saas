@@ -4,10 +4,12 @@ import { Invitation, RSVP } from '../../types';
 import { MOCK_RSVPS } from '../../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { buildApiUrl } from '../config';
+import { useNotification } from '../contexts/NotificationContext';
 
 const ManageInvitationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useAuth();
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState('guests');
   const [magicGuest, setMagicGuest] = useState('');
   const [magicLink, setMagicLink] = useState('');
@@ -172,6 +174,9 @@ const ManageInvitationPage: React.FC = () => {
     switch (feature) {
       case 'rsvp':
       case 'wishes':
+      case 'visual_effects':
+      case 'gallery':
+      case 'money_gift':
         return ['pro', 'elite'].includes(currentTier);
       case 'magic_link':
         return currentTier === 'elite';
@@ -310,7 +315,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(invitationLink);
-                    alert('Pautan disalin!');
+                    showNotification('Pautan disalin!', 'success');
                   }}
                   className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-rose-600 transition"
                   title="Salin Pautan"
@@ -380,7 +385,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(shareText);
-                        alert('Mesej disalin!');
+                        showNotification('Mesej disalin!', 'success');
                       }}
                       className="w-11 h-11 rounded-full bg-gray-400 text-white flex items-center justify-center hover:bg-gray-500 transition shadow-lg shadow-gray-100"
                       title="Salin Pautan"
@@ -572,7 +577,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
 
                       <div className="grid grid-cols-2 gap-4">
                         <button
-                          onClick={() => { navigator.clipboard.writeText(magicLink); alert('Link disalin!'); }}
+                          onClick={() => { navigator.clipboard.writeText(magicLink); showNotification('Link disalin!', 'success'); }}
                           className="bg-white text-gray-700 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-sm border border-gray-100 hover:bg-gray-50 transition"
                         >
                           Salin Link
@@ -581,7 +586,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                           onClick={(e) => {
                             if (!shareToGuest) {
                               e.preventDefault();
-                              alert('Sila jana link terlebih dahulu');
+                              showNotification('Sila jana link terlebih dahulu', 'warning');
                               return;
                             }
                             handleGenerateMagic();

@@ -112,6 +112,26 @@ export interface Invitation {
     our_story?: string;
     // Customizable wording fields
     hero_title?: string;
+    cover_title?: string;
+    cover_title_font?: string;
+    cover_title_color?: string;
+    cover_title_size?: string;
+    cover_date?: string;
+    cover_location?: string;
+    cover_hero_title?: string;
+    cover_hero_color?: string;
+    cover_hero_font?: string;
+    cover_hero_size?: string;
+    cover_date_color?: string;
+    cover_date_font?: string;
+    cover_date_size?: string;
+    cover_location_color?: string;
+    cover_location_font?: string;
+    cover_location_size?: string;
+    cover_symbol?: string;
+    cover_symbol_color?: string;
+    cover_symbol_font?: string;
+    cover_symbol_size?: string;
     greeting_text?: string;
     invitation_text?: string;
     story_title?: string;

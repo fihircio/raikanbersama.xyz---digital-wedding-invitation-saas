@@ -29,6 +29,7 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
 
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
 import {
   PlusIcon,
   TagIcon,
@@ -39,7 +40,8 @@ import {
   PencilSquareIcon,
   CurrencyDollarIcon,
   EyeIcon,
-  XMarkIcon
+  XMarkIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 const LockedOverlay: React.FC = () => {
@@ -64,6 +66,7 @@ const EditorPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { token, user } = useAuth();
+  const { showNotification } = useNotification();
   const [inv, setInv] = useState<Invitation | null>(null);
   const [activeTab, setActiveTab] = useState('utama');
   const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
@@ -76,8 +79,39 @@ const EditorPage: React.FC = () => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null);
   const [initialPackagePlan, setInitialPackagePlan] = useState<string>('free');
   const [showMobilePreview, setShowMobilePreview] = useState(false);
+  const [backgrounds, setBackgrounds] = useState<any[]>([]);
+  const [bgPagination, setBgPagination] = useState({ page: 1, hasNext: false, isLoading: false });
 
   const isDemo = id === 'demo' || !user;
+
+  const fetchBackgrounds = async (page = 1, append = false) => {
+    if (!token) return;
+    setBgPagination(prev => ({ ...prev, isLoading: true }));
+    try {
+      const response = await fetch(buildApiUrl(`/backgrounds?page=${page}&limit=12`), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const res = await response.json();
+        const newData = res.data || [];
+        const meta = res.pagination || {};
+
+        setBackgrounds(prev => append ? [...prev, ...newData] : newData);
+        setBgPagination({
+          page: meta.page,
+          hasNext: meta.hasNext,
+          isLoading: false
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch backgrounds', err);
+      setBgPagination(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  useEffect(() => {
+    if (token) fetchBackgrounds(1);
+  }, [token]);
 
   useEffect(() => {
     const fetchInvitation = async () => {
@@ -130,7 +164,7 @@ const EditorPage: React.FC = () => {
           } else {
             const errorData = await response.json();
             console.error('❌ Handoff: Conversion failed', errorData);
-            alert('Draft digital anda gagal disimpan ke akaun anda. Sila bina baru di Catalog.');
+            showNotification('Draft digital anda gagal disimpan ke akaun anda. Sila bina baru di Catalog.', 'error');
             navigate('/catalog', { replace: true });
             return;
           }
@@ -284,7 +318,7 @@ const EditorPage: React.FC = () => {
           if (found) {
             setInv(found);
           } else {
-            alert(`Invitation with ID "${id}" not found.`);
+            showNotification(`Invitation with ID "${id}" not found.`, 'error');
             navigate('/dashboard');
           }
         }
@@ -298,7 +332,7 @@ const EditorPage: React.FC = () => {
     };
 
     if (!id) {
-      // If no ID is present, we shouldn't be here. 
+      // If no ID is present, we should not be here. 
       // Redirect to catalog to pick a design.
       navigate('/catalog');
     } else {
@@ -344,15 +378,15 @@ const EditorPage: React.FC = () => {
 
       if (response.ok) {
         console.log('Invitation saved successfully!');
-        alert('Changes saved successfully!');
+        showNotification('Changes saved successfully!', 'success');
       } else {
         const errorData = await response.json();
         console.error('Failed to save invitation:', errorData);
-        alert(`Failed to save invitation: ${errorData.error || 'Unknown error'}`);
+        showNotification(`Failed to save invitation: ${errorData.error || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('Error saving invitation:', error);
-      alert('Error saving invitation. Please try again.');
+      showNotification('Error saving invitation. Please try again.', 'error');
     }
   };
 
@@ -366,10 +400,10 @@ const EditorPage: React.FC = () => {
     switch (feature) {
       case 'rsvp':
       case 'wishes':
-        return ['pro', 'elite'].includes(currentTier);
       case 'visual_effects':
       case 'gallery':
       case 'money_gift':
+        return ['pro', 'elite'].includes(currentTier);
       case 'wish_list':
       case 'custom_link':
         return currentTier === 'elite';
@@ -448,11 +482,11 @@ const EditorPage: React.FC = () => {
           updateField('gallery', [...(inv.gallery || []), data.data.url]);
         } else {
           const err = await response.json();
-          alert(`Upload gagal: ${err.error || 'Unknown error'}`);
+          showNotification(`Upload gagal: ${err.error || 'Unknown error'}`, 'error');
         }
       } catch (error) {
         console.error('❌ Upload error:', error);
-        alert('Gagal memuat naik imej. Sila cuba lagi.');
+        showNotification('Gagal memuat naik imej. Sila cuba lagi.', 'error');
       }
     } else if (file && isDemo) {
       // Keep demo behavior (local preview only)
@@ -497,7 +531,7 @@ const EditorPage: React.FC = () => {
           updateMoneyGift('qr_url', data.data.url);
         } else {
           const err = await response.json();
-          alert(`Upload QR gagal: ${err.error || 'Unknown error'}`);
+          showNotification(`Upload QR gagal: ${err.error || 'Unknown error'}`, 'error');
         }
       } catch (error) {
         console.error('❌ QR Upload error:', error);
@@ -650,8 +684,9 @@ const EditorPage: React.FC = () => {
         <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar bg-gray-50/50 px-2 sticky top-0">
           <TabButton label="Utama" isActive={activeTab === 'utama'} onClick={() => setActiveTab('utama')} />
           <TabButton label="Pembukaan" isActive={activeTab === 'pembukaan'} onClick={() => setActiveTab('pembukaan')} />
-          <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
           <TabButton label="Butiran" isActive={activeTab === 'butiran'} onClick={() => setActiveTab('butiran')} />
+          <TabButton label="Design" isActive={activeTab === 'design'} onClick={() => setActiveTab('design')} />
+          <TabButton label="Media" isActive={activeTab === 'media'} onClick={() => setActiveTab('media')} />
           <TabButton label="Keluarga" isActive={activeTab === 'tetamu'} onClick={() => setActiveTab('tetamu')} />
 
           {canAccess('money_gift') && <TabButton label="Hadiah" isActive={activeTab === 'hadiah'} onClick={() => setActiveTab('hadiah')} />}
@@ -769,106 +804,7 @@ const EditorPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-6 border-t border-gray-100">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Design Katalog</label>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsDesignDropdownOpen(!isDesignDropdownOpen)}
-                      className={`w-full bg-white border-2 rounded-3xl p-5 flex items-center justify-between transition-all shadow-sm group ${isDesignDropdownOpen ? 'border-rose-400 ring-4 ring-rose-50' : 'border-rose-100 hover:border-rose-300'}`}
-                    >
-                      <div className="text-left flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
-                          {inv.settings.background_image ? (
-                            <img src={inv.settings.background_image} alt="Target" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-300">
-                              <EyeIcon className="w-6 h-6" />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Design Terpilih</span>
-                          <span className="text-sm font-bold text-gray-900 line-clamp-1">{inv.template_id || 'Tiada Design'}</span>
-                        </div>
-                      </div>
-                      <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isDesignDropdownOpen ? 'rotate-180' : ''}`}>
-                        <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                      </div>
-                    </button>
 
-                    {/* Design Dropdown - Redirect to Catalog for now or show picker */}
-                    {isDesignDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-4 z-50 bg-white rounded-[2rem] shadow-2xl border border-gray-100 p-6 animate-scale-in origin-top">
-                        <div className="text-center space-y-4">
-                          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto">
-                            <ArrowPathIcon className="w-8 h-8 text-rose-500" />
-                          </div>
-                          <h4 className="text-lg font-black text-gray-900 tracking-tight">Tukar Design Invitation?</h4>
-                          <p className="text-[11px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
-                            Anda boleh pilih beratus-ratus lagi design premium di Katalog utama.
-                          </p>
-                          <button
-                            onClick={() => navigate('/catalog')}
-                            className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-700 transition shadow-lg shadow-rose-100"
-                          >
-                            Lihat Katalog Penuh
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Background Color Picker */}
-                <div className="space-y-4 pt-6 border-t border-gray-100">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Latar Belakang</label>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="color"
-                        value={inv.settings.background_color || '#ffffff'}
-                        onChange={(e) => updateSettings('background_color', e.target.value)}
-                        className="w-16 h-16 rounded-2xl border-2 border-gray-200 cursor-pointer shadow-sm hover:shadow-md transition"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-gray-900 mb-1">{inv.settings.background_color || '#ffffff'}</p>
-                        <p className="text-[9px] text-gray-400 leading-relaxed">Pilih warna latar untuk keseluruhan kad jemputan anda</p>
-                      </div>
-                    </div>
-                    {/* Preset Colors */}
-                    <div className="grid grid-cols-6 gap-2">
-                      {['#ffffff', '#f9fafb', '#fef2f2', '#fef3c7', '#f0fdf4', '#ede9fe'].map(color => (
-                        <button
-                          key={color}
-                          onClick={() => updateSettings('background_color', color)}
-                          className={`w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${(inv.settings.background_color || '#ffffff') === color
-                            ? 'border-rose-400 ring-2 ring-rose-100'
-                            : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
-                    </div>
-                    {/* Opacity Slider */}
-                    <div className="space-y-2 pt-2">
-                      <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                        <span>Ketelusan (Opacity)</span>
-                        <span>{Math.round((inv.settings.background_opacity ?? 1) * 100)}%</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={inv.settings.background_opacity ?? 1}
-                        onChange={(e) => updateSettings('background_opacity', parseFloat(e.target.value))}
-                        className="w-full accent-rose-600 h-2 rounded-full"
-                      />
-                      <p className="text-[8px] text-gray-400 italic">0% = Lutsinar, 100% = Pejal</p>
-                    </div>
-                  </div>
-                </div>
               </section>
 
               {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (
@@ -942,46 +878,452 @@ const EditorPage: React.FC = () => {
           )}
 
           {
+            activeTab === 'design' && (
+              <div className="space-y-10 relative">
+                {isDemo && <LockedOverlay />}
+                <section className="space-y-8">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Latar Belakang</h3>
+
+                  {/* Background Image Selection */}
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilih Background Image</label>
+                    <div className="grid grid-cols-3 gap-3 max-h-[320px] overflow-y-auto no-scrollbar pr-1">
+                      {((isDemo || backgrounds.length === 0) ? [
+                        { url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80', name: 'Classic Floral' },
+                        { url: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1920&q=80', name: 'Elegant Pink' },
+                        { url: 'https://images.unsplash.com/photo-1464695110811-dcf3903dc2f4?auto=format&fit=crop&w=1920&q=80', name: 'Mountain View' },
+                        { url: 'https://images.unsplash.com/photo-1522673607200-1645062cd958?auto=format&fit=crop&w=1920&q=80', name: 'Abstract Light' },
+                        { url: 'https://images.unsplash.com/photo-1511285560982-1356c11d4606?auto=format&fit=crop&w=1920&q=80', name: 'Minimalist' },
+                        { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80', name: 'Beach Vibes' },
+                      ] : backgrounds).map((bg: any, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => updateSettings('background_image', bg.url)}
+                          className={`aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all relative group ${inv.settings.background_image === bg.url ? 'border-rose-500 ring-2 ring-rose-200 scale-95' : 'border-transparent hover:border-gray-200'}`}
+                        >
+                          <img src={bg.url} alt={bg.name} className="w-full h-full object-cover" />
+                          <div className={`absolute inset-0 bg-black/20 transition-opacity ${inv.settings.background_image === bg.url ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            {inv.settings.background_image === bg.url && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+
+                      {/* Load More Button */}
+                      {bgPagination.hasNext && (
+                        <div className="col-span-3 pt-2 pb-1">
+                          <button
+                            onClick={() => fetchBackgrounds(bgPagination.page + 1, true)}
+                            disabled={bgPagination.isLoading}
+                            className="w-full py-3 bg-gray-50 border border-gray-200 rounded-xl text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:bg-gray-100 hover:text-gray-700 transition flex items-center justify-center gap-2"
+                          >
+                            {bgPagination.isLoading ? (
+                              <>
+                                <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Loading...
+                              </>
+                            ) : (
+                              <>Muat Lebih Banyak Design ({backgrounds.length})</>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Manual URL Input */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atau Masukkan URL Gambar (Custom)</label>
+                      <div className="relative group">
+                        <InformationCircleIcon className="w-4 h-4 text-gray-400 cursor-help hover:text-rose-500 transition" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-gray-900/95 text-white text-[10px] rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 pointer-events-none backdrop-blur-sm transform scale-95 group-hover:scale-100 origin-bottom">
+                          <p className="font-bold mb-1.5 text-rose-300 uppercase tracking-wider text-[9px]">Panduan Saiz Image</p>
+                          <p className="leading-relaxed opacity-90 mb-2">
+                            Disarankan saiz <span className="font-bold text-white">768x1408px (Portrait)</span>.
+                          </p>
+                          <p className="leading-relaxed opacity-70 italic text-[9px]">
+                            Gambar ini akan dijadikan latar belakang penuh untuk kad jemputan digital anda.
+                          </p>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900/95"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="https://..."
+                      value={inv.settings.background_image}
+                      onChange={(e) => updateSettings('background_image', e.target.value)}
+                      className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium"
+                    />
+                  </div>
+
+                  {/* Background Color Picker */}
+                  <div className="space-y-4 pt-6 border-t border-gray-100">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Latar Belakang</label>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="color"
+                          value={inv.settings.background_color || '#ffffff'}
+                          onChange={(e) => updateSettings('background_color', e.target.value)}
+                          className="w-16 h-16 rounded-2xl border-2 border-gray-200 cursor-pointer shadow-sm hover:shadow-md transition"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-gray-900 mb-1">{inv.settings.background_color || '#ffffff'}</p>
+                          <p className="text-[9px] text-gray-400 leading-relaxed">Pilih warna latar untuk keseluruhan kad jemputan anda</p>
+                        </div>
+                      </div>
+                      {/* Preset Colors */}
+                      <div className="grid grid-cols-6 gap-2">
+                        {['#ffffff', '#f9fafb', '#fef2f2', '#fef3c7', '#f0fdf4', '#ede9fe'].map(color => (
+                          <button
+                            key={color}
+                            onClick={() => updateSettings('background_color', color)}
+                            className={`w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${(inv.settings.background_color || '#ffffff') === color
+                              ? 'border-rose-400 ring-2 ring-rose-100'
+                              : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                      {/* Opacity Slider */}
+                      <div className="space-y-2 pt-2">
+                        <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                          <span>Ketelusan (Opacity)</span>
+                          <span>{Math.round((inv.settings.background_opacity ?? 1) * 100)}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={inv.settings.background_opacity ?? 1}
+                          onChange={(e) => updateSettings('background_opacity', parseFloat(e.target.value))}
+                          className="w-full accent-rose-600 h-2 rounded-full"
+                        />
+                        <p className="text-[8px] text-gray-400 italic">0% = Lutsinar, 100% = Pejal</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Visual & Tema</h3>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Template Layout</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { id: 'modern-classic', label: 'Modern Classic' },
+                        { id: 'minimal-light', label: 'Minimal Light' }
+                      ].map(t => (
+                        <button
+                          key={t.id}
+                          onClick={() => updateField('template_id', t.id)}
+                          className={`p-5 rounded-[2rem] border-2 transition text-[10px] font-bold uppercase tracking-widest ${inv.template_id === t.id ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-xl' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color</label>
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {THEME_COLORS.map(color => (
+                        <button
+                          key={color.value}
+                          onClick={() => updateSettings('primary_color', color.value)}
+                          style={{ backgroundColor: color.value }}
+                          className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.primary_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
+                        />
+                      ))}
+                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
+                        <input
+                          type="color"
+                          value={inv.settings.primary_color}
+                          onChange={(e) => updateSettings('primary_color', e.target.value)}
+                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
+                        />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 pt-6 border-t border-gray-50">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Secondary Theme Color (Titles & Accent)</label>
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {THEME_COLORS.map(color => (
+                        <button
+                          key={color.value}
+                          onClick={() => updateSettings('secondary_theme_color', color.value)}
+                          style={{ backgroundColor: color.value }}
+                          className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.secondary_theme_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
+                        />
+                      ))}
+                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
+                        <input
+                          type="color"
+                          value={inv.settings.secondary_theme_color || '#9ca3af'}
+                          onChange={(e) => updateSettings('secondary_theme_color', e.target.value)}
+                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
+                        />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )
+          }
+
+          {
             activeTab === 'utama' && (
               <div className="space-y-10">
                 {/* Couple Names Section - Public */}
+                {/* Couple Names Section - Public */}
                 <section className="space-y-8">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Utama</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tajuk Utama (Cover)</h3>
+
+                  {/* Cover Title Input */}
+                  <div className="space-y-6">
+                    {/* 1. Cover Title & Symbol */}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Cover</label>
+                          <div className="relative group">
+                            <InformationCircleIcon className="w-4 h-4 text-gray-400 cursor-help hover:text-rose-500 transition" />
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-gray-900/95 text-white text-[10px] rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 pointer-events-none backdrop-blur-sm transform scale-95 group-hover:scale-100 origin-bottom">
+                              <p className="font-bold mb-1 text-rose-300">Tips:</p>
+                              <p className="leading-relaxed opacity-90">Gunakan simbol <span className="font-bold text-white bg-white/20 px-1 rounded">&</span> untuk memisahkan baris.</p>
+                              <p className="mt-1 opacity-70 italic">Contoh: "Adam & Hawa"</p>
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900/95"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Contoh: Adam & Hawa"
+                          value={inv.settings.cover_title || ''}
+                          onChange={(e) => updateSettings('cover_title', e.target.value)}
+                          className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold placeholder-gray-300"
+                        />
+                      </div>
+
+                      <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Gaya Tajuk & Simbol</span>
+                        </div>
+
+                        <div className="space-y-4 p-4 bg-white rounded-2xl border border-gray-50 shadow-sm">
+                          <FontPicker label="Font Tajuk" value={inv.settings.cover_title_font} onChange={(f) => updateSettings('cover_title_font', f)} />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Tajuk</label>
+                              <div className="flex items-center gap-2">
+                                <input type="color" value={inv.settings.cover_title_color || inv.settings.primary_color || '#8B4513'} onChange={(e) => updateSettings('cover_title_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
+                                <span className="text-[10px] font-mono text-gray-500 uppercase">{inv.settings.cover_title_color || 'Auto'}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                                <span>Saiz</span>
+                                <span>{inv.settings.cover_title_size || '48'}px</span>
+                              </div>
+                              <input type="range" min="20" max="100" value={inv.settings.cover_title_size || '48'} onChange={(e) => updateSettings('cover_title_size', e.target.value)} className="w-full accent-rose-600 h-1" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4 p-4 bg-white rounded-2xl border border-gray-50 shadow-sm">
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-1">Simbol Pemisah</label>
+                            <input type="text" placeholder="&" value={inv.settings.cover_symbol || ''} onChange={(e) => updateSettings('cover_symbol', e.target.value)} className="w-full px-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm outline-none font-bold" />
+                          </div>
+                          <FontPicker label="Font Simbol" value={inv.settings.cover_symbol_font} onChange={(f) => updateSettings('cover_symbol_font', f)} />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Simbol</label>
+                              <input type="color" value={inv.settings.cover_symbol_color || inv.settings.secondary_theme_color || '#9ca3af'} onChange={(e) => updateSettings('cover_symbol_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                                <span>Saiz</span>
+                                <span>{inv.settings.cover_symbol_size || '24'}px</span>
+                              </div>
+                              <input type="range" min="10" max="60" value={inv.settings.cover_symbol_size || '24'} onChange={(e) => updateSettings('cover_symbol_size', e.target.value)} className="w-full accent-rose-600 h-1" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Cover Date */}
+                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tarikh Majlis (Cover)</label>
+                        <input
+                          type="date"
+                          value={inv.settings.cover_date || ''}
+                          onChange={(e) => updateSettings('cover_date', e.target.value)}
+                          className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold"
+                        />
+                        <p className="text-[8px] text-gray-400 italic ml-1">Biarkan kosong untuk ikut tarikh utama.</p>
+                      </div>
+
+                      <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
+                        <FontPicker label="Font Tarikh (Cover)" value={inv.settings.cover_date_font} onChange={(f) => updateSettings('cover_date_font', f)} />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Tarikh</label>
+                            <input type="color" value={inv.settings.cover_date_color || inv.settings.date_color || '#4B5563'} onChange={(e) => updateSettings('cover_date_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                              <span>Saiz</span>
+                              <span>{inv.settings.cover_date_size || '16'}px</span>
+                            </div>
+                            <input type="range" min="10" max="40" value={inv.settings.cover_date_size || '16'} onChange={(e) => updateSettings('cover_date_size', e.target.value)} className="w-full accent-rose-600 h-1" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Cover Location */}
+                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Lokasi (Cover)</label>
+                        <input
+                          type="text"
+                          placeholder={inv.location_name || 'Contoh: Dewan Seri Kasih'}
+                          value={inv.settings.cover_location || ''}
+                          onChange={(e) => updateSettings('cover_location', e.target.value)}
+                          className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold placeholder-gray-400"
+                        />
+                      </div>
+
+                      <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
+                        <FontPicker label="Font Lokasi (Cover)" value={inv.settings.cover_location_font} onChange={(f) => updateSettings('cover_location_font', f)} />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Lokasi</label>
+                            <input type="color" value={inv.settings.cover_location_color || inv.settings.location_color || '#9CA3AF'} onChange={(e) => updateSettings('cover_location_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                              <span>Saiz</span>
+                              <span>{inv.settings.cover_location_size || '14'}px</span>
+                            </div>
+                            <input type="range" min="10" max="40" value={inv.settings.cover_location_size || '14'} onChange={(e) => updateSettings('cover_location_size', e.target.value)} className="w-full accent-rose-600 h-1" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. Cover Hero Wording */}
+                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Wording Utama (Cover Hero)</label>
+                        <input
+                          type="text"
+                          placeholder="Walimatulurus"
+                          value={inv.settings.cover_hero_title || ''}
+                          onChange={(e) => updateSettings('cover_hero_title', e.target.value)}
+                          className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold placeholder-gray-400"
+                        />
+                      </div>
+
+                      <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
+                        <FontPicker label="Font Hero (Cover)" value={inv.settings.cover_hero_font} onChange={(f) => updateSettings('cover_hero_font', f)} />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Hero</label>
+                            <input type="color" value={inv.settings.cover_hero_color || inv.settings.hero_color || '#1F2937'} onChange={(e) => updateSettings('cover_hero_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                              <span>Saiz</span>
+                              <span>{inv.settings.cover_hero_size || '12'}px</span>
+                            </div>
+                            <input type="range" min="8" max="40" value={inv.settings.cover_hero_size || '12'} onChange={(e) => updateSettings('cover_hero_size', e.target.value)} className="w-full accent-rose-600 h-1" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )
+          }
+
+          {
+            activeTab === 'butiran' && (
+              <div className="space-y-10 relative">
+                {isDemo && <LockedOverlay />}
+                <section className="space-y-8">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran Mempelai & Data</h3>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Lelaki</span>
-                            <input type="color" value={inv.settings.groom_color || '#000000'} onChange={(e) => updateSettings('groom_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
+                            <span>Nama Penuh (Lelaki)</span>
+                            <div className="flex items-center gap-1">
+                              <input type="color" value={inv.settings.groom_color || '#000000'} onChange={(e) => updateSettings('groom_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
+                            </div>
                           </label>
                           <input type="text" value={inv.groom_name} onChange={(e) => updateField('groom_name', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
                         </div>
-                        <FontPicker label="Font Lelaki" value={inv.settings.groom_font} onChange={(font) => updateSettings('groom_font', font)} />
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                            <span>Saiz</span>
-                            <span>{inv.settings.groom_size || '48'}px</span>
+
+                        {/* Body Details Style for Groom */}
+                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Gaya Teks (Details)</p>
+                          <FontPicker label="Font Details" value={inv.settings.groom_font} onChange={(font) => updateSettings('groom_font', font)} />
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                              <span>Saiz</span>
+                              <span>{inv.settings.groom_size || '48'}px</span>
+                            </div>
+                            <input type="range" min="20" max="80" value={inv.settings.groom_size || '48'} onChange={(e) => updateSettings('groom_size', e.target.value)} className="w-full accent-rose-600 h-1" />
                           </div>
-                          <input type="range" min="20" max="80" value={inv.settings.groom_size || '48'} onChange={(e) => updateSettings('groom_size', e.target.value)} className="w-full accent-rose-600 h-1" />
                         </div>
                       </div>
 
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Perempuan</span>
-                            <input type="color" value={inv.settings.bride_color || '#000000'} onChange={(e) => updateSettings('bride_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
+                            <span>Nama Penuh (Perempuan)</span>
+                            <div className="flex items-center gap-1">
+                              <input type="color" value={inv.settings.bride_color || '#000000'} onChange={(e) => updateSettings('bride_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
+                            </div>
                           </label>
                           <input type="text" value={inv.bride_name} onChange={(e) => updateField('bride_name', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
                         </div>
-                        <FontPicker label="Font Perempuan" value={inv.settings.bride_font} onChange={(font) => updateSettings('bride_font', font)} />
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                            <span>Saiz</span>
-                            <span>{inv.settings.bride_size || '48'}px</span>
+
+                        {/* Body Details Style for Bride */}
+                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Gaya Teks (Details)</p>
+                          <FontPicker label="Font Details" value={inv.settings.bride_font} onChange={(font) => updateSettings('bride_font', font)} />
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                              <span>Saiz</span>
+                              <span>{inv.settings.bride_size || '48'}px</span>
+                            </div>
+                            <input type="range" min="20" max="80" value={inv.settings.bride_size || '48'} onChange={(e) => updateSettings('bride_size', e.target.value)} className="w-full accent-rose-600 h-1" />
                           </div>
-                          <input type="range" min="20" max="80" value={inv.settings.bride_size || '48'} onChange={(e) => updateSettings('bride_size', e.target.value)} className="w-full accent-rose-600 h-1" />
                         </div>
                       </div>
                     </div>
@@ -1071,7 +1413,6 @@ const EditorPage: React.FC = () => {
                 </section>
 
                 <section className="space-y-8 pt-10 border-t border-gray-100 relative">
-                  {isDemo && <LockedOverlay />}
                   <div className="flex items-center justify-between p-6 bg-rose-50 rounded-[2.5rem] border border-rose-100 shadow-inner group transition-all hover:shadow-md">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-rose-800 tracking-tight italic">Papar Undur Masa</span>
@@ -1159,15 +1500,7 @@ const EditorPage: React.FC = () => {
                   </div>
                 </section>
 
-              </div>
-            )
-          }
-
-          {
-            activeTab === 'butiran' && (
-              <div className="space-y-10 relative">
-                {isDemo && <LockedOverlay />}
-                <section className="space-y-8">
+                <section className="space-y-8 pt-10 border-t border-gray-100">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Masa & Tarikh Majlis</h3>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
@@ -1318,78 +1651,7 @@ const EditorPage: React.FC = () => {
           {
             activeTab === 'media' && (
               <div className="space-y-12">
-                <section className="space-y-8">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Visual & Tema</h3>
 
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Template Layout</label>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[
-                        { id: 'modern-classic', label: 'Modern Classic' },
-                        { id: 'minimal-light', label: 'Minimal Light' }
-                      ].map(t => (
-                        <button
-                          key={t.id}
-                          onClick={() => updateField('template_id', t.id)}
-                          className={`p-5 rounded-[2rem] border-2 transition text-[10px] font-bold uppercase tracking-widest ${inv.template_id === t.id ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-xl' : 'border-gray-100 bg-gray-50 text-gray-400 opacity-60'}`}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color</label>
-                    <div className="flex flex-wrap gap-4 items-center">
-                      {THEME_COLORS.map(color => (
-                        <button
-                          key={color.value}
-                          onClick={() => updateSettings('primary_color', color.value)}
-                          style={{ backgroundColor: color.value }}
-                          className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.primary_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
-                        />
-                      ))}
-                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
-                        <input
-                          type="color"
-                          value={inv.settings.primary_color}
-                          onChange={(e) => updateSettings('primary_color', e.target.value)}
-                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
-                        />
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6 pt-6 border-t border-gray-50">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Secondary Theme Color (Titles & Accent)</label>
-                    <div className="flex flex-wrap gap-4 items-center">
-                      {THEME_COLORS.map(color => (
-                        <button
-                          key={color.value}
-                          onClick={() => updateSettings('secondary_theme_color', color.value)}
-                          style={{ backgroundColor: color.value }}
-                          className={`w-12 h-12 rounded-full border-4 transition transform hover:scale-125 shadow-xl ${inv.settings.secondary_theme_color === color.value ? 'border-white ring-4 ring-rose-500 scale-110' : 'border-transparent opacity-80'}`}
-                        />
-                      ))}
-                      <div className="flex items-center gap-2 pl-2 border-l border-gray-100">
-                        <input
-                          type="color"
-                          value={inv.settings.secondary_theme_color || '#9ca3af'}
-                          onChange={(e) => updateSettings('secondary_theme_color', e.target.value)}
-                          className="w-12 h-12 rounded-full border-4 border-transparent p-0 overflow-hidden cursor-pointer hover:scale-110 transition shadow-xl"
-                        />
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Custom</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Background Image URL</label>
-                    <input type="text" value={inv.settings.background_image} onChange={(e) => updateSettings('background_image', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-rose-200" />
-                  </div>
-                </section>
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Video & Muzik Youtube</h3>
@@ -2080,27 +2342,29 @@ const EditorPage: React.FC = () => {
       </div>
 
       {/* Mobile Preview Modal */}
-      {showMobilePreview && (
-        <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col animate-scale-in no-scrollbar overflow-hidden backdrop-blur-sm">
-          {/* Floating Close Button */}
-          <button
-            onClick={() => setShowMobilePreview(false)}
-            className="fixed top-6 right-6 z-[110] p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 transition-all border border-white/20 shadow-xl"
-          >
-            <XMarkIcon className="w-6 h-6" />
-          </button>
+      {
+        showMobilePreview && (
+          <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col animate-scale-in no-scrollbar overflow-hidden backdrop-blur-sm">
+            {/* Floating Close Button */}
+            <button
+              onClick={() => setShowMobilePreview(false)}
+              className="fixed top-6 right-6 z-[110] p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 transition-all border border-white/20 shadow-xl"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
 
-          <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-            <div className="mx-auto w-full max-w-[375px] h-full max-h-[92vh] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative transform translate-z-0 flex flex-col">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
-              <div className="w-full h-full overflow-y-auto no-scrollbar relative bg-gray-900">
-                <InvitationContent invitation={inv} isPreview={true} />
+            <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
+              <div className="mx-auto w-full max-w-[375px] h-full max-h-[92vh] bg-white shadow-2xl rounded-[3rem] overflow-hidden border-8 border-gray-900 relative transform translate-z-0 flex flex-col">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
+                <div className="w-full h-full overflow-y-auto no-scrollbar relative bg-gray-900">
+                  <InvitationContent invitation={inv} isPreview={true} />
+                </div>
               </div>
             </div>
-          </div>
 
-        </div>
-      )}
+          </div>
+        )
+      }
     </div>
   );
 };
