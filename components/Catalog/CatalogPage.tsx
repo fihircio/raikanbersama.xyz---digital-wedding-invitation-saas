@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import BackgroundGrid from './BackgroundGrid';
 import Pagination from './Pagination';
 import SEO from '../SEO';
-import { BackgroundImage, CatalogState } from '../../types';
+import { BackgroundImage } from '../../types';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { buildApiUrl } from '../../src/config';
 
@@ -25,6 +25,15 @@ const COLORS = [
   { name: 'Red', hex: '#FF0000' },
   { name: 'Black', hex: '#000000' },
 ];
+
+interface CatalogState {
+  backgrounds: BackgroundImage[];
+  currentPage: number;
+  totalPages: number;
+  isLoading: boolean;
+  selectedBackground: BackgroundImage | null;
+  isAuthenticated: boolean;
+}
 
 const CatalogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -119,7 +128,7 @@ const CatalogPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const favoriteIds = new Set(data.data.map((fav: any) => fav.background_image_id));
+        const favoriteIds = new Set<string>(data.data.map((fav: any) => fav.background_image_id));
         setFavorites(favoriteIds);
       }
     } catch (error) {

@@ -1273,91 +1273,15 @@ const EditorPage: React.FC = () => {
             activeTab === 'butiran' && (
               <div className="space-y-10 relative">
                 {isDemo && <LockedOverlay />}
+
+                {/* Group 1: Butiran Asas */}
                 <section className="space-y-8">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran Mempelai & Data</h3>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Nama Penuh (Lelaki)</span>
-                            <div className="flex items-center gap-1">
-                              <input type="color" value={inv.settings.groom_color || '#000000'} onChange={(e) => updateSettings('groom_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
-                            </div>
-                          </label>
-                          <input type="text" value={inv.groom_name} onChange={(e) => updateField('groom_name', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
-                        </div>
-
-                        {/* Body Details Style for Groom */}
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
-                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Gaya Teks (Details)</p>
-                          <FontPicker label="Font Details" value={inv.settings.groom_font} onChange={(font) => updateSettings('groom_font', font)} />
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                              <span>Saiz</span>
-                              <span>{inv.settings.groom_size || '48'}px</span>
-                            </div>
-                            <input type="range" min="20" max="80" value={inv.settings.groom_size || '48'} onChange={(e) => updateSettings('groom_size', e.target.value)} className="w-full accent-rose-600 h-1" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Nama Penuh (Perempuan)</span>
-                            <div className="flex items-center gap-1">
-                              <input type="color" value={inv.settings.bride_color || '#000000'} onChange={(e) => updateSettings('bride_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
-                            </div>
-                          </label>
-                          <input type="text" value={inv.bride_name} onChange={(e) => updateField('bride_name', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
-                        </div>
-
-                        {/* Body Details Style for Bride */}
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
-                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Gaya Teks (Details)</p>
-                          <FontPicker label="Font Details" value={inv.settings.bride_font} onChange={(font) => updateSettings('bride_font', font)} />
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                              <span>Saiz</span>
-                              <span>{inv.settings.bride_size || '48'}px</span>
-                            </div>
-                            <input type="range" min="20" max="80" value={inv.settings.bride_size || '48'} onChange={(e) => updateSettings('bride_size', e.target.value)} className="w-full accent-rose-600 h-1" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                          <span>Nama Tuan Rumah</span>
-                          <input type="color" value={inv.settings.host_color || '#4B5563'} onChange={(e) => updateSettings('host_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
-                        </label>
-                        <input type="text" value={inv.host_names} onChange={(e) => updateField('host_names', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FontPicker label="Font Tuan Rumah" value={inv.settings.host_font} onChange={(font) => updateSettings('host_font', font)} />
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1 pt-1">
-                            <span>Saiz</span>
-                            <span>{inv.settings.host_size || '16'}px</span>
-                          </div>
-                          <input type="range" min="10" max="40" value={inv.settings.host_size || '16'} onChange={(e) => updateSettings('host_size', e.target.value)} className="w-full accent-rose-600 h-1" />
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </section>
-
-                <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Kustomasi Wording</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran Asas</h3>
                   <div className="space-y-6">
-                    {/* Greeting Swapped to Top */}
+                    {/* 1. Kata Aluan (Greeting) */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kata Aluan (Greeting)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">1. Kata Aluan (Greeting)</label>
                         <div className="flex gap-4">
                           <input type="color" value={inv.settings.greeting_color || '#FFFFFF'} onChange={(e) => updateSettings('greeting_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
                           <div className="flex items-center gap-1">
@@ -1372,10 +1296,10 @@ const EditorPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Hero Title */}
+                    {/* 2. Wording Utama (Hero) */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Wording Utama (Hero)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">2. Wording Utama (Hero)</label>
                         <div className="flex gap-4">
                           <input type="color" value={inv.settings.hero_color || '#FFFFFF'} onChange={(e) => updateSettings('hero_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
                           <div className="flex items-center gap-1">
@@ -1390,11 +1314,28 @@ const EditorPage: React.FC = () => {
                       </div>
                     </div>
 
-
-                    {/* Invitation Text */}
+                    {/* 3. Nama Tuan Rumah */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Teks Jemputan</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">3. Nama Tuan Rumah</label>
+                        <div className="flex gap-4">
+                          <input type="color" value={inv.settings.host_color || '#4B5563'} onChange={(e) => updateSettings('host_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] font-bold text-gray-400">Size</span>
+                            <input type="range" min="10" max="40" value={inv.settings.host_size || '16'} onChange={(e) => updateSettings('host_size', e.target.value)} className="w-16 accent-rose-600" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <input type="text" value={inv.host_names} onChange={(e) => updateField('host_names', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                        <FontPicker label="Font Tuan Rumah" value={inv.settings.host_font} onChange={(font) => updateSettings('host_font', font)} />
+                      </div>
+                    </div>
+
+                    {/* 4. Teks Jemputan */}
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">4. Teks Jemputan</label>
                         <div className="flex gap-4">
                           <input type="color" value={inv.settings.invitation_color || '#6B7280'} onChange={(e) => updateSettings('invitation_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
                           <div className="flex items-center gap-1">
@@ -1408,242 +1349,250 @@ const EditorPage: React.FC = () => {
                         <FontPicker label="Font Teks Jemputan" value={inv.settings.invitation_font} onChange={(font) => updateSettings('invitation_font', font)} />
                       </div>
                     </div>
-
                   </div>
                 </section>
 
-                <section className="space-y-8 pt-10 border-t border-gray-100 relative">
-                  <div className="flex items-center justify-between p-6 bg-rose-50 rounded-[2.5rem] border border-rose-100 shadow-inner group transition-all hover:shadow-md">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-rose-800 tracking-tight italic">Papar Undur Masa</span>
-                      <span className="text-[9px] text-rose-300 uppercase font-bold tracking-widest">Show Countdown timer</span>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={inv.settings.show_countdown}
-                      onChange={(e) => updateSettings('show_countdown', e.target.checked)}
-                      className="w-6 h-6 accent-rose-600 cursor-pointer transition-transform hover:scale-110"
-                    />
-                  </div>
-                </section>
-
+                {/* Group 2: Mempelai */}
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Kisah Cinta Kita</h3>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Kisah</label>
-                      <input type="text" placeholder="Contoh: Kisah Cinta Kami" value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold" />
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Mempelai</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Lelaki */}
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Penuh (Lelaki)</label>
+                        <div className="flex gap-4">
+                          <input type="color" value={inv.settings.groom_color || '#000000'} onChange={(e) => updateSettings('groom_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] font-bold text-gray-400">Size</span>
+                            <input type="range" min="20" max="80" value={inv.settings.groom_size || '48'} onChange={(e) => updateSettings('groom_size', e.target.value)} className="w-16 accent-rose-600" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <input type="text" value={inv.groom_name} onChange={(e) => updateField('groom_name', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                        <FontPicker label="Font Nama Lelaki" value={inv.settings.groom_font} onChange={(font) => updateSettings('groom_font', font)} />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kandungan Kisah</label>
-                      <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-3xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium italic leading-relaxed" />
-                    </div>
-                  </div>
 
-                  {/* Hashtag Section */}
-                  <div className="space-y-4 pt-6 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.3em] border-l-2 border-rose-200 pl-4 font-serif">Hashtag</h4>
-                      <span className="text-[9px] text-gray-400 italic">- untuk ucapan & doa</span>
+                    {/* Perempuan */}
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Penuh (Perempuan)</label>
+                        <div className="flex gap-4">
+                          <input type="color" value={inv.settings.bride_color || '#000000'} onChange={(e) => updateSettings('bride_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] font-bold text-gray-400">Size</span>
+                            <input type="range" min="20" max="80" value={inv.settings.bride_size || '48'} onChange={(e) => updateSettings('bride_size', e.target.value)} className="w-16 accent-rose-600" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <input type="text" value={inv.bride_name} onChange={(e) => updateField('bride_name', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                        <FontPicker label="Font Nama Perempuan" value={inv.settings.bride_font} onChange={(font) => updateSettings('bride_font', font)} />
+                      </div>
                     </div>
-                    <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  </div>
+                </section>
+
+                {/* Group 3: Masa, Tarikh & Tempat */}
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Masa, Tarikh & Tempat</h3>
+                  <div className="space-y-6">
+                    {/* 6. Masa dan Tarikh Majlis */}
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">6. Masa dan Tarikh Majlis</label>
+                        <div className="flex gap-4">
+                          <input type="color" value={inv.settings.date_color || '#1F2937'} onChange={(e) => updateSettings('date_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] font-bold text-gray-400">Size</span>
+                            <input type="range" min="10" max="40" value={inv.settings.date_size || '16'} onChange={(e) => updateSettings('date_size', e.target.value)} className="w-16 accent-rose-600" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                        <input
+                          type="date"
+                          value={inv.event_date}
+                          onChange={(e) => updateField('event_date', e.target.value)}
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
+                        />
+                        <input
+                          type="time"
+                          value={inv.start_time}
+                          onChange={(e) => updateField('start_time', e.target.value)}
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
+                        />
+                        <input
+                          type="time"
+                          value={inv.end_time}
+                          onChange={(e) => updateField('end_time', e.target.value)}
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
+                        />
+                      </div>
+                      <FontPicker label="Font Tarikh" value={inv.settings.date_font} onChange={(font) => updateSettings('date_font', font)} />
+                    </div>
+
+                    {/* 7. Papar Undur Masa (Countdown) */}
+                    <div className="flex items-center justify-between p-6 bg-rose-50 rounded-[2.5rem] border border-rose-100 shadow-inner group transition-all hover:shadow-md">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-rose-800 tracking-tight italic">7. Papar Undur Masa (Countdown)</span>
+                        <span className="text-[9px] text-rose-300 uppercase font-bold tracking-widest">Show Countdown timer</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={inv.settings.show_countdown}
+                        onChange={(e) => updateSettings('show_countdown', e.target.checked)}
+                        className="w-6 h-6 accent-rose-600 cursor-pointer transition-transform hover:scale-110"
+                      />
+                    </div>
+
+                    {/* 8. Lokasi & Peta */}
+                    <div className="space-y-6 pt-6 border-t border-gray-100/50">
+                      <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">8. Lokasi & Peta</label>
+                          <div className="flex gap-4">
+                            <input type="color" value={inv.settings.location_color || '#1F2937'} onChange={(e) => updateSettings('location_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                            <div className="flex items-center gap-1">
+                              <span className="text-[8px] font-bold text-gray-400">Size</span>
+                              <input type="range" min="10" max="40" value={inv.settings.location_size || '14'} onChange={(e) => updateSettings('location_size', e.target.value)} className="w-16 accent-rose-600" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <input type="text" value={inv.location_name} onChange={(e) => updateField('location_name', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none" />
+                          <FontPicker label="Font Lokasi" value={inv.settings.location_font} onChange={(font) => updateSettings('location_font', font)} />
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Teks Hashtag</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Alamat Penuh</label>
+                        <textarea rows={2} value={inv.address} onChange={(e) => updateField('address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none shadow-inner" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">Google Maps Embed</label>
+                          <input type="text" value={inv.google_maps_url} placeholder="Embed URL..." onChange={(e) => updateField('google_maps_url', e.target.value)} className="w-full px-4 py-3 bg-gray-50 rounded-xl text-[10px] font-mono outline-none focus:ring-1 focus:ring-rose-200" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">Waze URL</label>
+                          <input type="text" value={inv.waze_url} placeholder="Waze URL..." onChange={(e) => updateField('waze_url', e.target.value)} className="w-full px-4 py-3 bg-gray-50 rounded-xl text-[10px] font-mono outline-none focus:ring-1 focus:ring-rose-200" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Group 4: Butiran lain - lain */}
+                <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran lain - lain</h3>
+                  <div className="space-y-6">
+                    {/* 9. Kisah Cinta Kita */}
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">9. Kisah Cinta Kita</label>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Kisah</label>
+                          <input type="text" placeholder="Contoh: Kisah Cinta Kami" value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kandungan Kisah</label>
+                          <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium italic leading-relaxed" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 10. Atur Cara Majlis */}
+                    <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">10. Atur Cara Majlis</label>
+                        <button
+                          onClick={() => {
+                            const newItem = { id: Date.now().toString(), time: '12:00 PM', activity: 'New Activity' };
+                            updateField('itinerary', [...(inv.itinerary || []), newItem]);
+                          }}
+                          className="text-[10px] bg-white border border-gray-200 px-4 py-2 rounded-full font-bold uppercase tracking-widest hover:bg-gray-50 transition"
+                        >
+                          + Add Item
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        {(inv.itinerary || []).map((item, index) => (
+                          <div key={item.id} className="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm space-y-4 group relative">
+                            <button
+                              onClick={() => {
+                                const newList = (inv.itinerary || []).filter(i => i.id !== item.id);
+                                updateField('itinerary', newList);
+                              }}
+                              className="absolute top-2 right-2 text-gray-300 hover:text-rose-500 transition text-xl"
+                            >
+                              &times;
+                            </button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waktu</label>
+                                <input
+                                  type="text"
+                                  value={item.time}
+                                  onChange={(e) => {
+                                    const newList = [...(inv.itinerary || [])];
+                                    newList[index].time = e.target.value;
+                                    updateField('itinerary', newList);
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-50 rounded-xl text-xs font-bold outline-none"
+                                  placeholder="12:00 PM"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">Aktiviti</label>
+                                <input
+                                  type="text"
+                                  value={item.activity}
+                                  onChange={(e) => {
+                                    const newList = [...(inv.itinerary || [])];
+                                    newList[index].activity = e.target.value;
+                                    updateField('itinerary', newList);
+                                  }}
+                                  className="w-full px-3 py-2 bg-gray-50 rounded-xl text-xs font-bold outline-none"
+                                  placeholder="Acara"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 11. Hashtag */}
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">11. Hashtag</label>
+                        <div className="flex gap-4">
+                          <input type="color" value={inv.settings.hashtag_color || '#8B4513'} onChange={(e) => updateSettings('hashtag_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] font-bold text-gray-400">Size</span>
+                            <input type="range" min="10" max="32" value={inv.settings.hashtag_size || '16'} onChange={(e) => updateSettings('hashtag_size', e.target.value)} className="w-16 accent-rose-600" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
                         <input
                           type="text"
                           placeholder="Contoh: #AisyahDanAhmun2025"
                           value={inv.settings.hashtag_text || ''}
                           onChange={(e) => updateSettings('hashtag_text', e.target.value)}
-                          className="w-full px-5 py-4 bg-white border border-gray-200 rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold"
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
                         />
-                      </div>
-                      <div className="space-y-3">
                         <FontPicker label="Font Hashtag" value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Warna</span>
-                            <input
-                              type="color"
-                              value={inv.settings.hashtag_color || '#8B4513'}
-                              onChange={(e) => updateSettings('hashtag_color', e.target.value)}
-                              className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                            />
-                          </label>
-                          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200">
-                            <div
-                              className="w-6 h-6 rounded-full border border-gray-200"
-                              style={{ backgroundColor: inv.settings.hashtag_color || '#8B4513' }}
-                            />
-                            <span className="text-[10px] font-mono text-gray-500">{inv.settings.hashtag_color || '#8B4513'}</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                            <span>Saiz</span>
-                            <span>{inv.settings.hashtag_size || '16'}px</span>
-                          </label>
-                          <input
-                            type="range"
-                            min="10"
-                            max="32"
-                            value={inv.settings.hashtag_size || '16'}
-                            onChange={(e) => updateSettings('hashtag_size', e.target.value)}
-                            className="w-full accent-rose-600 h-2 mt-3"
-                          />
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </section>
 
-                <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Masa & Tarikh Majlis</h3>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                      <span>Tarikh Majlis</span>
-                      <input type="color" value={inv.settings.date_color || '#1F2937'} onChange={(e) => updateSettings('date_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
-                    </label>
-                    <input
-                      type="date"
-                      value={inv.event_date}
-                      onChange={(e) => updateField('event_date', e.target.value)}
-                      className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none transition text-sm font-bold shadow-sm focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                      <FontPicker label="Font Tarikh" value={inv.settings.date_font} onChange={(font) => updateSettings('date_font', font)} />
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                          <span>Saiz Tarikh</span>
-                          <span>{inv.settings.date_size || '16'}px</span>
-                        </div>
-                        <input type="range" min="10" max="40" value={inv.settings.date_size || '16'} onChange={(e) => updateSettings('date_size', e.target.value)} className="w-full accent-rose-600 h-1" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jam Mula</label>
-                      <input
-                        type="time"
-                        value={inv.start_time}
-                        onChange={(e) => updateField('start_time', e.target.value)}
-                        className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jam Tamat</label>
-                      <input
-                        type="time"
-                        value={inv.end_time}
-                        onChange={(e) => updateField('end_time', e.target.value)}
-                        className="w-full px-6 py-5 bg-white border-2 border-rose-100 rounded-2xl outline-none text-sm font-bold shadow-sm transition-all focus:border-rose-400 focus:ring-4 focus:ring-rose-50"
-                      />
-                    </div>
-                  </div>
-                </section>
-
-                <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Lokasi & Peta</h3>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                        <span>Nama Lokasi</span>
-                        <input type="color" value={inv.settings.location_color || '#1F2937'} onChange={(e) => updateSettings('location_color', e.target.value)} className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer" />
-                      </label>
-                      <input type="text" value={inv.location_name} onChange={(e) => updateField('location_name', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                      <FontPicker label="Font Lokasi" value={inv.settings.location_font} onChange={(font) => updateSettings('location_font', font)} />
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                          <span>Saiz Lokasi</span>
-                          <span>{inv.settings.location_size || '14'}px</span>
-                        </div>
-                        <input type="range" min="10" max="40" value={inv.settings.location_size || '14'} onChange={(e) => updateSettings('location_size', e.target.value)} className="w-full accent-rose-600 h-1" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Alamat Penuh</label>
-                    <textarea rows={2} value={inv.address} onChange={(e) => updateField('address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                      Google Maps URL
-                      <span className="text-[8px] bg-rose-50 text-rose-400 px-2 py-0.5 rounded-full border border-rose-100 font-bold">Use Embed Link</span>
-                    </label>
-                    <input type="text" value={inv.google_maps_url} placeholder="https://www.google.com/maps/embed?..." onChange={(e) => updateField('google_maps_url', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[10px] font-mono outline-none transition-all focus:ring-2 focus:ring-rose-200" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waze URL</label>
-                    <input type="text" value={inv.waze_url} placeholder="https://waze.com/ul?..." onChange={(e) => updateField('waze_url', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[10px] font-mono outline-none transition-all focus:ring-2 focus:ring-rose-200" />
-                  </div>
-                </section>
-
-                <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Atur Cara Majlis</h3>
-                    <button
-                      onClick={() => {
-                        const newItem = { id: Date.now().toString(), time: '12:00 PM', activity: 'New Activity' };
-                        updateField('itinerary', [...(inv.itinerary || []), newItem]);
-                      }}
-                      className="text-[10px] bg-gray-100 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-gray-200 transition"
-                    >
-                      + Add Item
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    {(inv.itinerary || []).map((item, index) => (
-                      <div key={item.id} className="p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm space-y-4 group relative hover:shadow-md transition">
-                        <button
-                          onClick={() => {
-                            const newList = (inv.itinerary || []).filter(i => i.id !== item.id);
-                            updateField('itinerary', newList);
-                          }}
-                          className="absolute top-4 right-4 text-gray-300 hover:text-rose-500 transition text-2xl"
-                        >
-                          &times;
-                        </button>
-                        <div className="grid grid-cols-1 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waktu</label>
-                            <input
-                              type="text"
-                              value={item.time}
-                              onChange={(e) => {
-                                const newList = [...(inv.itinerary || [])];
-                                newList[index].time = e.target.value;
-                                updateField('itinerary', newList);
-                              }}
-                              className="w-full px-4 py-2.5 bg-gray-50 rounded-2xl text-xs font-bold outline-none"
-                              placeholder="Contoh: 12:00 PM"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Aktiviti / Acara</label>
-                            <input
-                              type="text"
-                              value={item.activity}
-                              onChange={(e) => {
-                                const newList = [...(inv.itinerary || [])];
-                                newList[index].activity = e.target.value;
-                                updateField('itinerary', newList);
-                              }}
-                              className="w-full px-4 py-2.5 bg-gray-50 rounded-2xl text-xs font-bold outline-none"
-                              placeholder="Contoh: Jamuan Makan Siang"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
               </div>
             )
           }

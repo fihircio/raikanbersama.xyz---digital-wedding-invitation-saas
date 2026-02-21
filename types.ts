@@ -180,6 +180,8 @@ export interface Invitation {
     youtube_show?: boolean;
     youtube_autoplay?: boolean;
     auto_scroll_delay?: number;
+    show_day?: boolean;
+    show_hijri?: boolean;
     is_paid?: boolean;
   };
   money_gift_details: {
