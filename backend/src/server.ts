@@ -203,10 +203,12 @@ const startServer = async () => {
     // Initialize database (create tables if they don't exist)
     await initializeDatabase();
 
-    // Auto-seed background images from seeder file on every startup
-    // This ensures deploys always have the latest designs without manual SSH
-    await seedBackgroundImages();
-    logger.info('Background images auto-seeded on startup');
+    if (config.nodeEnv !== 'production' || process.env.AUTO_SEED_BACKGROUNDS === 'true') {
+      await seedBackgroundImages();
+      logger.info('Background images auto-seeded on startup');
+    } else {
+      logger.info('Background image auto-seeding skipped in production');
+    }
 
     // Configure Google OAuth strategy only if variables are provided
     if (isGoogleOAuthConfigured()) {

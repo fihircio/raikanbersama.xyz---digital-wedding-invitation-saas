@@ -77,11 +77,14 @@ const uploadDesignImages = async () => {
             // Determine theme/category from filename prefix if possible
             const prefix = filename.split(/[-_]/)[0].toLowerCase();
             const categoryMap: Record<string, string> = {
+                'baby': 'Baby',
                 'floral': 'Floral',
                 'islamic': 'Islamic',
                 'minimal': 'Minimalist',
                 'modern': 'Modern',
+                'party': 'Party',
                 'ramadhan': 'Islamic',
+                'ramadan': 'Islamic',
                 'raya': 'Islamic',
                 'rustic': 'Rustic',
                 'traditional': 'Traditional',

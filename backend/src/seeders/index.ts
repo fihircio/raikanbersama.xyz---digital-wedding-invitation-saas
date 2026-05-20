@@ -931,8 +931,7 @@ export const seedBackgroundImages = async (): Promise<void> => {
     // END_BACKGROUND_IMAGES
   ];
 
-  const seederNames = new Set(backgroundImages.map(bg => bg.name));
-  let created = 0, updated = 0, removed = 0;
+  let created = 0, updated = 0;
 
   for (const bg of backgroundImages) {
     const exists = await BackgroundImage.findOne({ where: { name: bg.name } });
@@ -955,16 +954,7 @@ export const seedBackgroundImages = async (): Promise<void> => {
     }
   }
 
-  // Remove designs that are no longer in the seeder file
-  const allExisting = await BackgroundImage.findAll({ attributes: ['id', 'name'] });
-  for (const existing of allExisting) {
-    if (!seederNames.has(existing.name)) {
-      await existing.destroy();
-      removed++;
-    }
-  }
-
-  logger.info(`Background images synced: ${created} created, ${updated} updated, ${removed} removed`);
+  logger.info(`Background images synced: ${created} created, ${updated} updated; manually uploaded designs preserved`);
 };
 
 /**
