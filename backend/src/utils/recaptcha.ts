@@ -6,7 +6,12 @@ import logger from './logger';
  * @param token - The reCAPTCHA response token from the frontend
  * @returns Promise<boolean> - True if verification succeeds
  */
-export async function verifyRecaptcha(token: string): Promise<boolean> {
+export async function verifyRecaptcha(token?: string): Promise<boolean> {
+    if (process.env.NODE_ENV !== 'production' && process.env.DISABLE_RECAPTCHA === 'true') {
+        logger.warn('reCAPTCHA verification bypassed for local development');
+        return true;
+    }
+
     if (!token) {
         logger.warn('reCAPTCHA verification failed: Token is missing');
         return false;

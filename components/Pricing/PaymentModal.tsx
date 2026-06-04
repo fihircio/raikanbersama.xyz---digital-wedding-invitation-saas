@@ -3,6 +3,7 @@ import { Plan } from '../../types';
 import { buildApiUrl } from '../../src/config';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { XMarkIcon, TagIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { trackCustom, trackInitiateCheckout } from '../../src/utils/metaPixel';
 
 interface PaymentModalProps {
   plan: Plan;
@@ -57,6 +58,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
       const data = await response.json();
       if (data.success) {
         setDiscountInfo(data.data);
+        trackCustom('ApplyCoupon', {
+          coupon_code: couponCode,
+          plan_id: plan.id,
+          plan_name: plan.name,
+          discount_type: data.data.discount_type,
+          discount_value: data.data.discount_value,
+          business_name: data.data.business_name,
+        });
       } else {
         setCouponError(data.message || data.error || 'Kod kupon tidak sah');
         setDiscountInfo(null);
@@ -76,6 +85,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
     }
 
     setIsProcessing(true);
+    trackInitiateCheckout({
+      content_name: `${plan.name} Plan`,
+      content_category: 'pricing_plan',
+      content_ids: [plan.id],
+      content_type: 'product',
+      coupon: discountInfo ? couponCode : undefined,
+      value: discountedPrice,
+    });
 
     try {
       const response = await fetch(buildApiUrl('/payments/checkout'), {

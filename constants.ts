@@ -71,9 +71,9 @@ export const MOCK_INVITATIONS: Invitation[] = [
       bride_color: '#8B4513',
       host_color: '#4B5563',
       date_color: '#1F2937',
-      greeting_color: '#FFFFFF',
+      greeting_color: '#111827',
       greeting_size: '36',
-      hero_color: '#FFFFFF',
+      hero_color: '#111827',
       hero_size: '12',
       invitation_color: '#6B7280',
       invitation_size: '14'
@@ -153,11 +153,15 @@ export const PACKAGE_PLANS: Plan[] = [
 
 export const OPENING_TYPES = [
   { id: 'none', label: 'Tiada (None)' },
-  { id: 'window', label: 'Window Effect' },
-  { id: 'slide', label: 'Slide Door' },
-  { id: 'open-letter', label: 'Open Letter' },
-  { id: 'blur', label: 'Blur Reveal' },
-  { id: 'slide-up', label: 'Slide Up' }
+  { id: 'window-a', label: 'Tingkap A' },
+  { id: 'window-b', label: 'Tingkap B' },
+  { id: 'window-c', label: 'Tingkap C' },
+  { id: 'slide-a', label: 'Gelongsor A' },
+  { id: 'slide-b', label: 'Gelongsor B' },
+  { id: 'slide-c', label: 'Gelongsor C' },
+  { id: 'envelope-a', label: 'Sampul A' },
+  { id: 'envelope-b', label: 'Sampul B' },
+  { id: 'blur', label: 'Memudar' }
 ];
 
 export const EFFECT_STYLES = [

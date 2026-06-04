@@ -130,6 +130,14 @@ export const getInvitationBySlug = async (req: AuthenticatedRequest, res: Respon
       return;
     }
 
+    if (!invitation.settings?.is_published) {
+      res.status(404).json({
+        success: false,
+        error: 'Invitation not found'
+      } as ApiResponse);
+      return;
+    }
+
     // Increment view count
     await databaseService.incrementInvitationViews(invitation.id);
 

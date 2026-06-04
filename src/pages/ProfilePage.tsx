@@ -289,35 +289,32 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-8 py-12 text-white">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center space-x-6">
-                                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl font-bold">
+                                <div className="w-24 h-24 shrink-0 bg-white/20 rounded-full flex items-center justify-center text-4xl font-bold">
                                     {user?.name?.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold font-serif italic">{formData.name || user?.name}</h1>
                                     <p className="text-white/80 mt-1">{user?.email}</p>
-                                    <div className="mt-3 inline-block bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full">
-                                        <span className="text-sm font-bold uppercase tracking-wider">{user?.membership_tier} Member</span>
-                                    </div>
                                 </div>
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[190px]">
+                                <button
+                                    onClick={() => setIsEditing(!isEditing)}
+                                    className="bg-white text-rose-600 px-6 py-3 rounded-full font-bold hover:bg-rose-50 transition"
+                                >
+                                    {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+                                </button>
                                 {affiliateStatus === 'active' && (
                                     <button
                                         onClick={openAffiliateModal}
-                                        className="bg-rose-100 text-rose-600 px-6 py-2 rounded-full font-bold hover:bg-rose-200 transition flex items-center justify-center gap-2"
+                                        className="bg-rose-100 text-rose-600 px-6 py-3 rounded-full font-bold hover:bg-rose-200 transition flex items-center justify-center gap-2"
                                     >
                                         <CheckBadgeIcon className="w-5 h-5" />
                                         Vendor
                                     </button>
                                 )}
-                                <button
-                                    onClick={() => setIsEditing(!isEditing)}
-                                    className="bg-white text-rose-600 px-6 py-2 rounded-full font-bold hover:bg-rose-50 transition"
-                                >
-                                    {isEditing ? 'Cancel Edit' : 'Edit Profile'}
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -375,15 +372,6 @@ const ProfilePage: React.FC = () => {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Membership Tier</label>
-                                    <input
-                                        type="text"
-                                        value={user?.membership_tier || ''}
-                                        disabled
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-400 font-bold uppercase cursor-not-allowed"
-                                    />
-                                </div>
                             </div>
 
                             {isEditing && (

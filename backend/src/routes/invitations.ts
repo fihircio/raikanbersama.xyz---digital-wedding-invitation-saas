@@ -128,6 +128,22 @@ const createInvitationSchema = {
   'settings.pdf_export_enabled': {
     type: 'boolean'
   },
+  'settings.location_gps': {
+    type: 'string',
+    max: 100
+  },
+  'settings.section_title_font': {
+    type: 'string',
+    max: 100
+  },
+  'settings.section_title_size': {
+    type: 'string',
+    max: 10
+  },
+  'settings.content_margin_x': {
+    type: 'string',
+    max: 10
+  },
   'wishlist_details.enabled': {
     type: 'boolean'
   },
@@ -356,6 +372,22 @@ const updateInvitationSchema = {
   },
   'settings.pdf_export_enabled': {
     type: 'boolean'
+  },
+  'settings.location_gps': {
+    type: 'string',
+    max: 100
+  },
+  'settings.section_title_font': {
+    type: 'string',
+    max: 100
+  },
+  'settings.section_title_size': {
+    type: 'string',
+    max: 10
+  },
+  'settings.content_margin_x': {
+    type: 'string',
+    max: 10
   },
   'money_gift_details.enabled': {
     type: 'boolean'

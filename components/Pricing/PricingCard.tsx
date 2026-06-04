@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PaymentModal from './PaymentModal';
 import { Plan } from '../../types';
+import { trackAddToCart, trackCustom } from '../../src/utils/metaPixel';
 
 interface PricingCardProps {
   plan: Plan;
@@ -13,6 +14,22 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
   const navigate = useNavigate();
 
   const handlePilih = () => {
+    const value = Number(plan.price.toString().replace(/RM\s*/, ''));
+
+    trackAddToCart({
+      content_name: `${plan.name} Plan`,
+      content_category: 'pricing_plan',
+      content_ids: [plan.id],
+      content_type: 'product',
+      value,
+    });
+    trackCustom('SelectPlan', {
+      plan_id: plan.id,
+      plan_name: plan.name,
+      value,
+      currency: 'MYR',
+    });
+
     if (!invitationId) {
       navigate(`/catalog?plan=${plan.id}`);
     } else {

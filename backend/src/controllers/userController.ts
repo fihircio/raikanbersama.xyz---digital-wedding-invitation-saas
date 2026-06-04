@@ -22,7 +22,7 @@ export const register = async (req: AuthenticatedRequest, res: Response): Promis
     const { email, name, password, recaptchaToken }: RegisterRequest & { recaptchaToken?: string } = req.body;
 
     // Verify reCAPTCHA
-    if (!recaptchaToken || !(await verifyRecaptcha(recaptchaToken))) {
+    if (!(await verifyRecaptcha(recaptchaToken))) {
       res.status(400).json({
         success: false,
         error: 'reCAPTCHA verification failed. Please try again.'
@@ -99,7 +99,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<v
     const { email, password, recaptchaToken }: LoginRequest & { recaptchaToken?: string } = req.body;
 
     // Verify reCAPTCHA
-    if (!recaptchaToken || !(await verifyRecaptcha(recaptchaToken))) {
+    if (!(await verifyRecaptcha(recaptchaToken))) {
       res.status(400).json({
         success: false,
         error: 'reCAPTCHA verification failed. Please try again.'

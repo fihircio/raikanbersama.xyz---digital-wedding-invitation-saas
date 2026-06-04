@@ -17,11 +17,12 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
   const redirect = searchParams.get('redirect');
+  const isRecaptchaDisabled = import.meta.env.DEV && import.meta.env.VITE_DISABLE_RECAPTCHA === 'true';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!recaptchaToken) {
+    if (!isRecaptchaDisabled && !recaptchaToken) {
       setError('Sila lengkapkan reCAPTCHA.');
       return;
     }
@@ -121,15 +122,16 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Google reCAPTCHA v2 - Checkbox */}
-        <div className="flex justify-center">
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-            onChange={(token) => setRecaptchaToken(token)}
-            onExpired={() => setRecaptchaToken(null)}
-          />
-        </div>
+        {!isRecaptchaDisabled && (
+          <div className="flex justify-center">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setRecaptchaToken(token)}
+              onExpired={() => setRecaptchaToken(null)}
+            />
+          </div>
+        )}
 
         <div>
           <button

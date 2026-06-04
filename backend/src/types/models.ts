@@ -134,6 +134,10 @@ export interface Invitation {
     greeting_text?: string;
     invitation_text?: string;
     story_title?: string;
+    location_gps?: string;
+    section_title_font?: string;
+    section_title_size?: string;
+    content_margin_x?: string;
     // New individual color & size overrides
     groom_color?: string;
     bride_color?: string;

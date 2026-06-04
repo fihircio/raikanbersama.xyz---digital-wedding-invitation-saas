@@ -32,6 +32,44 @@ import TermsPage from './src/pages/TermsPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { NotificationProvider } from './src/contexts/NotificationContext';
 import Notification from './src/components/Notification';
+import { trackPageView } from './src/utils/metaPixel';
+
+class RouteErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
+  state = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Route render failed:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen bg-gray-50 px-6 py-24 text-center">
+          <div className="mx-auto max-w-xl rounded-[2rem] border border-rose-100 bg-white p-8 shadow-xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-rose-500">Page failed to load</p>
+            <h1 className="mt-3 text-2xl font-serif italic font-bold text-gray-950">Something broke on this page.</h1>
+            <p className="mt-4 rounded-2xl bg-gray-50 p-4 text-left font-mono text-xs leading-6 text-gray-600">
+              {this.state.error.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.assign('/dashboard')}
+              className="mt-6 rounded-full bg-rose-600 px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg shadow-rose-100 hover:bg-rose-700"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -86,6 +124,21 @@ const LegacyHashRedirect: React.FC = () => {
   return null;
 };
 
+const MetaPixelRouteTracker: React.FC = () => {
+  const location = useLocation();
+  const lastTrackedPath = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    const currentPath = `${location.pathname}${location.search}`;
+    if (lastTrackedPath.current === currentPath) return;
+
+    lastTrackedPath.current = currentPath;
+    trackPageView();
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
 
 const App: React.FC = () => {
   return (
@@ -94,7 +147,9 @@ const App: React.FC = () => {
         <NotificationProvider>
           <BrowserRouter>
             <LegacyHashRedirect />
+            <MetaPixelRouteTracker />
             <Notification />
+            <RouteErrorBoundary>
             <div className="min-h-screen">
               <Routes>
                 {/* Public Routes */}
@@ -183,6 +238,7 @@ const App: React.FC = () => {
                 } />
               </Routes>
             </div>
+            </RouteErrorBoundary>
           </BrowserRouter>
         </NotificationProvider>
       </AuthProvider>

@@ -72,7 +72,9 @@ const frontendUrls = config.frontendUrl
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   ...frontendUrls
 ].filter((origin, index, self) => origin && self.indexOf(origin) === index); // Remove duplicates and empty values
 
@@ -203,11 +205,11 @@ const startServer = async () => {
     // Initialize database (create tables if they don't exist)
     await initializeDatabase();
 
-    if (config.nodeEnv !== 'production' || process.env.AUTO_SEED_BACKGROUNDS === 'true') {
+    if (process.env.AUTO_SEED_BACKGROUNDS === 'true') {
       await seedBackgroundImages();
       logger.info('Background images auto-seeded on startup');
     } else {
-      logger.info('Background image auto-seeding skipped in production');
+      logger.info('Background image auto-seeding skipped');
     }
 
     // Configure Google OAuth strategy only if variables are provided

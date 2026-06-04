@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 interface AuthLayoutProps {
@@ -11,6 +11,8 @@ interface AuthLayoutProps {
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, subtitle }) => {
+    const location = useLocation();
+    const authSearch = location.search || '';
     // Hide Navbar on auth pages
     useEffect(() => {
         const navbar = document.querySelector('nav');
@@ -66,7 +68,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, sub
                     {/* Tabs */}
                     <div className="flex bg-gray-100 p-1 rounded-xl mb-8 relative">
                         <Link
-                            to="/login"
+                            to={`/login${authSearch}`}
                             className={`flex-1 text-center py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${activeTab === 'login'
                                 ? 'bg-white text-gray-900 shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700'
@@ -75,7 +77,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, sub
                             Masuk
                         </Link>
                         <Link
-                            to="/register"
+                            to={`/register${authSearch}`}
                             className={`flex-1 text-center py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${activeTab === 'register'
                                 ? 'bg-white text-gray-900 shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700'

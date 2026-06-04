@@ -131,10 +131,11 @@ const YoutubePlayer: React.FC<{
   autoplay?: boolean;
   isMuted?: boolean;
   isModalMode?: boolean;
+  isPreview?: boolean;
   onClose?: () => void;
   headerContent?: React.ReactNode;
   footerContent?: React.ReactNode;
-}> = ({ url, startTime, autoplay, isMuted = false, isModalMode = false, onClose, headerContent, footerContent }) => {
+}> = ({ url, startTime, autoplay, isMuted = false, isModalMode = false, isPreview = false, onClose, headerContent, footerContent }) => {
   const videoId = useMemo(() => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
@@ -153,14 +154,14 @@ const YoutubePlayer: React.FC<{
     <>
       {/* Backdrop for Modal Mode */}
       <div
-        className={`fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm transition-opacity duration-500 ${isModalMode ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`${isPreview ? 'absolute' : 'fixed'} inset-0 z-[260] bg-black/80 backdrop-blur-sm transition-opacity duration-500 ${isModalMode ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Main Player Container */}
       <div
-        className={`fixed transition-all duration-500 ease-in-out z-[101] flex flex-col items-center justify-center
+        className={`${isPreview ? 'absolute' : 'fixed'} transition-all duration-500 ease-in-out z-[261] flex flex-col items-center justify-center
         ${isModalMode
             ? 'inset-x-4 bottom-24 top-auto sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[500px] w-auto bg-white p-6 rounded-[2rem] shadow-2xl scale-100 opacity-100'
             : 'bottom-0 left-0 w-1 h-1 opacity-0 pointer-events-none scale-90'
@@ -326,27 +327,57 @@ const EffectOverlay: React.FC<{ type: string, color: string }> = ({ type, color 
   return null;
 };
 
-const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClosing: boolean, isPreview?: boolean, isOpen?: boolean }> = ({ invitation, onOpen, isClosing, isPreview, isOpen }) => {
+const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClosing: boolean, isPreview?: boolean, isOpen?: boolean, showOpeningSkin?: boolean }> = ({ invitation, onOpen, isClosing, isPreview, isOpen, showOpeningSkin = true }) => {
   const formattedDate = useMemo(() => {
     const d = invitation?.event_date ? new Date(invitation.event_date) : null;
     return !d || isNaN(d.getTime()) ? 'Tarikh Belum Ditetapkan' : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
   }, [invitation?.event_date]);
 
   const overlayOpacity = invitation.settings.layout_settings?.overlay_opacity ?? 0.4;
-  const openingType = invitation.settings.opening_type || 'slide-up';
-  const effectStyle = invitation.settings.effect_style || 'none';
+  const rawOpeningType = invitation.settings.opening_type || 'none';
+  const openingType = rawOpeningType === 'window' ? 'window-a' : rawOpeningType === 'slide' ? 'slide-a' : rawOpeningType === 'open-letter' ? 'envelope-a' : rawOpeningType;
   const openingColor = invitation.settings.opening_color || '#fff';
-  const effectColor = invitation.settings.effect_color || '#fff';
+  const coverShellColor = openingColor || invitation.settings.primary_color || '#ffffff';
+  const isWindowOpening = openingType.startsWith('window');
+  const isSlideOpening = openingType.startsWith('slide-') && openingType !== 'slide-up';
+  const isEnvelopeOpening = openingType.startsWith('envelope');
+  const isBlurOpening = openingType === 'blur';
+  const showOpeningShell = showOpeningSkin && !isOpen && openingType !== 'none' && openingType !== 'slide-up';
+  const buttonIsShellIntegrated = showOpeningShell && (isWindowOpening || isSlideOpening || isEnvelopeOpening || isBlurOpening);
+  const coverContentClass = `relative z-10 w-full h-full transition-transform duration-700 ${showOpeningShell ? 'opacity-60 blur-[1px]' : 'opacity-100 blur-0'}`;
+  const showCoverOpenButton = !isOpen && (!isPreview || showOpeningShell);
+  const shellButtonClass = buttonIsShellIntegrated
+    ? isEnvelopeOpening
+      ? 'bottom-[22%]'
+      : isBlurOpening
+        ? 'top-1/2 -translate-y-1/2'
+        : 'top-1/2 -translate-y-1/2'
+    : 'bottom-20';
+  const buttonClass = buttonIsShellIntegrated
+    ? isBlurOpening
+      ? 'mx-auto w-32 h-32 rounded-full bg-white/85 text-gray-800 border border-white/70 shadow-2xl flex flex-col items-center justify-center gap-2 font-bold text-xs uppercase tracking-[0.18em] hover:scale-105 transition-all duration-500'
+      : isEnvelopeOpening
+        ? 'mx-auto px-8 py-4 rounded-2xl bg-white/75 text-gray-700 border border-black/15 shadow-lg flex items-center justify-center gap-3 font-bold text-sm hover:bg-white transition-all duration-500 whitespace-nowrap'
+        : 'mx-auto w-32 h-32 rounded-full bg-white/90 text-gray-800 border border-white/70 shadow-2xl flex flex-col items-center justify-center gap-2 font-bold text-xs uppercase tracking-[0.18em] hover:scale-105 transition-all duration-500'
+    : 'mx-auto px-10 py-4 bg-white/20 backdrop-blur-md border border-white/40 text-white rounded-full font-bold text-sm hover:bg-white hover:text-gray-900 transition-all duration-500 shadow-2xl flex items-center justify-center gap-3 group whitespace-nowrap';
 
   // Animation Styles based on type
   const getAnimationClass = () => {
     if (!isClosing) return 'translate-y-0 opacity-100';
 
     switch (openingType) {
-      case 'slide': return 'translate-x-[150%] opacity-100 duration-1000'; // Slide Right
-      case 'window': return 'scale-150 opacity-0 duration-1000'; // Expand & Fade
+      case 'slide-a':
+      case 'slide-b':
+      case 'slide-c':
+        return 'translate-x-[150%] opacity-100 duration-1000';
+      case 'window-a':
+      case 'window-b':
+      case 'window-c':
+        return 'scale-150 opacity-0 duration-1000';
       case 'blur': return 'blur-xl opacity-0 duration-1000'; // Blur Out
-      case 'open-letter': return 'rotate-x-90 opacity-0 duration-1000 origin-top'; // Fold Down
+      case 'envelope-a':
+      case 'envelope-b':
+        return 'rotate-x-90 opacity-0 duration-1000 origin-top';
       case 'none': return 'hidden';
       case 'slide-up':
       default: return '-translate-y-full opacity-0 duration-1000';
@@ -354,7 +385,7 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
   };
 
   return (
-    <div className={`absolute inset-0 z-[200] flex flex-col items-center justify-center text-center transition-all ease-in-out ${getAnimationClass()}`}>
+    <div className={`absolute inset-0 z-[200] text-center overflow-hidden transition-all ease-in-out ${getAnimationClass()}`}>
 
       {/* Background with Blur Overlay */}
       <div
@@ -366,19 +397,75 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
 
 
 
-      {/* Content Rendering based on Layout */}
-      <CoverLayout invitation={invitation} formattedDate={formattedDate} />
+      {showOpeningShell && (
+        <div className="absolute inset-0 z-[220] pointer-events-none">
+          {(isWindowOpening || isSlideOpening) && (
+            <>
+              <div
+                className={`${isWindowOpening ? 'absolute inset-y-0 left-0 w-1/2' : 'absolute inset-x-0 top-0 h-1/2'} shadow-[inset_-12px_0_30px_rgba(0,0,0,0.18)] backdrop-blur-[3px] opacity-90`}
+                style={{ backgroundColor: coverShellColor }}
+              />
+              <div
+                className={`${isWindowOpening ? 'absolute inset-y-0 right-0 w-1/2' : 'absolute inset-x-0 bottom-0 h-1/2'} shadow-[inset_12px_0_30px_rgba(0,0,0,0.18)] backdrop-blur-[3px] opacity-90`}
+                style={{ backgroundColor: coverShellColor }}
+              />
+              {openingType === 'window-b' && (
+                <div className="absolute left-1/2 top-[18%] -translate-x-1/2 w-36 h-36 rounded-full bg-white/80 shadow-2xl border border-white/70" />
+              )}
+              {openingType === 'window-c' && (
+                <div className="absolute inset-8 rounded-[3rem] border border-white/35 shadow-[inset_0_0_60px_rgba(0,0,0,0.16)]" />
+              )}
+              {openingType === 'slide-b' && (
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-black/15 backdrop-blur-sm" />
+              )}
+              {openingType === 'slide-c' && (
+                <div className="absolute inset-y-0 left-1/2 w-px bg-black/15" />
+              )}
+              <div className={isWindowOpening ? 'absolute inset-y-0 left-1/2 w-px bg-white/35' : 'absolute inset-x-0 top-1/2 h-px bg-white/35'} />
+            </>
+          )}
 
-      {!isOpen ? (
-        <div className="relative z-30 mt-12 mb-40 animate-bounce-subtle">
+          {isEnvelopeOpening && (
+            <div className={`absolute inset-x-8 ${openingType === 'envelope-b' ? 'bottom-[30%] h-[36%]' : 'bottom-[24%] h-[42%]'} rounded-b-3xl overflow-hidden shadow-2xl rotate-90 origin-center`}>
+              <div className="absolute inset-x-8 -top-12 h-40 bg-white/85 rounded-2xl shadow-xl border border-black/5">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-70 px-4">
+                  <p className="text-[8px] uppercase tracking-[0.24em] text-gray-500">{invitation.event_type || 'Walimatulurus'}</p>
+                  <p className="mt-1 text-xl font-serif font-bold text-gray-600 leading-tight">{invitation.groom_name}</p>
+                  <p className="text-sm font-serif italic text-gray-400">&</p>
+                  <p className="text-xl font-serif font-bold text-gray-600 leading-tight">{invitation.bride_name}</p>
+                </div>
+              </div>
+              <div className="absolute inset-0" style={{ backgroundColor: coverShellColor }} />
+              <div className="absolute inset-x-0 top-0 h-1/2 origin-top rotate-180" style={{ backgroundColor: coverShellColor, clipPath: 'polygon(0 0, 50% 100%, 100% 0)' }} />
+              <div className="absolute inset-x-0 bottom-0 h-full" style={{ backgroundColor: coverShellColor, clipPath: 'polygon(0 100%, 50% 40%, 100% 100%)' }} />
+              <div className="absolute inset-y-0 left-0 w-1/2 bg-black/10" style={{ clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }} />
+              <div className="absolute inset-y-0 right-0 w-1/2 bg-white/10" style={{ clipPath: 'polygon(100% 0, 0 50%, 100% 100%)' }} />
+            </div>
+          )}
+
+          {isBlurOpening && (
+            <div className="absolute inset-0 bg-white/20 backdrop-blur-[10px]">
+              <div className="absolute inset-8 rounded-[3rem] border border-white/40 shadow-[inset_0_0_80px_rgba(255,255,255,0.25)]" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Content Rendering based on Layout */}
+      <div className={coverContentClass}>
+        <CoverLayout invitation={invitation} formattedDate={formattedDate} />
+      </div>
+
+      {showCoverOpenButton ? (
+        <div className={`absolute z-[230] ${shellButtonClass} left-0 right-0 flex justify-center px-6 animate-bounce-subtle`}>
           <button
             onClick={onOpen}
-            className="px-10 py-4 bg-white/20 backdrop-blur-md border border-white/40 text-white rounded-full font-bold text-sm hover:bg-white hover:text-gray-900 transition-all duration-500 shadow-2xl flex items-center gap-3 group"
+            className={buttonClass}
             style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined }}
           >
             Buka Jemputan
-            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-rose-500 transform transition-transform group-hover:rotate-12">
-              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`${buttonIsShellIntegrated ? 'w-7 h-7 bg-black/10 text-current' : 'w-6 h-6 bg-white/20 text-white group-hover:bg-rose-500'} rounded-full flex items-center justify-center transform transition-transform group-hover:rotate-12`}>
+              <svg className="w-3 h-3 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </div>
@@ -393,9 +480,9 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
 // --- Invitation Content Sections ---
 
 
-const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string }> = ({ wishes, primaryColor, secondaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont }) => (
+const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, sectionTitleStyle?: React.CSSProperties }> = ({ wishes, primaryColor, secondaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont, sectionTitleStyle }) => (
   <div className="mt-24 text-center px-4 pb-12">
-    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Ucapan & Doa</h4>
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Ucapan & Doa</h4>
     <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar py-4 px-2">
       {(wishes || []).length > 0 ? (wishes || []).map((wish) => (
         <div key={wish.id} className="bg-white border border-gray-100 p-6 rounded-[2rem] shadow-sm text-left relative overflow-hidden group hover:shadow-md transition">
@@ -411,7 +498,7 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?
     {/* Hashtag Display - appears after wishes for Pro/Elite */}
     {hashtagText && (
       <div className="mt-16 mb-2">
-        <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Hashtag</h4>
+        <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Hashtag</h4>
         <span
           className="block tracking-wider break-words leading-relaxed"
           style={{
@@ -427,9 +514,9 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?
   </div>
 );
 
-const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string, secondaryColor?: string }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor, secondaryColor }) => (
+const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string, secondaryColor?: string, sectionTitleStyle?: React.CSSProperties }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor, secondaryColor, sectionTitleStyle }) => (
   <div className="mt-24 text-center px-4 pb-8">
-    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Hashtag</h4>
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Hashtag</h4>
     <span
       className="block tracking-wider break-words leading-relaxed"
       style={{
@@ -469,11 +556,20 @@ const getCsrfToken = async () => {
   }
 };
 
-const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, isPreview?: boolean, setInv?: React.Dispatch<React.SetStateAction<Invitation | null>> }> = ({ invitation, guestName, isPreview, setInv }) => {
+type PreviewFocusStep = 'pembukaan' | 'utama' | 'butiran' | 'design' | 'media' | 'tetamu' | 'hadiah' | 'wishlist' | 'rsvp';
+
+const InvitationContent: React.FC<{
+  invitation: Invitation,
+  guestName?: string,
+  isPreview?: boolean,
+  previewFocus?: PreviewFocusStep,
+  setInv?: React.Dispatch<React.SetStateAction<Invitation | null>>
+}> = ({ invitation, guestName, isPreview, previewFocus, setInv }) => {
   const mainContentRef = useRef<HTMLDivElement>(null);
   const [showRsvp, setShowRsvp] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [previewSkinDismissed, setPreviewSkinDismissed] = useState(false);
   const [activeModal, setActiveModal] = useState<'map' | 'calendar' | 'contact' | 'hadiah' | 'music' | null>(null);
   const [formData, setFormData] = useState({
     name: guestName || '',
@@ -493,6 +589,79 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
   const { showNotification } = useNotification();
 
   const currentTier = invitation?.settings?.package_plan || 'free';
+
+  useEffect(() => {
+    if (!isPreview || !previewFocus) return;
+
+    const focusMap: Partial<Record<PreviewFocusStep, string>> = {
+      butiran: 'main',
+      design: 'details',
+      media: 'media-actions',
+    };
+    const scrollToPreviewSection = (sectionName: string, block: ScrollLogicalPosition = 'center') => {
+      const target = mainContentRef.current?.querySelector(`[data-preview-section="${sectionName}"]`) as HTMLElement | null;
+      (target || mainContentRef.current)?.scrollIntoView({ behavior: 'smooth', block });
+    };
+    const scrollToActionArea = () => scrollToPreviewSection('media-actions', 'center');
+
+    if (previewFocus === 'pembukaan') {
+      setIsOpen(false);
+      setPreviewSkinDismissed(false);
+      setActiveModal(null);
+      setShowRsvp(false);
+      setTimeout(() => {
+        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
+        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+      return;
+    }
+
+    if (previewFocus === 'utama') {
+      setIsOpen(false);
+      setPreviewSkinDismissed(true);
+      setActiveModal(null);
+      setShowRsvp(false);
+      setTimeout(() => {
+        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
+        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+      return;
+    }
+
+    setIsOpen(true);
+    setPreviewSkinDismissed(true);
+    setActiveModal(null);
+    setShowRsvp(false);
+
+    if (previewFocus === 'media') {
+      setTimeout(scrollToActionArea, 120);
+      setTimeout(() => setActiveModal('music'), 260);
+      return;
+    }
+
+    if (previewFocus === 'tetamu') {
+      setTimeout(scrollToActionArea, 120);
+      setTimeout(() => setActiveModal('contact'), 260);
+      return;
+    }
+
+    if (previewFocus === 'hadiah' || previewFocus === 'wishlist') {
+      setTimeout(scrollToActionArea, 120);
+      setTimeout(() => setActiveModal('hadiah'), 260);
+      return;
+    }
+
+    if (previewFocus === 'rsvp') {
+      setTimeout(scrollToActionArea, 120);
+      setTimeout(() => setShowRsvp(true), 260);
+      return;
+    }
+
+    setTimeout(() => {
+      const targetName = focusMap[previewFocus] || 'main';
+      scrollToPreviewSection(targetName);
+    }, 180);
+  }, [isPreview, previewFocus, invitation.settings.opening_type, invitation.settings.youtube_show, invitation.settings.youtube_url]);
 
   const canAccess = (feature: string) => {
     switch (feature) {
@@ -517,9 +686,22 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
   const [isClosing, setIsClosing] = useState(false);
 
   const handleOpenInvitation = () => {
+    if (isPreview && previewFocus === 'pembukaan') {
+      setIsClosing(true);
+      setTimeout(() => {
+        setPreviewSkinDismissed(true);
+        setIsOpen(false);
+        setIsClosing(false);
+        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
+        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 1000);
+      return;
+    }
+
     setIsClosing(true);
     setTimeout(() => {
       setIsOpen(true);
+      setPreviewSkinDismissed(true);
       setIsClosing(false);
       // Use a small timeout to ensure the content is rendered before scrolling
       setTimeout(() => {
@@ -724,6 +906,8 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
     }
   }, [isOpen, invitation.settings.auto_scroll_delay]);
 
+  const showOpeningSkin = previewFocus !== 'utama' && !previewSkinDismissed;
+
   return (
     <>
       <SEO
@@ -740,6 +924,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           startTime={invitation.settings.youtube_start_time}
           autoplay={isOpen && (invitation.settings.youtube_autoplay !== false)} // We keep autoplay true even if modal is open, to allow continuity
           isModalMode={activeModal === 'music'}
+          isPreview={isPreview}
           onClose={() => setActiveModal(null)}
           headerContent={
             <div className="text-center">
@@ -771,6 +956,7 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
           {/* The Mobile "Phone" Container */}
           <div className="relative w-full max-w-[500px] shadow-[0_0_100px_rgba(0,0,0,0.5)] z-10 min-h-screen">
             <InvitationBody
+              isPreview={false}
               mainContentRef={mainContentRef}
               invitation={invitation}
               isOpen={isOpen}
@@ -798,12 +984,15 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
               handleRsvpSubmit={handleRsvpSubmit}
               formData={formData}
               setFormData={setFormData}
+              previewFocus={previewFocus}
+              showOpeningSkin={showOpeningSkin}
             />
           </div>
         </div>
       ) : (
-        <div className="relative w-full min-h-screen transform translate-z-0">
+        <div className={`relative w-full transform translate-z-0 ${previewFocus === 'pembukaan' || previewFocus === 'utama' ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
           <InvitationBody
+            isPreview={true}
             mainContentRef={mainContentRef}
             invitation={invitation}
             isOpen={isOpen}
@@ -831,6 +1020,8 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
             handleRsvpSubmit={handleRsvpSubmit}
             formData={formData}
             setFormData={setFormData}
+            previewFocus={previewFocus}
+            showOpeningSkin={showOpeningSkin}
           />
         </div>
       )}
@@ -839,12 +1030,14 @@ const InvitationContent: React.FC<{ invitation: Invitation, guestName?: string, 
 };
 
 function InvitationBody({
+  isPreview,
   mainContentRef,
   invitation, isOpen, isClosing, handleOpenInvitation, handleCloseInvitation,
   activeModal, setActiveModal, canAccess, formattedDate, dateDisplay, primaryColor, secondaryColor,
   hostStyle, invitationTextStyles, groomStyleBody, brideStyleBody, dateStyleBody, locationStyleBody,
-  guestName, showRsvp, setShowRsvp, isSuccess, isSubmitting, handleRsvpSubmit, formData, setFormData
+  guestName, showRsvp, setShowRsvp, isSuccess, isSubmitting, handleRsvpSubmit, formData, setFormData, previewFocus, showOpeningSkin
 }: {
+  isPreview?: boolean;
   mainContentRef: React.RefObject<HTMLDivElement>;
   invitation: Invitation;
   isOpen: boolean;
@@ -872,6 +1065,8 @@ function InvitationBody({
   handleRsvpSubmit: () => void;
   formData: any;
   setFormData: (f: any) => void;
+  previewFocus?: PreviewFocusStep;
+  showOpeningSkin: boolean;
 }) {
   const { showNotification } = useNotification();
 
@@ -885,6 +1080,25 @@ function InvitationBody({
     color: invitation.settings.hero_color || '#374151',
     fontFamily: invitation.settings.hero_font || 'inherit',
     fontSize: invitation.settings.hero_size ? `${invitation.settings.hero_size}px` : undefined,
+  };
+
+  const showGreeting = invitation.settings.show_greeting !== false;
+  const showHeroTitle = invitation.settings.show_hero_title !== false;
+  const showHostNames = invitation.settings.show_host_names !== false;
+  const showInvitationText = invitation.settings.show_invitation_text !== false;
+  const showEventDate = invitation.settings.show_event_date !== false;
+  const showEventLocation = invitation.settings.show_event_location !== false;
+  const showStory = invitation.settings.show_story !== false;
+  const showItinerary = invitation.settings.show_itinerary !== false;
+  const showHashtag = invitation.settings.show_hashtag !== false;
+  const sectionTitleStyle = {
+    fontFamily: invitation.settings.section_title_font || undefined,
+    fontSize: invitation.settings.section_title_size ? `${invitation.settings.section_title_size}px` : undefined,
+  };
+  const contentMargin = invitation.settings.content_margin_x || '32';
+  const contentMarginStyle = {
+    paddingLeft: `${contentMargin}px`,
+    paddingRight: `${contentMargin}px`,
   };
 
   return (
@@ -902,7 +1116,9 @@ function InvitationBody({
           invitation={{ ...invitation, settings: { ...invitation.settings, effect_style: canAccess('visual_effects') ? invitation.settings.effect_style : 'none' } }}
           onOpen={handleOpenInvitation}
           isClosing={isClosing}
+          isPreview={isPreview}
           isOpen={isOpen}
+          showOpeningSkin={showOpeningSkin}
         />
       </div>
 
@@ -949,8 +1165,8 @@ function InvitationBody({
             />
           )}
 
-          <div className="relative z-10 w-full">
-            <div className="relative z-20 px-8 py-16 text-center transition-all duration-700">
+          <div className="relative z-10 w-full transition-all duration-700" style={contentMarginStyle}>
+            <div data-preview-section="main" className="relative z-20 py-16 text-center transition-all duration-700">
               {/* Order: Kata Aluan (Greeting) -> Hero Title -> Nama Tuan Rumah -> Teks Jemputan -> Couple Names -> Date */}
 
               {guestName && (
@@ -961,81 +1177,87 @@ function InvitationBody({
                 </div>
               )}
 
-              <div className="mb-14 space-y-4">
-                <h2 className="font-serif font-bold italic leading-tight" style={greetingStyles}>
-                  {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
-                </h2>
-                <p className="uppercase tracking-[0.4em] font-bold block" style={heroStyles}>
-                  {invitation.settings.hero_title || 'Raikan Cinta Kami'}
-                </p>
-              </div>
+              {(showGreeting || showHeroTitle) && (
+                <div className="mb-14 space-y-4 px-2">
+                  {showGreeting && (
+                    <h2 className="font-serif font-bold italic leading-tight max-w-[320px] mx-auto whitespace-pre-line break-words [overflow-wrap:anywhere]" style={greetingStyles}>
+                      {invitation.settings.greeting_text || 'Assalammualaikum W.B.T'}
+                    </h2>
+                  )}
+                  {showHeroTitle && (
+                    <p className="uppercase tracking-[0.4em] font-bold block max-w-[320px] mx-auto whitespace-pre-line break-words [overflow-wrap:anywhere]" style={heroStyles}>
+                      {invitation.settings.hero_title || 'Raikan Cinta Kami'}
+                    </p>
+                  )}
+                </div>
+              )}
 
-              <div className="mb-14 space-y-6">
-                <p className="text-xl font-serif italic text-gray-700 font-bold" style={hostStyle}>
-                  {invitation.host_names}
-                </p>
+              {(showHostNames || showInvitationText) && (
+                <div className="mb-14 space-y-6">
+                  {showHostNames && (
+                    <p className="text-xl font-serif italic text-gray-700 font-bold max-w-[320px] mx-auto whitespace-pre-line break-words [overflow-wrap:anywhere]" style={hostStyle}>
+                      {invitation.host_names}
+                    </p>
+                  )}
 
-                <p className="leading-relaxed font-light max-w-[300px] mx-auto italic" style={invitationTextStyles}>
-                  {invitation.settings.invitation_text || `Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput anda ke majlis perkahwinan anakanda kami yang tercinta:`}
-                </p>
-              </div>
+                  {showInvitationText && (
+                    <p className="leading-relaxed font-light max-w-[300px] mx-auto italic whitespace-pre-line break-words [overflow-wrap:anywhere]" style={invitationTextStyles}>
+                      {invitation.settings.invitation_text || `Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput anda ke majlis perkahwinan anakanda kami yang tercinta:`}
+                    </p>
+                  )}
+                </div>
+              )}
 
-              <div className="space-y-4 mb-14 animate-fade-in px-4">
-                <h3 className="text-5xl md:text-6xl font-cursive font-bold w-full text-center leading-tight break-words" style={groomStyleBody}>
-                  {invitation.groom_name?.trim()}
-                </h3>
-                <p className="font-serif italic text-xl text-center" style={{ color: secondaryColor || '#d1d5db' }}>&</p>
-                <h3 className="text-5xl md:text-6xl font-cursive font-bold w-full text-center leading-tight break-words" style={brideStyleBody}>
-                  {invitation.bride_name?.trim()}
-                </h3>
-              </div>
-
-              <div className="mb-16 space-y-1">
-                {invitation.settings.show_day && dateDisplay.day && (
-                  <p className="text-xl font-serif italic font-bold" style={dateStyleBody}>
-                    {dateDisplay.day}
+              {showEventDate && (
+                <div className="mb-16 space-y-1">
+                  {invitation.settings.show_day && dateDisplay.day && (
+                    <p className="text-xl font-serif italic font-bold" style={dateStyleBody}>
+                      {dateDisplay.day}
+                    </p>
+                  )}
+                  <p className="text-2xl font-serif italic font-bold" style={dateStyleBody}>
+                    {dateDisplay.main}
                   </p>
-                )}
-                <p className="text-2xl font-serif italic font-bold" style={dateStyleBody}>
-                  {dateDisplay.main}
-                </p>
-                {invitation.settings.show_hijri && dateDisplay.hijri && (
-                  <p className="text-lg font-serif italic font-bold opacity-80" style={dateStyleBody}>
-                    {dateDisplay.hijri}
-                  </p>
-                )}
-              </div>
-              {invitation.settings.show_countdown && (
+                  {invitation.settings.show_hijri && dateDisplay.hijri && (
+                    <p className="text-lg font-serif italic font-bold opacity-80" style={dateStyleBody}>
+                      {dateDisplay.hijri}
+                    </p>
+                  )}
+                </div>
+              )}
+              {showEventDate && invitation.settings.show_countdown && (
                 <Countdown targetDate={invitation.event_date} color={invitation.settings.date_color || primaryColor} />
               )}
             </div>
 
 
             {invitation.settings.pantun && (
-              <div className="p-8 rounded-[2.5rem] italic text-gray-500 font-serif leading-relaxed text-sm mb-16 border border-gray-100 shadow-inner">
+              <div className="p-8 rounded-[2.5rem] italic text-gray-500 font-serif leading-relaxed text-sm mb-16 border border-gray-100 shadow-inner whitespace-pre-line break-words [overflow-wrap:anywhere]">
                 "{invitation.settings.pantun}"
               </div>
             )}
 
-            <div className="space-y-6 p-8 rounded-[2.5rem] border border-gray-100 mb-16 shadow-sm">
-              <div className="flex flex-col items-center space-y-2">
-                <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {showEventLocation && (
+              <div data-preview-section="details" className="space-y-6 py-8 rounded-[2.5rem] border border-gray-100 mb-16 shadow-sm">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  </div>
+                  <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
+                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
                 </div>
-                <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
-                <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
-              </div>
 
-              <div className="w-full h-px bg-gray-200/50" />
+                <div className="w-full h-px bg-gray-200/50" />
 
-              <div className="flex flex-col items-center space-y-2">
-                <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="p-3 bg-gray-50 rounded-full shadow-sm" style={{ color: primaryColor }}>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  </div>
+                  <span className="font-bold text-gray-800 text-lg tracking-tight text-center break-words [overflow-wrap:anywhere]" style={locationStyleBody}>{invitation.location_name}</span>
+                  <p className="text-[10px] text-gray-400 font-medium px-4 text-center whitespace-pre-line break-words [overflow-wrap:anywhere]">{invitation.address}</p>
                 </div>
-                <span className="font-bold text-gray-800 text-lg tracking-tight" style={locationStyleBody}>{invitation.location_name}</span>
-                <p className="text-[10px] text-gray-400 font-medium px-4">{invitation.address}</p>
               </div>
-            </div>
+            )}
 
             {canAccess('rsvp') && (() => {
               const rsvpSettings = invitation.rsvp_settings;
@@ -1067,41 +1289,40 @@ function InvitationBody({
               );
             })()}
 
-            {invitation.settings.our_story && (
-              <div className="mt-24 text-center">
-                <h4 className="text-xs font-bold uppercase tracking-widest mb-6 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>
-                  {invitation.settings.story_title || 'Kisah Cinta Kami'}
+            {showStory && invitation.settings.our_story && (
+              <div data-preview-section="story" className="mt-24 text-center">
+                <h4 className="text-xs font-bold uppercase tracking-widest mb-6 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>
+                  {invitation.settings.story_title || 'Maklumat Tambahan'}
                 </h4>
-                <p className="text-sm text-gray-600 leading-relaxed italic font-light px-4">
+                <p className="text-sm text-gray-600 leading-relaxed italic font-light px-4 whitespace-pre-line break-words [overflow-wrap:anywhere]">
                   {invitation.settings.our_story}
                 </p>
               </div>
             )}
 
-            <div className="mt-24 text-center">
-              <h4 className="text-xs font-bold uppercase tracking-widest mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Atur Cara Majlis</h4>
-              <div className="space-y-8 max-w-[280px] mx-auto">
-                {invitation?.itinerary && invitation.itinerary.length > 0 ? (
-                  invitation.itinerary.map((item, idx) => (
-                    <div key={item.id} className="flex space-x-6 text-left">
-                      <div className="flex flex-col items-center">
-                        <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: primaryColor }} />
-                        {idx !== invitation.itinerary.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-2 mb-2" />}
+            {showItinerary && (
+              <div data-preview-section="itinerary" className="mt-24 text-center">
+                <h4 className="text-xs font-bold uppercase tracking-widest mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Atur Cara Majlis</h4>
+                <div className="space-y-8 max-w-[280px] mx-auto">
+                  {invitation?.itinerary && invitation.itinerary.length > 0 ? (
+                    invitation.itinerary.map((item) => (
+                      <div key={item.id} className="flex flex-col items-center text-center">
+                        <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm mb-3" style={{ backgroundColor: primaryColor }} />
+                        <div className="pb-4">
+                          <p className="text-sm font-bold text-gray-800 font-serif italic whitespace-pre-line break-words [overflow-wrap:anywhere]">{item.time}</p>
+                          <p className="text-sm text-gray-500 font-light whitespace-pre-line break-words [overflow-wrap:anywhere]">{item.activity}</p>
+                        </div>
                       </div>
-                      <div className="pb-4">
-                        <p className="text-sm font-bold text-gray-800 font-serif italic">{item.time}</p>
-                        <p className="text-sm text-gray-500 font-light">{item.activity}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
-                )}
+                    ))
+                  ) : (
+                    <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Hashtag Section - Only for Lite users (no wishes feature) */}
-            {invitation.settings.hashtag_text && !canAccess('wishes') && (
+            {showHashtag && invitation.settings.hashtag_text && !canAccess('wishes') && (
               <Hashtag
                 hashtagText={invitation.settings.hashtag_text}
                 hashtagColor={invitation.settings.hashtag_color}
@@ -1109,11 +1330,12 @@ function InvitationBody({
                 hashtagFont={invitation.settings.hashtag_font}
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
+                sectionTitleStyle={sectionTitleStyle}
               />
             )}
 
             {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
-              <div className="mt-24 text-center">
+              <div data-preview-section="gallery" className="mt-24 text-center">
                 <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Kenangan Abadi</h4>
                 <div className="grid grid-cols-2 gap-4">
                   {(invitation.gallery || []).map((img, idx) => {
@@ -1131,19 +1353,22 @@ function InvitationBody({
             )}
 
             {canAccess('wishes') && (
-              <Guestbook
-                wishes={invitation.wishes}
-                primaryColor={primaryColor}
-                secondaryColor={secondaryColor}
-                hashtagText={invitation.settings.hashtag_text}
-                hashtagColor={invitation.settings.hashtag_color}
-                hashtagSize={invitation.settings.hashtag_size}
-                hashtagFont={invitation.settings.hashtag_font}
-              />
+              <div data-preview-section="guestbook">
+                <Guestbook
+                  wishes={invitation.wishes}
+                  primaryColor={primaryColor}
+                  secondaryColor={secondaryColor}
+                  hashtagText={showHashtag ? invitation.settings.hashtag_text : undefined}
+                  hashtagColor={invitation.settings.hashtag_color}
+                  hashtagSize={invitation.settings.hashtag_size}
+                  hashtagFont={invitation.settings.hashtag_font}
+                  sectionTitleStyle={sectionTitleStyle}
+                />
+              </div>
             )}
 
             {/* Sticky Bottom Nav - Now resides at the bottom and follows the user */}
-            <div className={`sticky bottom-32 z-[80] w-[95%] max-w-[340px] mx-auto transition-all duration-500 ${activeModal ? 'translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}`}>
+            <div data-preview-section="media-actions" className={`sticky bottom-32 z-[80] w-[95%] max-w-[340px] mx-auto transition-all duration-500 ${activeModal && activeModal !== 'music' ? 'translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}`}>
               <div className="glass rounded-full px-6 py-4 flex justify-between items-center shadow-2xl border border-white/40 ring-2 ring-rose-50/50">
                 <button onClick={() => setActiveModal('map')} className="flex flex-col items-center gap-1 group outline-none">
                   <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
@@ -1189,7 +1414,7 @@ function InvitationBody({
 
           {/* Feature Modals */}
           {activeModal && activeModal !== 'music' && (
-            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className={`${isPreview ? 'absolute' : 'fixed'} inset-0 z-[260] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in`}>
               <div className="bg-white w-full max-w-[400px] rounded-t-[3rem] sm:rounded-[3.5rem] p-10 shadow-2xl relative animate-slide-up max-h-[80vh] overflow-y-auto no-scrollbar">
                 <button
                   onClick={() => setActiveModal(null)}
@@ -1206,10 +1431,11 @@ function InvitationBody({
                     </div>
                     <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
                       {(() => {
+                        const locationQuery = invitation.settings.location_gps || invitation.address || invitation.location_name;
                         const embedUrl = invitation.google_maps_url?.includes('embed')
                           ? invitation.google_maps_url
-                          : (invitation.address || invitation.location_name)
-                            ? `https://maps.google.com/maps?q=${encodeURIComponent(invitation.address || invitation.location_name)}&output=embed`
+                          : locationQuery
+                            ? `https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}&output=embed`
                             : null;
 
                         if (embedUrl) {
@@ -1236,7 +1462,7 @@ function InvitationBody({
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <a
-                        href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.address || invitation.location_name)}`}
+                        href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.settings.location_gps || invitation.address || invitation.location_name)}`}
                         target="_blank"
                         rel="noreferrer"
                         className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
@@ -1244,7 +1470,7 @@ function InvitationBody({
                         G-Maps
                       </a>
                       <a
-                        href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.address || invitation.location_name)}&navigate=yes`}
+                        href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.settings.location_gps || invitation.address || invitation.location_name)}&navigate=yes`}
                         target="_blank"
                         rel="noreferrer"
                         className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
@@ -1416,7 +1642,7 @@ function InvitationBody({
           )}
 
           {showRsvp && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all animate-fade-in">
+            <div className={`${isPreview ? 'absolute' : 'fixed'} inset-0 z-[260] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all animate-fade-in`}>
               <div className="bg-white w-full max-w-[360px] rounded-[3.5rem] p-10 shadow-2xl relative overflow-hidden transition-all duration-500 ease-in-out">
                 {isSuccess ? (
                   <div className="text-center py-10 animate-scale-in">

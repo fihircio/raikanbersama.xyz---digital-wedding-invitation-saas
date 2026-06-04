@@ -135,6 +135,19 @@ export interface Invitation {
     greeting_text?: string;
     invitation_text?: string;
     story_title?: string;
+    show_greeting?: boolean;
+    show_hero_title?: boolean;
+    show_host_names?: boolean;
+    show_invitation_text?: boolean;
+    show_event_date?: boolean;
+    show_event_location?: boolean;
+    show_story?: boolean;
+    show_itinerary?: boolean;
+    show_hashtag?: boolean;
+    location_gps?: string;
+    section_title_font?: string;
+    section_title_size?: string;
+    content_margin_x?: string;
     // Hashtag for social sharing
     hashtag_text?: string;
     hashtag_color?: string;
@@ -166,12 +179,15 @@ export interface Invitation {
     invitation_font?: string;
     invitation_size?: string;
     package_plan?: string;
-    opening_type?: 'window' | 'slide' | 'open-letter' | 'blur' | 'slide-up' | 'none';
+    opening_type?: string;
     opening_color?: string;
     effect_style?: 'none' | 'bubble' | 'snow' | 'stars';
     effect_color?: string;
     layout_settings?: {
       cover_layout?: string;
+      cover_content_order?: 'layout-1' | 'layout-2';
+      cover_text_align?: 'left' | 'center' | 'right';
+      cover_vertical_align?: 'top' | 'middle' | 'bottom';
       font_family?: string;
       overlay_opacity?: number;
     };
