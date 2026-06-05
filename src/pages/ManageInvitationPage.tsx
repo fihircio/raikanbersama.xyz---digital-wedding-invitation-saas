@@ -20,6 +20,10 @@ const ManageInvitationPage: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<'A' | 'B'>('A');
   const [shareText, setShareText] = useState('');
   const [shareToGuest, setShareToGuest] = useState(''); // New state for 'to=' parameter
+  const [customSlug, setCustomSlug] = useState('');
+  const [isUpdatingSlug, setIsUpdatingSlug] = useState(false);
+  const displayTitle = invitation?.settings?.cover_title?.trim() || (invitation ? `${invitation.groom_name} & ${invitation.bride_name}` : '');
+  const isPublished = invitation?.settings?.is_published === true;
 
   useEffect(() => {
     const fetchInvitation = async () => {
@@ -169,6 +173,7 @@ const ManageInvitationPage: React.FC = () => {
   }, [activeTab, id, token, invitation]);
 
   const currentTier = invitation?.settings?.package_plan || 'free';
+  const canUseCustomSlug = currentTier === 'elite' && invitation?.settings?.is_paid === true;
 
   const canAccess = (feature: string) => {
     switch (feature) {
@@ -194,6 +199,90 @@ const ManageInvitationPage: React.FC = () => {
 
   const invitationLink = invitation ? `${window.location.origin}/i/${invitation.slug}` : '';
   const weddingDate = invitation?.event_date ? new Date(invitation.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA';
+
+  useEffect(() => {
+    if (invitation?.slug) {
+      setCustomSlug(invitation.slug);
+    }
+  }, [invitation?.slug]);
+
+  const normalizeSlug = (value: string) => value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  const handleCustomSlugChange = (value: string) => {
+    setCustomSlug(normalizeSlug(value));
+  };
+
+  const handleUpdateCustomSlug = async () => {
+    if (!invitation || !id || !token) return;
+
+    const nextSlug = normalizeSlug(customSlug);
+    if (nextSlug.length < 3) {
+      showNotification('Custom URL mesti sekurang-kurangnya 3 aksara.', 'warning');
+      return;
+    }
+
+    if (nextSlug === invitation.slug) {
+      showNotification('Custom URL sudah menggunakan nilai ini.', 'info');
+      return;
+    }
+
+    if (!canUseCustomSlug) {
+      showNotification('Custom URL hanya tersedia untuk jemputan Elite yang sudah dibayar.', 'warning');
+      return;
+    }
+
+    try {
+      setIsUpdatingSlug(true);
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+      const csrfToken = getCookie('csrf-token');
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+      if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+      const response = await fetch(buildApiUrl(`/invitations/${id}`), {
+        method: 'PUT',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ slug: nextSlug })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        showNotification(data.error || 'Gagal kemaskini custom URL.', 'error');
+        return;
+      }
+
+      setInvitation({
+        ...data.data,
+        wishes: data.data.guestWishes || data.data.wishes || invitation.wishes || []
+      });
+      setMagicLink('');
+      if (data.data.settings?.is_published) {
+        showNotification('Custom URL berjaya dikemaskini.', 'success');
+      } else {
+        showNotification('Custom URL disimpan. Kad masih Draft, aktifkan Publish di Editor sebelum kongsi link.', 'warning');
+      }
+    } catch (error) {
+      console.error('Failed to update custom slug:', error);
+      showNotification('Ralat teknikal semasa kemaskini custom URL.', 'error');
+    } finally {
+      setIsUpdatingSlug(false);
+    }
+  };
 
   useEffect(() => {
     if (isShareModalOpen && invitation) {
@@ -233,6 +322,10 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
     const encoded = encodeURIComponent(magicGuest);
     setMagicLink(`${invitationLink}?to=${encoded}`);
     setShareToGuest(magicGuest);
+    if (!isPublished) {
+      showNotification('Kad masih Draft. Publish dahulu di Editor sebelum kongsi Magic Link kepada tetamu.', 'warning');
+      return;
+    }
     setIsShareModalOpen(true);
   };
 
@@ -258,11 +351,15 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
               <span className="text-gray-300">/</span>
               <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Analytics & Guests</span>
             </div>
-            <h2 className="text-4xl font-serif font-bold text-gray-900 italic">{invitation.groom_name} & {invitation.bride_name}</h2>
+            <h2 className="text-4xl font-serif font-bold text-gray-900 italic">{displayTitle}</h2>
           </div>
           <div className="flex space-x-2">
             <Link to={`/edit/${invitation.id}`} className="bg-white border border-gray-200 text-gray-700 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-gray-50 transition">Editor Studio</Link>
-            <Link to={`/i/${invitation.slug}`} className="bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition">View Live Page</Link>
+            {isPublished ? (
+              <Link to={`/i/${invitation.slug}`} className="bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition">View Live Page</Link>
+            ) : (
+              <Link to={`/edit/${invitation.id}`} className="bg-amber-50 border border-amber-100 text-amber-700 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-amber-100 transition">Publish di Editor</Link>
+            )}
           </div>
         </div>
 
@@ -301,7 +398,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
           <div className="flex border-b border-gray-200 mb-8 space-x-10">
             <button onClick={() => setActiveTab('guests')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'guests' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Guest List</button>
             <button onClick={() => setActiveTab('wishes')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'wishes' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Wishes</button>
-            {canAccess('magic_link') && <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Magic Generator</button>}
+            {canAccess('magic_link') && <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Magic Link & URL</button>}
           </div>
         )}
 
@@ -545,18 +642,64 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
         {canAccess('rsvp') && activeTab === 'magic' && (
           <div className="max-w-2xl animate-fade-in">
             <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
-              <h3 className="font-serif italic font-bold text-2xl mb-4">Magic Link Laboratory</h3>
+              <h3 className="font-serif italic font-bold text-2xl mb-4">Magic Link & Custom URL</h3>
               <p className="text-gray-400 text-sm mb-12 leading-relaxed">
-                Hasilkan link khas untuk setiap tetamu. Nama mereka akan terpapar secara automatik apabila mereka membuka kad jemputan.
+                Tetapkan link utama yang mudah diingat, kemudian hasilkan link khas untuk setiap tetamu.
               </p>
 
               <div className="space-y-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4">Nama Penuh Tetamu</label>
-                  <div className="flex gap-3">
+                <div className="rounded-[2.5rem] border border-rose-100 bg-rose-50/40 p-8">
+                  <div className="mb-5">
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Link Jemputan Utama</label>
+                    <p className="mt-2 text-xs leading-6 text-gray-500">
+                      Tukar nombor panjang pada link jemputan kepada nama yang lebih pendek dan mudah diingati, contohnya <span className="font-bold text-gray-700">/i/adam-hawa</span>.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <div className="flex min-w-0 flex-1 overflow-hidden rounded-3xl bg-white ring-1 ring-rose-100 focus-within:ring-2 focus-within:ring-rose-200">
+                      <span className="hidden shrink-0 items-center border-r border-rose-50 px-5 text-xs font-bold text-gray-400 sm:flex">
+                        /i/
+                      </span>
+                      <input
+                        value={customSlug}
+                        onChange={(e) => handleCustomSlugChange(e.target.value)}
+                        disabled={!canUseCustomSlug || isUpdatingSlug}
+                        className="min-w-0 flex-1 border-none bg-transparent px-5 py-4 text-sm font-bold text-gray-800 outline-none disabled:cursor-not-allowed disabled:text-gray-300"
+                        placeholder="adam-hawa"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleUpdateCustomSlug}
+                      disabled={!canUseCustomSlug || isUpdatingSlug}
+                      className="rounded-3xl bg-gray-950 px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-xl transition hover:bg-black disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
+                    >
+                      {isUpdatingSlug ? 'Menyimpan...' : 'Simpan URL'}
+                    </button>
+                  </div>
+                  <div className="mt-5 rounded-2xl bg-white/80 p-4">
+                    <p className="break-all font-mono text-[11px] leading-6 text-gray-500">
+                      {window.location.origin}/i/{customSlug || invitation.slug}
+                    </p>
+                  </div>
+                  {!isPublished && (
+                    <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-800">
+                      Kad ini masih Draft. Custom URL boleh disimpan, tetapi link tetamu hanya boleh dibuka selepas anda aktifkan Publish di Editor.
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-[2.5rem] border border-rose-100 bg-rose-50/40 p-8">
+                  <div className="mb-5">
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Nama Penuh Tetamu</label>
+                    <p className="mt-2 text-xs leading-6 text-gray-500">
+                      Masukkan nama tetamu untuk jana link peribadi. Nama ini akan dipaparkan pada kad apabila tetamu membuka jemputan.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
                     <input
-                      placeholder="E.g. Ahmad Suhairi"
-                      className="flex-1 px-8 py-5 bg-gray-50 border-none rounded-3xl outline-none focus:ring-2 focus:ring-rose-200 transition text-sm font-bold"
+                      placeholder="Contoh: Ahmad Suhairi"
+                      className="flex-1 px-8 py-5 bg-white border-none rounded-3xl outline-none ring-1 ring-rose-100 focus:ring-2 focus:ring-rose-200 transition text-sm font-bold"
                       value={magicGuest}
                       onChange={e => setMagicGuest(e.target.value)}
                     />
@@ -571,9 +714,16 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
 
                 {magicLink && (
                   <div className="pt-8 animate-slide-up">
-                    <div className="bg-gray-50 p-8 rounded-[2.5rem] border border-gray-100 relative">
-                      <label className="text-[10px] font-bold text-rose-300 uppercase tracking-widest absolute -top-2 left-6 px-2 bg-white rounded-full border border-gray-50">Link Sedia Dikongsi</label>
-                      <p className="text-[11px] font-mono text-gray-400 break-all mb-8 leading-loose">{magicLink}</p>
+                    <div className="bg-rose-50/40 p-8 rounded-[2.5rem] border border-rose-100 relative">
+                      <div className="mb-5">
+                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Link Sedia Dikongsi</label>
+                        <p className="mt-2 text-xs leading-6 text-gray-500">
+                          Link ini khas untuk tetamu tersebut. Salin link atau hantar melalui WhatsApp selepas kad dipublish.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-white/80 p-4 mb-8">
+                        <p className="text-[11px] font-mono text-gray-500 break-all leading-loose">{magicLink}</p>
+                      </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <button

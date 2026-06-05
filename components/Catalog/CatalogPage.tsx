@@ -56,6 +56,7 @@ const CatalogPage: React.FC = () => {
   const currentCategories = searchParams.get('category')?.split(',').filter(Boolean) || [];
   const currentThemes = searchParams.get('theme')?.split(',').filter(Boolean) || [];
   const currentColors = searchParams.get('color')?.split(',').filter(Boolean) || [];
+  const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('sort') || 'latest';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
@@ -67,6 +68,9 @@ const CatalogPage: React.FC = () => {
       params.append('page', currentPage.toString());
       params.append('limit', '15');
       params.append('sort', currentSort);
+      if (currentSearch) {
+        params.append('search', currentSearch);
+      }
       if (currentCategories.length > 0) {
         params.append('category', currentCategories.join(','));
       }
@@ -99,7 +103,7 @@ const CatalogPage: React.FC = () => {
       console.error('Error fetching backgrounds:', error);
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [currentPage, currentSort, currentCategories.join(','), currentThemes.join(','), currentColors.join(',')]);
+  }, [currentPage, currentSort, currentSearch, currentCategories.join(','), currentThemes.join(','), currentColors.join(',')]);
 
   useEffect(() => {
     fetchBackgrounds();
@@ -383,6 +387,18 @@ const CatalogPage: React.FC = () => {
           <p className="text-lg text-gray-600">
             Koleksi premium untuk pelbagai majlis istimewa anda
           </p>
+          {currentSearch && (
+            <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-rose-100 bg-white px-5 py-2 text-xs font-bold text-gray-500 shadow-sm">
+              <span>Carian: <span className="text-rose-600">{currentSearch}</span></span>
+              <button
+                type="button"
+                onClick={() => setSearchParams(params => { params.delete('search'); params.set('page', '1'); return params; })}
+                className="text-rose-500 hover:text-rose-700"
+              >
+                Buang
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Filters Bar */}

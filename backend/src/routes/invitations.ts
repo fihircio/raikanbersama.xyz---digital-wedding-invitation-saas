@@ -11,6 +11,32 @@ import {
 
 const router = Router();
 
+const reservedSlugs = [
+  'admin',
+  'api',
+  'www',
+  'mail',
+  'ftp',
+  'login',
+  'register',
+  'dashboard',
+  'pricing',
+  'catalog',
+  'tutorial',
+  'faq',
+  'contact',
+  'profile',
+  'orders',
+  'terms',
+  'privacy',
+  'affiliates',
+  'affiliate-program',
+  'edit',
+  'manage',
+  'create',
+  'i'
+];
+
 // Validation schemas
 const createInvitationSchema = {
   slug: {
@@ -22,8 +48,7 @@ const createInvitationSchema = {
     custom: (value: string) => {
       if (!value) return true;
       // Check for reserved words
-      const reservedWords = ['admin', 'api', 'www', 'mail', 'ftp'];
-      if (reservedWords.includes(value.toLowerCase())) {
+      if (reservedSlugs.includes(value.toLowerCase())) {
         return 'Slug cannot be a reserved word';
       }
       return true;
@@ -178,8 +203,7 @@ const updateInvitationSchema = {
     custom: (value: string) => {
       if (!value) return true;
       // Check for reserved words
-      const reservedWords = ['admin', 'api', 'www', 'mail', 'ftp'];
-      if (reservedWords.includes(value.toLowerCase())) {
+      if (reservedSlugs.includes(value.toLowerCase())) {
         return 'Slug cannot be a reserved word';
       }
       return true;

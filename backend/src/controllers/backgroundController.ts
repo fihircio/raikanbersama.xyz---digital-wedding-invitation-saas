@@ -47,9 +47,9 @@ export const getAllBackgrounds = async (req: Request, res: Response): Promise<vo
     if (color) {
       const colorList = (color as string).split(',');
       if (colorList.length > 1) {
-        where.primaryColor = { [Op.in]: colorList };
+        where.primary_color = { [Op.in]: colorList };
       } else {
-        where.primaryColor = colorList[0];
+        where.primary_color = colorList[0];
       }
     }
 
@@ -64,7 +64,7 @@ export const getAllBackgrounds = async (req: Request, res: Response): Promise<vo
         { name: { [Op.iLike]: `%${search}%` } },
         { category: { [Op.iLike]: `%${search}%` } },
         { theme: { [Op.iLike]: `%${search}%` } },
-        { primaryColor: { [Op.iLike]: `%${search}%` } },
+        { primary_color: { [Op.iLike]: `%${search}%` } },
       ];
     }
 

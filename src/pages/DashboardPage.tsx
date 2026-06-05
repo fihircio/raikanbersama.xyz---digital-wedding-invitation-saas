@@ -57,6 +57,12 @@ const EMPTY_ONBOARDING_STEPS: OnboardingStep[] = [
   }
 ];
 
+const getInvitationDisplayTitle = (invitation: Invitation) => {
+  const coverTitle = invitation.settings?.cover_title?.trim();
+  if (coverTitle) return coverTitle;
+  return `${invitation.groom_name} & ${invitation.bride_name}`;
+};
+
 // Import the existing Dashboard component from App.tsx
 // We'll create a wrapper that uses the existing Dashboard component logic
 const DashboardPage: React.FC = () => {
@@ -260,6 +266,7 @@ const DashboardPage: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {invitations.map((inv, index) => {
               const isPublished = inv.settings?.is_published === true;
+              const displayTitle = getInvitationDisplayTitle(inv);
 
               return (
             <div key={inv.id} className="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl transition-all duration-700">
@@ -275,7 +282,7 @@ const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="text-2xl font-bold mb-1 font-serif italic text-gray-800">{inv.groom_name} & {inv.bride_name}</h3>
+                <h3 className="text-2xl font-bold mb-1 font-serif italic text-gray-800">{displayTitle}</h3>
                 <p className="text-xs text-gray-400 mb-10 tracking-widest font-bold uppercase">{new Date(inv.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 <div className="flex flex-col gap-3">
                   <div className="flex space-x-3">

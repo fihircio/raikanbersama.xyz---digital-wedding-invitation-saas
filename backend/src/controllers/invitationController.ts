@@ -299,6 +299,17 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
     }
 
     if (updateData.slug && updateData.slug !== existingInvitation.slug) {
+      const existingSettings = (existingInvitation.settings || {}) as Record<string, any>;
+      const isPaidEliteInvitation = existingSettings.package_plan === 'elite' && existingSettings.is_paid === true;
+
+      if (!isPaidEliteInvitation) {
+        res.status(403).json({
+          success: false,
+          error: 'Custom URL is available only for paid Elite invitations.'
+        } as ApiResponse);
+        return;
+      }
+
       const slugExists = await databaseService.getInvitationBySlug(updateData.slug);
       if (slugExists) {
         res.status(400).json({
