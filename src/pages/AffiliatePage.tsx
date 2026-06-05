@@ -12,7 +12,8 @@ import {
     CheckBadgeIcon,
     XCircleIcon,
     ArrowRightIcon,
-    ArrowPathIcon
+    ArrowPathIcon,
+    CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 interface AffiliateProfile {
@@ -196,6 +197,70 @@ const AffiliatePage: React.FC = () => {
                                 <div className="col-span-2 bg-rose-600 p-8 rounded-[2.5rem] text-center shadow-2xl shadow-rose-900/20">
                                     <p className="text-lg font-serif italic mb-1">Paparan Cashback</p>
                                     <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">Semuanya di hujung jari anda !</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="relative z-10 mt-14 bg-white/5 rounded-[3rem] p-8 md:p-10 border border-white/10 shadow-2xl shadow-black/20">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                                            <CurrencyDollarIcon className="w-6 h-6 text-rose-300" />
+                                        </div>
+                                        <h3 className="text-2xl font-serif italic font-bold">Sistem Dua Manfaat</h3>
+                                    </div>
+                                    <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                                        Setiap kod referral berfungsi sebagai <strong className="text-white">kupon diskaun</strong> untuk pelanggan
+                                        dan <strong className="text-white"> ID komisen</strong> untuk vendor. Pelanggan berjimat, vendor pula menjana pendapatan daripada setiap tempahan berjaya.
+                                    </p>
+                                    <div className="space-y-4">
+                                        <div className="flex gap-4">
+                                            <div className="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm">Diskaun Pelanggan</p>
+                                                <p className="text-white/60 text-xs italic">Kod vendor boleh digunakan pelanggan untuk dapat potongan harga semasa checkout.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm">Komisen Vendor</p>
+                                                <p className="text-white/60 text-xs italic">Komisen dikira berdasarkan jumlah sebenar yang dibayar selepas diskaun pelanggan.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
+                                    <div className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.2em] mb-4">Contoh Pengiraan</div>
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
+                                            <span className="text-white/60 uppercase tracking-widest">Harga Asal</span>
+                                            <span>RM 50.00</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
+                                            <span className="text-rose-300 uppercase tracking-widest">Diskaun Pelanggan</span>
+                                            <span>- RM 5.00</span>
+                                        </div>
+                                        <div className="flex justify-between text-base font-bold py-4">
+                                            <span className="uppercase tracking-[0.2em]">Bayaran Bersih</span>
+                                            <span>RM 45.00</span>
+                                        </div>
+                                        <div className="p-4 bg-rose-500/20 rounded-2xl border border-rose-500/30">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-bold text-rose-300 uppercase tracking-widest">Komisen Vendor</span>
+                                                    <span className="text-lg font-black italic">RM 9.00</span>
+                                                </div>
+                                                <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-900/50">
+                                                    <CurrencyDollarIcon className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

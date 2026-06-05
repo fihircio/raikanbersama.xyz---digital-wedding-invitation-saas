@@ -11,7 +11,6 @@ import {
     ExclamationCircleIcon,
     ArrowPathIcon,
     LinkIcon,
-    CurrencyDollarIcon,
     UserGroupIcon,
     TrashIcon,
     UserIcon
@@ -254,76 +253,6 @@ const AffiliateManagement: React.FC = () => {
                 </div>
             </main>
             <Footer />
-
-            {/* Explanation Modal or Note */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-                <div className="bg-rose-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-rose-200">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                    <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                        <div>
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
-                                    <CurrencyDollarIcon className="w-6 h-6 text-rose-300" />
-                                </div>
-                                <h3 className="text-2xl font-serif italic font-bold">Dual-Benefit System</h3>
-                            </div>
-                            <p className="text-rose-100 text-sm leading-relaxed mb-6">
-                                Sistem kami menyokong strategi menang-menang untuk vendor dan pelanggan.
-                                Setiap referral code bertindak sebagai <strong>Kupon Diskaun</strong> untuk pelanggan
-                                dan <strong>ID Komisen</strong> untuk vendor.
-                            </p>
-                            <div className="space-y-4">
-                                <div className="flex gap-4">
-                                    <div className="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm">Diskaun Pelanggan (e.g. 10%)</p>
-                                        <p className="text-white/60 text-xs italic">Ditetapkan dalam menu 'Kupon'. Menggalakkan pelanggan guna kod vendor.</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm">Komisen Vendor (e.g. 20%)</p>
-                                        <p className="text-white/60 text-xs italic">Ditetapkan mengikut vendor. Vendor dapat peratusan daripada 'Actual Paid' amount.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
-                            <div className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.2em] mb-4">Contoh Pengiraan</div>
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
-                                    <span className="text-white/60 uppercase tracking-widest">Harga Asal</span>
-                                    <span>RM 50.00</span>
-                                </div>
-                                <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
-                                    <span className="text-rose-300 uppercase tracking-widest">Diskaun Pelanggan (10%)</span>
-                                    <span>- RM 5.00</span>
-                                </div>
-                                <div className="flex justify-between text-base font-bold py-4">
-                                    <span className="uppercase tracking-[0.2em]">Pendapatan Bersih</span>
-                                    <span>RM 45.00</span>
-                                </div>
-                                <div className="p-4 bg-rose-500/20 rounded-2xl border border-rose-500/30">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold text-rose-300 uppercase tracking-widest">Komisen Vendor (20%)</span>
-                                            <span className="text-lg font-black italic">RM 9.00</span>
-                                        </div>
-                                        <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-900/50">
-                                            <CurrencyDollarIcon className="w-6 h-6 text-white" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
