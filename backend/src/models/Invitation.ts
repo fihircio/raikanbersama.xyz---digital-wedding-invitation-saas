@@ -193,6 +193,8 @@ export class Invitation extends Model {
             hero_size: '12',
             invitation_color: '#6B7280',
             invitation_size: '14',
+            opening_button_color: '#374151',
+            opening_button_font: '',
             youtube_url: '',
             language_mode: 'melayu',
             pdf_export_enabled: false

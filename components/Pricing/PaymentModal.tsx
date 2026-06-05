@@ -58,7 +58,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
       const data = await response.json();
       if (data.success) {
         setDiscountInfo(data.data);
-        trackCustom('ApplyCoupon', {
+        trackCustom('GunaCoupon', {
           coupon_code: couponCode,
           plan_id: plan.id,
           plan_name: plan.name,
@@ -86,7 +86,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
 
     setIsProcessing(true);
     trackInitiateCheckout({
-      content_name: `${plan.name} Plan`,
+      content_name: `$Pelan {plan.name}`,
       content_category: 'pricing_plan',
       content_ids: [plan.id],
       content_type: 'product',
@@ -136,13 +136,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
               </svg>
-              <span className="text-[11px] font-bold uppercase tracking-widest hidden sm:inline">Back to Plans</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest hidden sm:inline">Kembali ke Pelan</span>
             </button>
-            <h2 className="text-xl font-black text-gray-900 tracking-tight">Checkout</h2>
+            <h2 className="text-xl font-black text-gray-900 tracking-tight">Pembayaran</h2>
           </div>
 
           <p className="text-center text-gray-400 text-[11px] font-medium mb-4 leading-relaxed max-w-[280px] mx-auto">
-            Review your plan selection & apply coupon codes
+            Semak pelan pilihan anda dan masukkan kod kupon jika ada.
           </p>
         </div>
 
@@ -158,16 +158,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">{plan.name} Plan</h3>
+                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Pelan {plan.name}</h3>
                 {plan.period === 'one-time' && (
-                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[7px] font-black rounded-md uppercase">Per invitation</span>
+                  <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[7px] font-black rounded-md uppercase">Setiap jemputan</span>
                 )}
               </div>
 
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-xs font-black text-gray-900 uppercase">RM</span>
                 <span className="text-3xl font-black text-gray-900 tracking-tighter">{originalPrice.toFixed(2)}</span>
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1">/{plan.period === 'monthly' ? 'month' : 'invitation'}</span>
+                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1">/{plan.period === 'monthly' ? 'bulan' : 'jemputan'}</span>
               </div>
             </div>
           </div>
@@ -175,7 +175,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
           <div className="space-y-6">
             {/* Phone Number Field */}
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-gray-900 uppercase tracking-[0.2em] ml-1 block">Phone Number</label>
+              <label className="text-[9px] font-bold text-gray-900 uppercase tracking-[0.2em] ml-1 block">Nombor Telefon</label>
               <div className="relative group">
                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
@@ -184,7 +184,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="e.g. 0123456789"
+                  placeholder="Contoh: 0123456789"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-transparent rounded-2xl text-[12px] font-bold transition-all outline-none focus:border-rose-300 focus:bg-white"
                 />
               </div>
@@ -192,7 +192,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
 
             {/* Coupon Section */}
             <div className="space-y-1">
-              <label className="text-[9px] font-bold text-gray-900 uppercase tracking-[0.2em] ml-1 block">Coupon Code (Optional)</label>
+              <label className="text-[9px] font-bold text-gray-900 uppercase tracking-[0.2em] ml-1 block">Kod Kupon (Pilihan)</label>
               <div className="flex gap-2">
                 <div className="relative flex-1 group">
                   <TagIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-rose-500 transition-colors" />
@@ -200,7 +200,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter coupon code"
+                    placeholder="Masukkan kod kupon"
                     className={`w-full pl-10 pr-4 py-3 bg-gray-50 border-2 rounded-2xl text-[12px] font-bold tracking-widest transition-all outline-none ${couponError ? 'border-red-100 bg-red-50 text-red-600' : 'border-transparent focus:border-rose-300 focus:bg-white'}`}
                   />
                   {discountInfo && (
@@ -216,28 +216,28 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
                   disabled={isValidatingCoupon || !couponCode}
                   className="px-6 py-3 bg-green-200 text-green-700 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-300 transition-all shadow-sm disabled:opacity-50"
                 >
-                  {isValidatingCoupon ? '...' : 'Apply'}
+                  {isValidatingCoupon ? '...' : 'Guna'}
                 </button>
               </div>
               {couponError && <p className="text-[9px] text-red-500 font-bold mt-1 ml-1 animate-shake">{couponError}</p>}
             </div>
 
-            {/* Order Summary */}
+            {/* Ringkasan Pesanan */}
             <div className="space-y-3 pt-4 border-t border-gray-100">
-              <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.15em] ml-1">Order Summary</h4>
+              <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.15em] ml-1">Ringkasan Pesanan</h4>
               <div className="space-y-2 bg-gray-50/50 p-4 rounded-3xl border border-gray-50">
                 <div className="flex justify-between text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                  <span>{plan.name} Plan</span>
+                  <span>Pelan {plan.name}</span>
                   <span className="text-gray-900">RM{originalPrice.toFixed(2)}</span>
                 </div>
                 {discountInfo && (
                   <div className="flex justify-between text-[10px] font-bold text-green-600 uppercase tracking-widest">
-                    <span>Discount Applied</span>
+                    <span>Diskaun Digunakan</span>
                     <span>-RM{(originalPrice - discountedPrice).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-end pt-2 border-t border-gray-100 mt-2">
-                  <span className="text-md font-black text-gray-900 uppercase tracking-tighter">Total</span>
+                  <span className="text-md font-black text-gray-900 uppercase tracking-tighter">Jumlah</span>
                   <span className="text-2xl font-black text-gray-900 tracking-tighter">RM{discountedPrice.toFixed(2)}</span>
                 </div>
               </div>
@@ -252,9 +252,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
             disabled={isProcessing}
             className="w-full bg-green-600 text-white py-4 rounded-xl font-black text-[12px] uppercase tracking-[0.15em] shadow-lg shadow-green-100 hover:bg-green-700 hover:shadow-green-200 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
-            {isProcessing ? 'Processing...' : (
+            {isProcessing ? 'Sedang diproses...' : (
               <>
-                <span>Confirm Purchase</span>
+                <span>Sahkan Pembelian</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
                 <span className="tracking-tight">RM{discountedPrice.toFixed(2)}</span>
               </>
@@ -264,7 +264,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
           <div className="flex flex-col items-center justify-center gap-1 mt-3 text-gray-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheckIcon className="w-3 h-3 text-green-500" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Secure payment by Billplz</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest">Pembayaran selamat melalui Billplz</span>
             </div>
           </div>
         </div>

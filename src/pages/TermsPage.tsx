@@ -49,7 +49,7 @@ const TermsPage: React.FC = () => {
 
                     <h2 className="text-2xl font-serif font-bold text-gray-800 mt-12 mb-4 italic">8. Contact</h2>
                     <p className="mb-6">
-                        For any questions about these Terms, please contact us at <a href="mailto:support@raikanbersama.xyz" className="text-rose-600 hover:underline">support@raikanbersama.xyz</a>.
+                        For any questions about these Terms, please contact us at <a href="mailto:raikanbersamaxyz@gmail.com" className="text-rose-600 hover:underline">raikanbersamaxyz@gmail.com</a>.
                     </p>
                 </div>
             </div>

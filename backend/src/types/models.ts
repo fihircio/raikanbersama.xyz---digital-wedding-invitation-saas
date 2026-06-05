@@ -158,6 +158,10 @@ export interface Invitation {
       overlay_opacity?: number;
     };
     package_plan?: string;
+    opening_type?: string;
+    opening_color?: string;
+    opening_button_color?: string;
+    opening_button_font?: string;
     is_paid?: boolean;
   };
   money_gift_details: {

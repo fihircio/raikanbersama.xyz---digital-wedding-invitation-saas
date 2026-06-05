@@ -1,100 +1,124 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TutorialPage: React.FC = () => {
     const steps = [
         {
-            title: 'Pilih Design',
-            description: 'Layari Catalog kami dan pilih design yang paling sesuai dengan tema majlis anda. Klik "Bina Kad" untuk memulakan.',
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
-            )
+            title: 'Pilih Pakej & Background',
+            description: 'Mulakan dengan pakej, design katalog, warna latar, animasi pembukaan dan effect. Tetamu boleh cuba editor penuh sebelum bayar.',
+            label: 'Step 1/9'
         },
         {
-            title: 'Ubah Suai Kandungan',
-            description: 'Di Design Studio, anda boleh menukar nama pengantin, tarikh, lokasi, dan menambah kisah cinta anda di tab "Utama".',
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-            )
+            title: 'Lengkapkan Cover',
+            description: 'Isi wording utama, tajuk cover, tarikh, lokasi dan hashtag. Data cover membantu mengurangkan kerja mengisi semula di step seterusnya.',
+            label: 'Step 2/9'
         },
         {
-            title: 'Preview & Live Update',
-            description: 'Lihat perubahan anda secara "Real-Time" pada paparan telefon di sebelah kanan. Cuba semua butang interaktif untuk memastikan segalanya sempurna.',
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            )
+            title: 'Butiran Majlis',
+            description: 'Semak masa, tarikh, tempat, koordinat GPS, kata aluan, atur cara, ucapan doa dan maklumat tambahan.',
+            label: 'Step 3/9'
         },
         {
-            title: 'Simpan & Daftar',
-            description: 'Klik "Save & Unlock All" untuk menyimpan draft anda. Anda akan diminta untuk Log Masuk atau Daftar untuk memindahkan hasil kerja ke akaun kekal anda.',
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-            )
+            title: 'Tema & Visual',
+            description: 'Laraskan font tajuk seksyen, margin kandungan, warna, identiti visual dan gaya keseluruhan kad.',
+            label: 'Step 4/9'
         },
         {
-            title: 'Aktifkan Pakej',
-            description: 'Pilih pakej (Lite, Pro, atau Elite) untuk membuka fungsi-fungsi premium seperti RSVP, Gallery, dan E-Angpow.',
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-            )
+            title: 'Media',
+            description: 'Masukkan muzik atau YouTube. Editor akan anchor ke panel berkaitan supaya anda nampak kawasan yang sedang diedit.',
+            label: 'Step 5/9'
+        },
+        {
+            title: 'RSVP',
+            description: 'Aktifkan pengesahan kehadiran, tetapkan field RSVP, had pax, slot sesi dan cara tetamu menghantar ucapan.',
+            label: 'Step 6/9'
+        },
+        {
+            title: 'Hadiah',
+            description: 'Sediakan Money Gift, maklumat bank atau QR supaya tetamu boleh memberi hadiah secara digital.',
+            label: 'Step 7/9'
+        },
+        {
+            title: 'Wishlist',
+            description: 'Untuk Elite, tambah physical wishlist dengan pautan hadiah dan alamat penerima.',
+            label: 'Step 8/9'
+        },
+        {
+            title: 'Publish & Kongsi',
+            description: 'Semak live preview, aktifkan pakej, publish, kemudian kongsi link utama atau Magic Link untuk tetamu tertentu.',
+            label: 'Step 9/9'
         }
     ];
 
+    const checkpoints = [
+        'Gunakan live preview telefon untuk pastikan desktop editor dan paparan mobile tetamu konsisten.',
+        'Klik Buka pada animasi pembukaan untuk semak transisi sebelum tetamu masuk ke cover.',
+        'Simpan draft melalui Save & Unlock jika anda bermula sebagai guest.',
+        'Publish hanya selepas pembayaran pakej selesai.'
+    ];
+
     return (
-        <div className="pt-32 pb-20 min-h-screen bg-gray-50">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-20">
-                    <h1 className="text-5xl font-serif font-bold text-gray-900 mb-6 italic italic">
-                        Cara Menggunakan Design Studio
-                    </h1>
-                    <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-                        Bina jemputan digital idaman anda hanya dalam beberapa langkah mudah.
-                    </p>
+        <div className="pt-32 pb-20 min-h-screen bg-[#fbf7ef]">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-12 items-start mb-20">
+                    <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.35em] text-rose-500 mb-5">Tutorial Design Studio</p>
+                        <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-950 leading-tight mb-6 italic">
+                            Bina kad dari pilihan pakej sampai publish.
+                        </h1>
+                        <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                            Tutorial ini disusun mengikut onboarding editor 9 langkah supaya anda tahu panel mana perlu diisi, apa yang akan berubah di live preview, dan bila kad boleh dikongsi kepada tetamu.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Link to="/catalog" className="inline-flex items-center justify-center rounded-full bg-rose-600 px-8 py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-rose-100 transition hover:bg-rose-700">
+                                Mula Dari Catalog
+                            </Link>
+                            <Link to="/pricing" className="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-gray-800 border border-gray-200 transition hover:border-rose-200 hover:text-rose-600">
+                                Lihat Pakej
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="rounded-[3rem] bg-white p-5 shadow-2xl shadow-rose-100/70 border border-white">
+                        <div className="aspect-[9/16] rounded-[2.4rem] overflow-hidden bg-gradient-to-b from-rose-100 via-white to-amber-50 border border-gray-100 relative">
+                            <div className="absolute inset-x-8 top-10 rounded-[2rem] bg-white/80 backdrop-blur p-5 shadow-xl">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-rose-500">Live Preview</p>
+                                <h3 className="mt-3 font-serif text-3xl font-bold italic text-gray-950">Cover, Butiran, RSVP</h3>
+                                <p className="mt-3 text-xs leading-relaxed text-gray-500">Setiap step akan membawa preview ke bahagian yang sedang diedit.</p>
+                            </div>
+                            <div className="absolute inset-x-8 bottom-10 rounded-[2rem] bg-gray-950 p-5 text-white shadow-2xl">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-rose-200">Save & Unlock</p>
+                                <p className="mt-3 text-sm text-white/75">Cuba sebagai guest dahulu, kemudian simpan ke akaun apabila sudah puas hati.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div className="space-y-16">
+                <div className="grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+                    <div className="grid md:grid-cols-2 gap-5">
                         {steps.map((step, index) => (
-                            <div key={index} className="flex group">
-                                <div className="flex-shrink-0 mr-6">
-                                    <div className="w-14 h-14 bg-rose-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-rose-100 group-hover:scale-110 transition duration-500">
-                                        {step.icon}
-                                    </div>
-                                    {index < steps.length - 1 && (
-                                        <div className="w-0.5 h-16 bg-rose-100 mx-auto mt-4 rounded-full"></div>
-                                    )}
+                            <div key={step.label} className="rounded-[2rem] bg-white p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-rose-100/60 transition">
+                                <div className="flex items-center justify-between gap-4 mb-5">
+                                    <span className="rounded-full bg-rose-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-600">{step.label}</span>
+                                    <span className="text-3xl font-serif italic text-gray-200">{String(index + 1).padStart(2, '0')}</span>
                                 </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif group-hover:text-rose-600 transition tracking-tight">Step {index + 1}: {step.title}</h3>
-                                    <p className="text-gray-500 text-sm leading-relaxed">{step.description}</p>
-                                </div>
+                                <h3 className="font-serif text-2xl font-bold text-gray-950 mb-3">{step.title}</h3>
+                                <p className="text-sm leading-relaxed text-gray-500">{step.description}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="hidden md:block">
-                        <div className="sticky top-32 bg-white rounded-[3rem] p-4 shadow-2xl shadow-rose-100 border border-rose-50 overflow-hidden group">
-                            <div className="relative aspect-[9/16] bg-gray-100 rounded-[2.5rem] overflow-hidden">
-                                <img
-                                    src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800"
-                                    alt="Editor Preview"
-                                    className="w-full h-full object-cover group-hover:scale-110 transition duration-[2s]"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
-                                    <div>
-                                        <span className="text-white/70 text-[10px] uppercase font-bold tracking-[0.2em]">RaikanBersama.xyz</span>
-                                        <h4 className="text-white text-2xl font-serif italic font-bold">Premium Digital Invitation Studio</h4>
-                                    </div>
+                    <aside className="lg:sticky lg:top-28 rounded-[2.5rem] bg-gray-950 p-7 text-white shadow-2xl">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-300 mb-5">Checklist Sebelum Publish</p>
+                        <div className="space-y-4">
+                            {checkpoints.map((item) => (
+                                <div key={item} className="flex gap-3">
+                                    <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-[11px] font-black text-gray-950">✓</span>
+                                    <p className="text-sm leading-relaxed text-white/75">{item}</p>
                                 </div>
-                            </div>
-
-                            <div className="p-8 text-center">
-                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4">Start your journey today</p>
-                                <a href="#/catalog" className="inline-block bg-rose-600 text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-rose-700 transition transform active:scale-95 text-sm">
-                                    Mula Bina Kad Sekarang
-                                </a>
-                            </div>
+                            ))}
                         </div>
-                    </div>
+                    </aside>
                 </div>
             </div>
         </div>

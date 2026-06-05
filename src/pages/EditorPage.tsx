@@ -54,6 +54,7 @@ const EditorPage: React.FC = () => {
   const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
   const [isDesignDropdownOpen, setIsDesignDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const backgroundFileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
   const [currentWishlistItemIdx, setCurrentWishlistItemIdx] = useState<number | null>(null);
@@ -63,6 +64,7 @@ const EditorPage: React.FC = () => {
   const [showMobilePreview, setShowMobilePreview] = useState(false);
   const [showEditorOnboarding, setShowEditorOnboarding] = useState(false);
   const [editorOnboardingIndex, setEditorOnboardingIndex] = useState(0);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [backgrounds, setBackgrounds] = useState<any[]>([]);
   const [bgPagination, setBgPagination] = useState({ page: 1, hasNext: false, isLoading: false });
 
@@ -261,6 +263,8 @@ const EditorPage: React.FC = () => {
               hero_size: '12',
               invitation_color: '#6B7280',
               invitation_size: '14',
+              opening_button_color: '#374151',
+              opening_button_font: '',
               package_plan: plan,
               is_paid: false
             },
@@ -696,6 +700,68 @@ const EditorPage: React.FC = () => {
     }
   };
 
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !inv) return;
+
+    if (inv.settings.package_plan !== 'elite') {
+      showNotification('Upload gambar sendiri hanya tersedia untuk pakej Elite.', 'error');
+      return;
+    }
+
+    if (isDemo || !token || !id) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateSettings('background_image', reader.result as string);
+        showNotification('Preview gambar dimuat naik secara lokal. Save & Unlock untuk simpan ke akaun.', 'success');
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift();
+      return null;
+    };
+    const csrfToken = getCookie('csrf-token');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('invitation_id', id);
+
+    try {
+      setIsUploadingBackground(true);
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`
+      };
+      if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+      const response = await fetch(buildApiUrl('/files/background'), {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        updateSettings('background_image', data.data.url);
+        showNotification('Background custom berjaya dimuat naik.', 'success');
+      } else {
+        const err = await response.json().catch(() => ({}));
+        showNotification(`Upload background gagal: ${err.error || 'Unknown error'}`, 'error');
+      }
+    } catch (error) {
+      console.error('❌ Background upload error:', error);
+      showNotification('Gagal memuat naik background. Sila cuba lagi.', 'error');
+    } finally {
+      setIsUploadingBackground(false);
+    }
+  };
+
   const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && token && id && !isDemo) {
@@ -978,6 +1044,38 @@ const EditorPage: React.FC = () => {
             onChange={(e) => updateSettings('background_image', e.target.value)}
             className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-medium"
           />
+          <div className="rounded-[2rem] border border-rose-100 bg-rose-50/60 p-4">
+            <div className="flex items-center gap-4">
+              <div className="h-20 w-14 shrink-0 overflow-hidden rounded-2xl border border-white bg-white shadow-sm">
+                {inv.settings.background_image ? (
+                  <img src={inv.settings.background_image} alt="Custom background preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[8px] font-bold uppercase tracking-widest text-gray-300">Preview</div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Gambar Sendiri</p>
+                <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">
+                  Untuk hasil terbaik, gunakan gambar portrait 768x1408px atau nisbah 9:19.5.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => backgroundFileInputRef.current?.click()}
+                disabled={isUploadingBackground}
+                className="rounded-full bg-rose-600 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-100 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isUploadingBackground ? 'Uploading...' : 'Upload'}
+              </button>
+              <input
+                ref={backgroundFileInputRef}
+                type="file"
+                hidden
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleBackgroundUpload}
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -1190,13 +1288,30 @@ const EditorPage: React.FC = () => {
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
                         <span>Jenis Animasi</span>
-                        <input
-                          type="color"
-                          value={inv.settings.opening_color || '#ffffff'}
-                          onChange={(e) => updateSettings('opening_color', e.target.value)}
-                          className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                        />
                       </label>
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+                        <FontPicker label="Font Butang Buka" value={inv.settings.opening_button_font} onChange={(font) => updateSettings('opening_button_font', font)} />
+                        <div className="grid grid-cols-2 gap-3">
+                          <label className="space-y-2">
+                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Skin</span>
+                            <input
+                              type="color"
+                              value={inv.settings.opening_color || '#ffffff'}
+                              onChange={(e) => updateSettings('opening_color', e.target.value)}
+                              className="w-full h-12 rounded-xl overflow-hidden border border-gray-100 p-1 cursor-pointer bg-white"
+                            />
+                          </label>
+                          <label className="space-y-2">
+                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Buka</span>
+                            <input
+                              type="color"
+                              value={inv.settings.opening_button_color || '#374151'}
+                              onChange={(e) => updateSettings('opening_button_color', e.target.value)}
+                              className="w-full h-12 rounded-xl overflow-hidden border border-gray-100 p-1 cursor-pointer bg-white"
+                            />
+                          </label>
+                        </div>
+                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         {OPENING_TYPES.map(type => (
                           <button

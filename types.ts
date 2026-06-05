@@ -181,6 +181,8 @@ export interface Invitation {
     package_plan?: string;
     opening_type?: string;
     opening_color?: string;
+    opening_button_color?: string;
+    opening_button_font?: string;
     effect_style?: 'none' | 'bubble' | 'snow' | 'stars';
     effect_color?: string;
     layout_settings?: {

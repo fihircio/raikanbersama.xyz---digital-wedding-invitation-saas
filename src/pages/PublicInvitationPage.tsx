@@ -20,6 +20,7 @@ const GoogleFontLoader: React.FC<{ settings: any }> = ({ settings }) => {
     if (settings.cover_date_font) fonts.add(settings.cover_date_font);
     if (settings.cover_location_font) fonts.add(settings.cover_location_font);
     if (settings.cover_symbol_font) fonts.add(settings.cover_symbol_font);
+    if (settings.opening_button_font) fonts.add(settings.opening_button_font);
     if (settings.greeting_font) fonts.add(settings.greeting_font);
     if (settings.hero_font) fonts.add(settings.hero_font);
     if (settings.invitation_font) fonts.add(settings.invitation_font);
@@ -335,20 +336,41 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
 
   const overlayOpacity = invitation.settings.layout_settings?.overlay_opacity ?? 0.4;
   const rawOpeningType = invitation.settings.opening_type || 'none';
-  const openingType = rawOpeningType === 'window' ? 'window-a' : rawOpeningType === 'slide' ? 'slide-a' : rawOpeningType === 'open-letter' ? 'envelope-a' : rawOpeningType;
+  const openingType = rawOpeningType === 'window' ? 'window-a' : rawOpeningType === 'window-b' ? 'window-c' : rawOpeningType === 'slide' ? 'slide-a' : rawOpeningType === 'open-letter' ? 'envelope-a' : rawOpeningType === 'slide-c' ? 'slide-up' : rawOpeningType;
   const openingColor = invitation.settings.opening_color || '#fff';
   const coverShellColor = openingColor || invitation.settings.primary_color || '#ffffff';
+  const skinHeroText = invitation.settings.cover_hero_title || invitation.settings.hero_title || invitation.event_type || 'Walimatulurus';
+  const skinTitleText = invitation.settings.cover_title || `${invitation.groom_name} & ${invitation.bride_name}`;
+  const skinHeroStyle = {
+    color: invitation.settings.cover_hero_color || undefined,
+    fontFamily: invitation.settings.cover_hero_font || undefined,
+    fontSize: `${invitation.settings.cover_hero_size || 9}px`,
+  };
+  const skinTitleStyle = {
+    color: invitation.settings.cover_title_color || undefined,
+    fontFamily: invitation.settings.cover_title_font || undefined,
+    fontSize: `${Math.max(18, Number(invitation.settings.cover_title_size || 32) * 0.55)}px`,
+  };
+  const openingButtonStyle = {
+    color: invitation.settings.opening_button_color || undefined,
+    fontFamily: invitation.settings.opening_button_font || undefined,
+  };
   const isWindowOpening = openingType.startsWith('window');
   const isSlideOpening = openingType.startsWith('slide-') && openingType !== 'slide-up';
+  const isSlideB = openingType === 'slide-b';
   const isEnvelopeOpening = openingType.startsWith('envelope');
+  const envelopeShellColor = coverShellColor;
   const isBlurOpening = openingType === 'blur';
-  const showOpeningShell = showOpeningSkin && !isOpen && openingType !== 'none' && openingType !== 'slide-up';
+  const showOpeningShell = showOpeningSkin && !isOpen && openingType !== 'none';
   const buttonIsShellIntegrated = showOpeningShell && (isWindowOpening || isSlideOpening || isEnvelopeOpening || isBlurOpening);
-  const coverContentClass = `relative z-10 w-full h-full transition-transform duration-700 ${showOpeningShell ? 'opacity-60 blur-[1px]' : 'opacity-100 blur-0'}`;
+  const coverContentClass = 'relative z-10 w-full h-full transition-all duration-700 opacity-100 blur-0 scale-100';
   const showCoverOpenButton = !isOpen && (!isPreview || showOpeningShell);
+  const shellTransition = 'transition-all duration-[1100ms] ease-[cubic-bezier(0.76,0,0.24,1)]';
   const shellButtonClass = buttonIsShellIntegrated
     ? isEnvelopeOpening
-      ? 'bottom-[22%]'
+      ? openingType === 'envelope-b'
+        ? 'bottom-[17%]'
+        : 'bottom-[22%]'
       : isBlurOpening
         ? 'top-1/2 -translate-y-1/2'
         : 'top-1/2 -translate-y-1/2'
@@ -363,21 +385,17 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
 
   // Animation Styles based on type
   const getAnimationClass = () => {
+    if (showOpeningShell && openingType !== 'slide-up') {
+      return 'opacity-100 duration-[1150ms]';
+    }
+
     if (!isClosing) return 'translate-y-0 opacity-100';
 
     switch (openingType) {
       case 'slide-a':
       case 'slide-b':
-      case 'slide-c':
         return 'translate-x-[150%] opacity-100 duration-1000';
-      case 'window-a':
-      case 'window-b':
-      case 'window-c':
-        return 'scale-150 opacity-0 duration-1000';
       case 'blur': return 'blur-xl opacity-0 duration-1000'; // Blur Out
-      case 'envelope-a':
-      case 'envelope-b':
-        return 'rotate-x-90 opacity-0 duration-1000 origin-top';
       case 'none': return 'hidden';
       case 'slide-up':
       default: return '-translate-y-full opacity-0 duration-1000';
@@ -392,7 +410,7 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
         className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] scale-110"
         style={{ backgroundImage: `url(${invitation.settings.background_image})` }}
       >
-        <div className="absolute inset-0 backdrop-blur-[2px] bg-black" style={{ opacity: overlayOpacity }}></div>
+        <div className="absolute inset-0 backdrop-blur-[2px] bg-black" style={{ opacity: openingType === 'slide-up' && showOpeningShell ? 0.22 : 0 }}></div>
       </div>
 
 
@@ -402,50 +420,144 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
           {(isWindowOpening || isSlideOpening) && (
             <>
               <div
-                className={`${isWindowOpening ? 'absolute inset-y-0 left-0 w-1/2' : 'absolute inset-x-0 top-0 h-1/2'} shadow-[inset_-12px_0_30px_rgba(0,0,0,0.18)] backdrop-blur-[3px] opacity-90`}
-                style={{ backgroundColor: coverShellColor }}
+                className={`${isWindowOpening || isSlideB ? 'absolute inset-y-0 left-0 w-1/2' : 'absolute inset-x-0 top-0 h-1/2'} ${shellTransition} shadow-[inset_-18px_0_34px_rgba(0,0,0,0.24)] backdrop-blur-[3px] opacity-95`}
+                style={{
+                  backgroundColor: coverShellColor,
+                  transform: isClosing
+                    ? isSlideB
+                      ? 'translateX(-112%)'
+                      : isWindowOpening
+                        ? 'perspective(900px) translateX(-112%) rotateY(-18deg)'
+                        : 'perspective(900px) translateY(-112%) rotateX(12deg)'
+                    : 'perspective(900px) translateX(0) translateY(0) rotateX(0) rotateY(0)',
+                  transformOrigin: isWindowOpening || isSlideB ? 'left center' : 'center top'
+                }}
               />
               <div
-                className={`${isWindowOpening ? 'absolute inset-y-0 right-0 w-1/2' : 'absolute inset-x-0 bottom-0 h-1/2'} shadow-[inset_12px_0_30px_rgba(0,0,0,0.18)] backdrop-blur-[3px] opacity-90`}
-                style={{ backgroundColor: coverShellColor }}
+                className={`${isWindowOpening || isSlideB ? 'absolute inset-y-0 right-0 w-1/2' : 'absolute inset-x-0 bottom-0 h-1/2'} ${shellTransition} shadow-[inset_18px_0_34px_rgba(0,0,0,0.24)] backdrop-blur-[3px] opacity-95`}
+                style={{
+                  backgroundColor: coverShellColor,
+                  transform: isClosing
+                    ? isSlideB
+                      ? 'translateX(112%)'
+                      : isWindowOpening
+                        ? 'perspective(900px) translateX(112%) rotateY(18deg)'
+                        : 'perspective(900px) translateY(112%) rotateX(-12deg)'
+                    : 'perspective(900px) translateX(0) translateY(0) rotateX(0) rotateY(0)',
+                  transformOrigin: isWindowOpening || isSlideB ? 'right center' : 'center bottom'
+                }}
               />
-              {openingType === 'window-b' && (
-                <div className="absolute left-1/2 top-[18%] -translate-x-1/2 w-36 h-36 rounded-full bg-white/80 shadow-2xl border border-white/70" />
-              )}
               {openingType === 'window-c' && (
-                <div className="absolute inset-8 rounded-[3rem] border border-white/35 shadow-[inset_0_0_60px_rgba(0,0,0,0.16)]" />
+                <div className={`absolute inset-8 rounded-[3rem] border border-white/35 shadow-[inset_0_0_60px_rgba(0,0,0,0.16)] ${shellTransition}`} style={{ opacity: isClosing ? 0 : 1 }} />
               )}
               {openingType === 'slide-b' && (
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-black/15 backdrop-blur-sm" />
+                <>
+                  <div className={`absolute inset-y-0 left-1/2 w-px bg-white/35 ${shellTransition}`} style={{ opacity: isClosing ? 0 : 1 }} />
+                  <div className={`absolute inset-y-0 left-[22%] w-px bg-black/10 ${shellTransition}`} style={{ opacity: isClosing ? 0 : 1 }} />
+                  <div className={`absolute inset-y-0 right-[22%] w-px bg-white/20 ${shellTransition}`} style={{ opacity: isClosing ? 0 : 1 }} />
+                </>
               )}
-              {openingType === 'slide-c' && (
-                <div className="absolute inset-y-0 left-1/2 w-px bg-black/15" />
+              {openingType !== 'slide-b' && (
+                <div className={`${isWindowOpening ? 'absolute inset-y-0 left-1/2 w-px bg-white/35' : 'absolute inset-x-0 top-1/2 h-px bg-white/35'} ${shellTransition}`} style={{ opacity: isClosing ? 0 : 1 }} />
               )}
-              <div className={isWindowOpening ? 'absolute inset-y-0 left-1/2 w-px bg-white/35' : 'absolute inset-x-0 top-1/2 h-px bg-white/35'} />
             </>
           )}
 
           {isEnvelopeOpening && (
-            <div className={`absolute inset-x-8 ${openingType === 'envelope-b' ? 'bottom-[30%] h-[36%]' : 'bottom-[24%] h-[42%]'} rounded-b-3xl overflow-hidden shadow-2xl rotate-90 origin-center`}>
-              <div className="absolute inset-x-8 -top-12 h-40 bg-white/85 rounded-2xl shadow-xl border border-black/5">
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-70 px-4">
-                  <p className="text-[8px] uppercase tracking-[0.24em] text-gray-500">{invitation.event_type || 'Walimatulurus'}</p>
-                  <p className="mt-1 text-xl font-serif font-bold text-gray-600 leading-tight">{invitation.groom_name}</p>
-                  <p className="text-sm font-serif italic text-gray-400">&</p>
-                  <p className="text-xl font-serif font-bold text-gray-600 leading-tight">{invitation.bride_name}</p>
+            <div className="absolute inset-0 overflow-hidden">
+              {openingType === 'envelope-b' ? (
+                <div className="absolute inset-0 bg-[#fffdf0]">
+                  <div
+                    className={`absolute left-1/2 top-[30%] z-20 h-[28%] w-[76%] -translate-x-1/2 overflow-hidden rounded-2xl border border-black/10 bg-cover bg-center shadow-2xl ${shellTransition}`}
+                    style={{
+                      backgroundImage: `url(${invitation.settings.background_image})`,
+                      transform: isClosing
+                        ? 'translateX(-50%) translateY(-34%) scale(1.04)'
+                        : 'translateX(-50%) translateY(0) scale(1)',
+                      opacity: isClosing ? 0.98 : 1
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-white/35 backdrop-blur-[1px]" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+                      <p className="font-bold uppercase tracking-[0.24em]" style={skinHeroStyle}>{skinHeroText}</p>
+                      <p className="mt-3 font-bold leading-tight" style={skinTitleStyle}>{skinTitleText}</p>
+                    </div>
+                  </div>
+                  <div
+                    className={`absolute left-1/2 top-[28%] z-10 h-[22%] w-[66%] -translate-x-1/2 drop-shadow-xl ${shellTransition}`}
+                    style={{
+                      backgroundColor: envelopeShellColor,
+                      clipPath: 'polygon(50% 0, 100% 100%, 0 100%)',
+                      transform: isClosing
+                        ? 'translateX(-50%) translateY(28%) scale(0.96)'
+                        : 'translateX(-50%) translateY(0) scale(1)',
+                      opacity: isClosing ? 0 : 1
+                    }}
+                  />
+                  <div
+                    className={`absolute left-1/2 top-[45%] z-30 h-[25%] w-[84%] -translate-x-1/2 rounded-b-2xl shadow-2xl ${shellTransition}`}
+                    style={{
+                      backgroundColor: envelopeShellColor,
+                      transform: isClosing
+                        ? 'translateX(-50%) translateY(82%) scale(0.98)'
+                        : 'translateX(-50%) translateY(0) scale(1)',
+                      opacity: isClosing ? 0 : 1
+                    }}
+                  >
+                    <div className="absolute inset-y-0 left-0 w-1/2 bg-black/12" style={{ clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }} />
+                    <div className="absolute inset-y-0 right-0 w-1/2 bg-white/12" style={{ clipPath: 'polygon(100% 0, 0 50%, 100% 100%)' }} />
+                    <div className="absolute inset-x-0 top-0 h-full bg-black/15" style={{ clipPath: 'polygon(0 0, 50% 68%, 100% 0)' }} />
+                  </div>
                 </div>
-              </div>
-              <div className="absolute inset-0" style={{ backgroundColor: coverShellColor }} />
-              <div className="absolute inset-x-0 top-0 h-1/2 origin-top rotate-180" style={{ backgroundColor: coverShellColor, clipPath: 'polygon(0 0, 50% 100%, 100% 0)' }} />
-              <div className="absolute inset-x-0 bottom-0 h-full" style={{ backgroundColor: coverShellColor, clipPath: 'polygon(0 100%, 50% 40%, 100% 100%)' }} />
-              <div className="absolute inset-y-0 left-0 w-1/2 bg-black/10" style={{ clipPath: 'polygon(0 0, 100% 50%, 0 100%)' }} />
-              <div className="absolute inset-y-0 right-0 w-1/2 bg-white/10" style={{ clipPath: 'polygon(100% 0, 0 50%, 100% 100%)' }} />
+              ) : (
+                <div
+                  className={`absolute inset-0 overflow-hidden ${shellTransition}`}
+                  style={{
+                    backgroundColor: envelopeShellColor,
+                    transform: isClosing ? 'translateY(112%) scale(1.02)' : 'translateY(0) scale(1)'
+                  }}
+                >
+                  <div
+                    className="absolute inset-x-0 top-0 h-[27%] bg-cover bg-center opacity-95"
+                    style={{
+                      backgroundImage: `url(${invitation.settings.background_image})`,
+                      clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)'
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-white/25 backdrop-blur-[1px]" />
+                  </div>
+                  <div className="absolute inset-x-0 top-[24%] bottom-0 shadow-[inset_0_18px_40px_rgba(0,0,0,0.18)]" style={{ backgroundColor: envelopeShellColor }} />
+                  <div className="absolute inset-y-[22%] left-0 w-[52%] bg-black/12" style={{ clipPath: 'polygon(0 0, 100% 38%, 100% 72%, 0 100%)' }} />
+                  <div className="absolute inset-y-[22%] right-0 w-[52%] bg-white/12" style={{ clipPath: 'polygon(100% 0, 0 38%, 0 72%, 100% 100%)' }} />
+                  <div
+                    className="absolute inset-x-0 top-[23%] h-[22%] bg-black/10"
+                    style={{ clipPath: 'polygon(0 0, 50% 100%, 100% 0)' }}
+                  />
+                  <div className="absolute inset-x-10 top-[46%] flex flex-col items-center justify-center text-center text-white/90 drop-shadow-md">
+                    <p className="font-bold uppercase tracking-[0.28em]" style={skinHeroStyle}>{skinHeroText}</p>
+                    <p className="mt-3 font-bold leading-tight" style={skinTitleStyle}>{skinTitleText}</p>
+                  </div>
+                </div>
+              )}
+              {openingType !== 'envelope-b' && (
+                <div
+                  className={`absolute inset-x-0 top-0 h-[35%] origin-top shadow-2xl ${shellTransition}`}
+                  style={{
+                    backgroundColor: envelopeShellColor,
+                    clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                    transform: isClosing ? 'perspective(900px) rotateX(-82deg) translateY(-18%)' : 'perspective(900px) rotateX(0deg) translateY(0)'
+                  }}
+                />
+              )}
             </div>
           )}
 
           {isBlurOpening && (
-            <div className="absolute inset-0 bg-white/20 backdrop-blur-[10px]">
-              <div className="absolute inset-8 rounded-[3rem] border border-white/40 shadow-[inset_0_0_80px_rgba(255,255,255,0.25)]" />
+            <div
+              className={`absolute inset-0 bg-white/25 backdrop-blur-[12px] ${shellTransition}`}
+              style={{ opacity: isClosing ? 0 : 1, transform: isClosing ? 'scale(1.08)' : 'scale(1)' }}
+            >
+              <div className={`absolute inset-8 rounded-[3rem] border border-white/40 shadow-[inset_0_0_80px_rgba(255,255,255,0.25)] ${shellTransition}`} style={{ transform: isClosing ? 'scale(1.14)' : 'scale(1)' }} />
             </div>
           )}
         </div>
@@ -461,9 +573,9 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
           <button
             onClick={onOpen}
             className={buttonClass}
-            style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined }}
+            style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined, ...openingButtonStyle }}
           >
-            Buka Jemputan
+            Buka
             <div className={`${buttonIsShellIntegrated ? 'w-7 h-7 bg-black/10 text-current' : 'w-6 h-6 bg-white/20 text-white group-hover:bg-rose-500'} rounded-full flex items-center justify-center transform transition-transform group-hover:rotate-12`}>
               <svg className="w-3 h-3 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />

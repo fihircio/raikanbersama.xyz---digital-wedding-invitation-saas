@@ -223,6 +223,9 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
     // Check if user owns the invitation
     const invitation = await databaseService.getInvitationById(invitation_id);
     if (!invitation || invitation.user_id !== userId) {
+      if (req.uploadResult?.key) {
+        await fileStorageService.deleteFile(req.uploadResult.key).catch(() => false);
+      }
       res.status(403).json({
         success: false,
         error: 'Access denied. You do not own this invitation.'
@@ -230,8 +233,23 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
       return;
     }
 
+    if ((invitation.settings as any)?.package_plan !== 'elite') {
+      if (req.uploadResult?.key) {
+        await fileStorageService.deleteFile(req.uploadResult.key).catch(() => false);
+      }
+      res.status(403).json({
+        success: false,
+        error: 'Custom background upload is only available for Elite invitations.'
+      } as ApiResponse);
+      return;
+    }
+
     // Update background image in settings
-    const settings = { ...invitation.settings, background_image: req.uploadResult.url };
+    const settings = {
+      ...invitation.settings,
+      background_image: req.uploadResult.url,
+      custom_background_key: req.uploadResult.key
+    };
     await databaseService.updateInvitation(invitation_id, {
       settings
     });

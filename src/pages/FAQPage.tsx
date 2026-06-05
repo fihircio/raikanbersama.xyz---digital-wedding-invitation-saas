@@ -4,19 +4,35 @@ const FAQPage: React.FC = () => {
     const faqs = [
         {
             question: 'Berapa lama link jemputan saya akan aktif?',
-            answer: 'Link jemputan anda aktif selama-lamanya (Lifetime Access). Ia boleh dijadikan kenang-kenangan digital untuk anda dan tetamu.'
+            answer: 'Link jemputan anda aktif selama-lamanya melalui akses seumur hidup. Ia boleh dijadikan kenang-kenangan digital untuk anda dan tetamu.'
         },
         {
-            question: 'Apa itu Money Gift (Hadiah)?',
+            question: 'Boleh cuba editor sebelum bayar?',
+            answer: 'Ya. Anda boleh pilih design di katalog dan cuba editor penuh sebagai tetamu. Butang publish dan fungsi simpan kekal hanya dibuka selepas Save & Unlock, daftar/log masuk, dan aktifkan pakej.'
+        },
+        {
+            question: 'Apa maksud Save & Unlock?',
+            answer: 'Save & Unlock akan menyimpan draft tetamu ke akaun anda. Selepas log masuk atau daftar, sistem akan menukar draft demo kepada kad sebenar supaya anda boleh terus sambung edit.'
+        },
+        {
+            question: 'Boleh upload background design sendiri?',
+            answer: 'Boleh untuk pakej Elite. Anda boleh upload gambar portrait sendiri untuk menggantikan background katalog, dan sistem akan simpan gambar tersebut ke storage akaun jemputan anda.'
+        },
+        {
+            question: 'Apa itu Hadiah Wang Digital?',
             answer: 'Ciri yang membolehkan tetamu memberikan sumbangan secara digital terus ke akaun bank anda melalui paparan yang elegan.'
         },
         {
             question: 'Adakah saya boleh menggunakan lagu sendiri?',
-            answer: 'Ya, anda boleh memasukkan link lagu dari YouTube dibahagian Media.'
+            answer: 'Ya, anda boleh memasukkan link lagu dari YouTube di bahagian Media. Untuk preview editor, step Media akan anchor terus ke panel muzik supaya lebih mudah semak hasilnya.'
         },
         {
             question: 'Bagaimana cara untuk berkongsi link jemputan?',
-            answer: 'Selepas anda menyimpan kad anda, anda akan mendapat link unik (slug). Anda boleh copy link tersebut dan share melalui WhatsApp, Telegram, atau Media Sosial.'
+            answer: 'Selepas kad diaktifkan dan dipublish, anda akan mendapat link utama. Pakej Elite turut mempunyai Magic Link Generator untuk bina URL unik mengikut nama tetamu.'
+        },
+        {
+            question: 'Kenapa saya tidak boleh publish kad?',
+            answer: 'Publish dikunci sehingga pembayaran pakej selesai. Ini memastikan tetamu hanya boleh membuka kad yang sudah diaktifkan.'
         }
     ];
 

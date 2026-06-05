@@ -264,18 +264,26 @@ class FileStorageService {
 
       if ((fileType === FileType.GALLERY_IMAGE || fileType === FileType.BACKGROUND) && extension !== 'svg') {
         // Aggressive optimization for main images:
-        // 1. Resize to max 1200px (width or height)
+        // 1. Resize gallery images to max 1200px, background images to phone-card portrait
         // 2. Auto-rotate based on EXIF
         // 3. Convert to WebP with 75% quality
         // 4. Strip metadata (automatic by sharp)
-        finalBuffer = await sharp(buffer)
-          .resize(1200, 1200, {
-            fit: 'inside',
-            withoutEnlargement: true
-          })
-          .rotate()
-          .webp({ quality: 75, effort: 6 })
-          .toBuffer();
+        const image = sharp(buffer).rotate();
+        finalBuffer = fileType === FileType.BACKGROUND
+          ? await image
+            .resize(1080, 1980, {
+              fit: 'cover',
+              position: 'center'
+            })
+            .webp({ quality: 78, effort: 6 })
+            .toBuffer()
+          : await image
+            .resize(1200, 1200, {
+              fit: 'inside',
+              withoutEnlargement: true
+            })
+            .webp({ quality: 75, effort: 6 })
+            .toBuffer();
         finalMimeType = 'image/webp';
         finalExtension = 'webp';
       }

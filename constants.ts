@@ -125,8 +125,8 @@ export const PACKAGE_PLANS: Plan[] = [
     label: 'Lite (RM29)',
     price: '29',
     period: 'Seumur Hidup',
-    description: 'The essential wedding invitation',
-    features: ['Tiada Had Pelawat', 'Lifetime Access', 'Gallery (1 Image)'],
+    description: 'Jemputan digital asas untuk majlis ringkas dan kemas',
+    features: ['Tiada Had Pelawat', 'Akses seumur hidup', 'Galeri (1 gambar)'],
     isPopular: false
   },
   {
@@ -135,8 +135,8 @@ export const PACKAGE_PLANS: Plan[] = [
     label: 'Pro (RM49)',
     price: '49',
     period: 'Seumur Hidup',
-    description: 'The preferred choice',
-    features: ['Maklumat Boleh Tukar (120 Hari)', 'Gallery (5 Images)', 'Money Gift (E-Angpow)', 'RSVP & Guest Wishes'],
+    description: 'Pilihan lengkap untuk pasangan moden',
+    features: ['Maklumat Boleh Tukar (120 Hari)', 'Galeri (5 gambar)', 'Hadiah wang digital', 'RSVP & ucapan tetamu'],
     isPopular: true
   },
   {
@@ -145,8 +145,8 @@ export const PACKAGE_PLANS: Plan[] = [
     label: 'Elite (RM69)',
     price: '69',
     period: 'Seumur Hidup',
-    description: 'The ultimate experience',
-    features: ['Lifetime Edit', 'Unlimited Gallery', 'Video Embed', 'Physical Wishlist', 'Custom URL'],
+    description: 'Pengalaman digital paling lengkap',
+    features: ['Edit seumur hidup', 'Galeri tanpa had', 'Video terbenam', 'Wishlist fizikal', 'Ubah background katalog sendiri', 'Penjana Magic Link (URL jemputan unik)'],
     isPopular: false
   }
 ];
@@ -154,11 +154,10 @@ export const PACKAGE_PLANS: Plan[] = [
 export const OPENING_TYPES = [
   { id: 'none', label: 'Tiada (None)' },
   { id: 'window-a', label: 'Tingkap A' },
-  { id: 'window-b', label: 'Tingkap B' },
-  { id: 'window-c', label: 'Tingkap C' },
+  { id: 'window-c', label: 'Tingkap B' },
   { id: 'slide-a', label: 'Gelongsor A' },
   { id: 'slide-b', label: 'Gelongsor B' },
-  { id: 'slide-c', label: 'Gelongsor C' },
+  { id: 'slide-up', label: 'Menaik' },
   { id: 'envelope-a', label: 'Sampul A' },
   { id: 'envelope-b', label: 'Sampul B' },
   { id: 'blur', label: 'Memudar' }
