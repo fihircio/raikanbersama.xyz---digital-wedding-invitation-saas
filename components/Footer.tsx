@@ -51,9 +51,11 @@ const Footer: React.FC = () => {
                                         className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                                     />
                                 </div>
-                                <span className="text-lg font-serif font-bold text-gray-900 tracking-tight">
-                                    RaikanBersama.xyz
-                                </span>
+                                <img
+                                    src="/logo_typeface.png"
+                                    alt="RaikanBersama.xyz"
+                                    className="h-12 w-auto max-w-[270px] object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+                                />
                             </div>
                         </Link>
                         <p className="text-gray-500 text-sm leading-relaxed">

@@ -37,9 +37,11 @@ const Navbar: React.FC = () => {
                   className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
-              <span className="text-xl font-serif font-bold text-gray-900 tracking-tight group-hover:text-rose-600 transition-colors">
-                RaikanBersama.xyz
-              </span>
+              <img
+                src="/logo_typeface.png"
+                alt="RaikanBersama.xyz"
+                className="h-10 w-auto max-w-[230px] object-contain transition-transform duration-500 group-hover:scale-[1.03] sm:h-11 sm:max-w-[260px]"
+              />
             </Link>
           </div>
 
