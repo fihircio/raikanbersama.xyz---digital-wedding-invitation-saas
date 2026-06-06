@@ -142,7 +142,6 @@ const UserManagement: React.FC = () => {
                                 <tr>
                                     <th className="px-8 py-5">Pengguna</th>
                                     <th className="px-8 py-5">Peranan</th>
-                                    <th className="px-8 py-5">Pakej</th>
                                     <th className="px-8 py-5">Kad Dijana</th>
                                     <th className="px-8 py-5">Tarikh Daftar</th>
                                     <th className="px-8 py-5 text-right">Tindakan</th>
@@ -178,20 +177,6 @@ const UserManagement: React.FC = () => {
                                             >
                                                 <option value="user">USER</option>
                                                 <option value="admin">ADMIN</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <select
-                                                disabled={isUpdating === u.id}
-                                                value={u.membership_tier}
-                                                onChange={(e) => handleUpdateUser(u.id, { membership_tier: e.target.value })}
-                                                className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border-none outline-none cursor-pointer transition ${u.membership_tier === 'free' ? 'bg-gray-100 text-gray-500' :
-                                                    u.membership_tier === 'elite' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
-                                                    }`}
-                                            >
-                                                <option value="free">FREE</option>
-                                                <option value="elite">ELITE</option>
-                                                <option value="pro">PRO</option>
                                             </select>
                                         </td>
                                         <td className="px-8 py-6">

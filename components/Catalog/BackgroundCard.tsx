@@ -99,14 +99,6 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
               </div>
             </div>
 
-            {/* Premium Badge */}
-            {background.isPremium && (
-              <div className="absolute top-8 left-0 z-40">
-                <div className="bg-rose-600 text-white px-2.5 py-1 rounded-r-lg text-[9px] font-bold uppercase tracking-widest shadow-lg">
-                  Premium
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

@@ -85,7 +85,6 @@ const Navbar: React.FC = () => {
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-bold text-gray-800">{user.name}</p>
                       <p className="text-xs text-gray-400">{user.email}</p>
-                      <p className="text-xs text-rose-600 font-bold mt-1 uppercase">{user.membership_tier}</p>
                     </div>
 
                     <Link
@@ -197,7 +196,6 @@ const Navbar: React.FC = () => {
                   <div className="mb-3">
                     <p className="text-sm font-bold text-gray-800">{user.name}</p>
                     <p className="text-xs text-gray-400">{user.email}</p>
-                    <p className="text-xs text-rose-600 font-bold mt-1 uppercase">{user.membership_tier}</p>
                   </div>
                   <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Profile Settings</Link>
                   <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Order History</Link>
