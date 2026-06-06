@@ -677,6 +677,7 @@ const InvitationContent: React.FC<{
   previewFocus?: PreviewFocusStep,
   setInv?: React.Dispatch<React.SetStateAction<Invitation | null>>
 }> = ({ invitation, guestName, isPreview, previewFocus, setInv }) => {
+  const coverSectionRef = useRef<HTMLDivElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const [showRsvp, setShowRsvp] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -715,16 +716,14 @@ const InvitationContent: React.FC<{
       (target || mainContentRef.current)?.scrollIntoView({ behavior: 'smooth', block });
     };
     const scrollToActionArea = () => scrollToPreviewSection('media-actions', 'center');
+    const scrollToCover = () => coverSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     if (previewFocus === 'pembukaan') {
       setIsOpen(false);
       setPreviewSkinDismissed(false);
       setActiveModal(null);
       setShowRsvp(false);
-      setTimeout(() => {
-        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
-        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 80);
+      setTimeout(scrollToCover, 80);
       return;
     }
 
@@ -733,10 +732,7 @@ const InvitationContent: React.FC<{
       setPreviewSkinDismissed(true);
       setActiveModal(null);
       setShowRsvp(false);
-      setTimeout(() => {
-        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
-        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 80);
+      setTimeout(scrollToCover, 80);
       return;
     }
 
@@ -798,14 +794,15 @@ const InvitationContent: React.FC<{
   const [isClosing, setIsClosing] = useState(false);
 
   const handleOpenInvitation = () => {
+    const scrollToCover = () => coverSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
     if (isPreview && previewFocus === 'pembukaan') {
       setIsClosing(true);
       setTimeout(() => {
         setPreviewSkinDismissed(true);
         setIsOpen(false);
         setIsClosing(false);
-        const coverSection = mainContentRef.current?.previousElementSibling as HTMLElement | null;
-        coverSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollToCover();
       }, 1000);
       return;
     }
@@ -815,12 +812,8 @@ const InvitationContent: React.FC<{
       setIsOpen(true);
       setPreviewSkinDismissed(true);
       setIsClosing(false);
-      // Use a small timeout to ensure the content is rendered before scrolling
-      setTimeout(() => {
-        if (mainContentRef.current) {
-          mainContentRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
+      // Tetamu should land on the cover first; details remain available by manual scroll.
+      setTimeout(scrollToCover, 100);
     }, 1000);
   };
 
@@ -1069,6 +1062,7 @@ const InvitationContent: React.FC<{
           <div className="relative w-full max-w-[500px] shadow-[0_0_100px_rgba(0,0,0,0.5)] z-10 min-h-screen">
             <InvitationBody
               isPreview={false}
+              coverSectionRef={coverSectionRef}
               mainContentRef={mainContentRef}
               invitation={invitation}
               isOpen={isOpen}
@@ -1105,6 +1099,7 @@ const InvitationContent: React.FC<{
         <div className={`relative w-full transform translate-z-0 ${previewFocus === 'pembukaan' || previewFocus === 'utama' ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
           <InvitationBody
             isPreview={true}
+            coverSectionRef={coverSectionRef}
             mainContentRef={mainContentRef}
             invitation={invitation}
             isOpen={isOpen}
@@ -1143,6 +1138,7 @@ const InvitationContent: React.FC<{
 
 function InvitationBody({
   isPreview,
+  coverSectionRef,
   mainContentRef,
   invitation, isOpen, isClosing, handleOpenInvitation, handleCloseInvitation,
   activeModal, setActiveModal, canAccess, formattedDate, dateDisplay, primaryColor, secondaryColor,
@@ -1150,6 +1146,7 @@ function InvitationBody({
   guestName, showRsvp, setShowRsvp, isSuccess, isSubmitting, handleRsvpSubmit, formData, setFormData, previewFocus, showOpeningSkin
 }: {
   isPreview?: boolean;
+  coverSectionRef: React.RefObject<HTMLDivElement>;
   mainContentRef: React.RefObject<HTMLDivElement>;
   invitation: Invitation;
   isOpen: boolean;
@@ -1223,7 +1220,7 @@ function InvitationBody({
       )}
 
       {/* Cover Section - Now part of the scrollable flow */}
-      <div className="relative w-full min-h-screen z-[200]">
+      <div ref={coverSectionRef} className="relative w-full min-h-screen z-[200]">
         <CoverSection
           invitation={{ ...invitation, settings: { ...invitation.settings, effect_style: canAccess('visual_effects') ? invitation.settings.effect_style : 'none' } }}
           onOpen={handleOpenInvitation}

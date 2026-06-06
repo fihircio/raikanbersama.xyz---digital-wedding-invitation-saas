@@ -136,10 +136,18 @@ const AffiliatePage: React.FC = () => {
                 {/* Hero Section */}
                 <div className="text-center mb-24 animate-fade-in">
                     <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.4em] mb-4 block">Program Rakan Kongsi</span>
-                    <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-6 italic leading-tight">
-                        Jana Pendapatan Bersama <br />
-                        <span className="text-rose-600">RaikanBersama.xyz</span>
+                    <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-5 italic leading-tight">
+                        Jana Pendapatan Bersama
+                        <span className="sr-only"> RaikanBersama.xyz</span>
                     </h1>
+                    <div className="mx-auto mb-6 flex justify-center px-3">
+                        <img
+                            src="/logo_typeface.png"
+                            alt=""
+                            aria-hidden="true"
+                            className="h-14 w-auto max-w-[min(84vw,340px)] object-contain sm:h-16 md:h-20 md:max-w-[440px]"
+                        />
+                    </div>
                     <p className="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">
                         Sertai komuniti vendor kami dan tawarkan jemputan digital premium kepada pelanggan anda. Sesuai untuk Photographers, Event Planners, dan Wedding Vendors.
                     </p>
