@@ -66,7 +66,7 @@ const PricingPage: React.FC = () => {
         'Galeri gambar',
         'Hadiah wang digital',
         'Wishlist fizikal',
-        'Ubah background katalog sendiri',
+        'Ubah background footer, katalog dan lain-lain',
         'Penjana Magic Link (URL jemputan unik)'
       ],
       isPopular: false

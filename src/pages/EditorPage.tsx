@@ -26,6 +26,13 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
   </div>
 );
 
+const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = 'Maksimum 5MB. Sistem akan auto-compress ke WebP selepas upload.', note }) => (
+  <div className="rounded-2xl border border-rose-100/60 bg-white/80 p-3 text-[9px] font-medium leading-relaxed text-gray-500">
+    <p><span className="font-bold text-rose-500">Panduan upload:</span> {ratio}</p>
+    {note && <p className="mt-1 text-gray-400">{note}</p>}
+  </div>
+);
+
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
@@ -1067,9 +1074,10 @@ const EditorPage: React.FC = () => {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Gambar Sendiri</p>
-                <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">
-                  Untuk hasil terbaik, gunakan gambar portrait 768x1408px atau nisbah 9:19.5.
-                </p>
+                <UploadGuide
+                  ratio="Maksimum 5MB. Disarankan 768x1408px atau nisbah 9:19.5."
+                  note="Sistem akan crop portrait dan compress ke WebP untuk kad."
+                />
               </div>
               <button
                 type="button"
@@ -1154,7 +1162,10 @@ const EditorPage: React.FC = () => {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Background Butiran</p>
-                <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Background ini hanya untuk bahagian selepas cover.</p>
+                <UploadGuide
+                  ratio="Maksimum 5MB. Disarankan portrait 768x1408px atau nisbah 9:19.5."
+                  note="Background ini hanya untuk bahagian selepas cover dan akan di-compress ke WebP."
+                />
               </div>
               <button
                 type="button"
@@ -1198,16 +1209,6 @@ const EditorPage: React.FC = () => {
           </label>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Wording Footer</label>
-            <input
-              type="text"
-              value={inv.settings.footer_credit_text || 'disediakan oleh'}
-              onChange={(e) => updateSettings('footer_credit_text', e.target.value)}
-              className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
-            />
-          </div>
-
-          <div className="space-y-2">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">URL Logo Footer</label>
             <input
               type="text"
@@ -1224,7 +1225,10 @@ const EditorPage: React.FC = () => {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Logo Footer</p>
-              <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Sesuai untuk vendor/brand sendiri. Gunakan logo square atau transparent PNG.</p>
+              <UploadGuide
+                ratio="Maksimum 5MB. Disarankan square 512x512px."
+                note="PNG transparent paling sesuai untuk logo. Sistem akan compress imej sebelum simpan."
+              />
             </div>
             <button
               type="button"
@@ -1467,7 +1471,7 @@ const EditorPage: React.FC = () => {
                             />
                           </label>
                           <label className="space-y-2">
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Buka</span>
+                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Font Buka</span>
                             <input
                               type="color"
                               value={inv.settings.opening_button_color || '#374151'}
@@ -1522,7 +1526,10 @@ const EditorPage: React.FC = () => {
                             </div>
                             <div className="min-w-0 flex-1">
                               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Image Button</p>
-                              <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Pilihan ini ubah latar belakang butang "Buka".</p>
+                              <UploadGuide
+                                ratio="Maksimum 5MB. Disarankan 800x400px atau gambar ringkas."
+                                note='Pilihan ini ubah latar belakang butang "Buka" dan akan di-compress ke WebP.'
+                              />
                             </div>
                             <button
                               type="button"
@@ -1567,15 +1574,23 @@ const EditorPage: React.FC = () => {
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                        <span>Jenis Effect</span>
-                        <input
-                          type="color"
-                          value={inv.settings.effect_color || '#ffffff'}
-                          onChange={(e) => updateSettings('effect_color', e.target.value)}
-                          className="w-4 h-4 rounded-full overflow-hidden border-none p-0 cursor-pointer"
-                        />
-                      </label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Effect</label>
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                          <p className="text-[9px] font-medium leading-relaxed text-gray-400">
+                            Effect akan ikut warna pilihan ini. Default putih sesuai untuk kebanyakan background.
+                          </p>
+                        </div>
+                        <label className="space-y-2 min-w-[160px]">
+                          <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Effect</span>
+                          <input
+                            type="color"
+                            value={inv.settings.effect_color || '#ffffff'}
+                            onChange={(e) => updateSettings('effect_color', e.target.value)}
+                            className="w-full h-12 rounded-xl overflow-hidden border border-gray-100 p-1 cursor-pointer bg-white"
+                          />
+                        </label>
+                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         {EFFECT_STYLES.map(style => (
                           <button
@@ -1618,7 +1633,7 @@ const EditorPage: React.FC = () => {
                         onChange={(e) => updateSettings('section_title_size', e.target.value)}
                         className="w-full accent-rose-600 h-1"
                       />
-                      <p className="text-[8px] text-gray-400 italic px-1">Kesan kepada tajuk Maklumat Tambahan, Atur Cara Majlis, Ucapan & Doa dan Hashtag.</p>
+                      <p className="text-[8px] text-gray-400 italic px-1">Kesan kepada tajuk Maklumat Tambahan, Atur Cara Majlis, Ucapan & Doa, Hashtag dan Footer Kad.</p>
                     </div>
                   </div>
                 </section>
@@ -1627,7 +1642,7 @@ const EditorPage: React.FC = () => {
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Visual & Tema</h3>
 
                   <div className="space-y-6">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color (Button & Navigasi)</label>
                     <div className="flex flex-wrap gap-4 items-center">
                       {THEME_COLORS.map(color => (
                         <button
@@ -2366,7 +2381,13 @@ const EditorPage: React.FC = () => {
                 {canAccess('gallery') && (
                   <section className="space-y-8 pt-10 border-t border-gray-100">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gallery Images</h3>
+                      <div className="space-y-3">
+                        <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gallery Images</h3>
+                        <UploadGuide
+                          ratio="Maksimum 5MB setiap gambar. Disarankan 1200x1200px atau kurang."
+                          note="Sistem akan resize dan compress ke WebP untuk galeri."
+                        />
+                      </div>
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2 mr-4">
                           <span className="text-[10px] text-gray-400 font-bold uppercase">Show Gallery</span>
@@ -2523,6 +2544,10 @@ const EditorPage: React.FC = () => {
 
                       <div className="space-y-4 pt-6 border-t border-gray-100">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">QR Code (DuitNow/TNG)</label>
+                        <UploadGuide
+                          ratio="Maksimum 5MB. Disarankan 800x800px, jelas dan tidak kabur."
+                          note="QR boleh JPG, PNG, WebP atau SVG. Pastikan kod boleh diimbas selepas upload."
+                        />
                         {inv.money_gift_details.qr_url ? (
                           <div className="relative w-full aspect-square max-w-[200px] mx-auto rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm group">
                             <img src={inv.money_gift_details.qr_url} className="w-full h-full object-contain p-4 bg-white" />
@@ -2592,7 +2617,13 @@ const EditorPage: React.FC = () => {
 
                       <div className="space-y-8 pt-6 border-t border-gray-100">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Permintaan Hadiah</h4>
+                          <div className="space-y-3">
+                            <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Permintaan Hadiah</h4>
+                            <UploadGuide
+                              ratio="Maksimum 5MB setiap gambar item. Disarankan square 800x800px."
+                              note="Sistem akan resize dan compress ke WebP untuk imej hadiah."
+                            />
+                          </div>
                           <button
                             onClick={() => {
                               const newItem = { id: Date.now().toString(), item_name: 'Barangan Baru', item_link: '', item_image: '' };

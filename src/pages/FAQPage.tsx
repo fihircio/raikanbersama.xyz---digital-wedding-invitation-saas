@@ -16,7 +16,7 @@ const FAQPage: React.FC = () => {
         },
         {
             question: 'Boleh upload background design sendiri?',
-            answer: 'Boleh untuk pakej Elite. Anda boleh upload gambar portrait sendiri untuk menggantikan background katalog, dan sistem akan simpan gambar tersebut ke storage akaun jemputan anda.'
+            answer: 'Boleh untuk pakej Elite. Anda boleh upload gambar sendiri untuk background katalog, background butiran, logo footer dan beberapa elemen visual lain. Sistem akan simpan gambar tersebut ke storage akaun jemputan anda.'
         },
         {
             question: 'Apa itu Hadiah Wang Digital?',

@@ -274,9 +274,7 @@ const EffectOverlay: React.FC<{ type: string, color: string }> = ({ type, color 
   }
 
   if (type === 'flowery') {
-    // Standard pink/rose colors to use if the user hasn't selected a specific color (defaults to white)
-    const isDefaultColor = !color || color === '#ffffff' || color === '#fff';
-    const flowerPalette = ['#e11d48', '#ec4899', '#f472b6', '#fb7185', '#f43f5e'];
+    const flowerColor = color || '#fff';
 
     return (
       <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
@@ -292,7 +290,7 @@ const EffectOverlay: React.FC<{ type: string, color: string }> = ({ type, color 
               height: `${Math.random() * 20 + 15}px`,
               animationDuration: `${Math.random() * 10 + 10}s`,
               animationDelay: `${Math.random() * 10}s`,
-              color: isDefaultColor ? flowerPalette[i % flowerPalette.length] : color
+              color: flowerColor
             }}
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full drop-shadow-md">
@@ -313,7 +311,7 @@ const EffectOverlay: React.FC<{ type: string, color: string }> = ({ type, color 
               height: `${Math.random() * 20 + 15}px`,
               animationDuration: `${Math.random() * 10 + 10}s`,
               animationDelay: `${Math.random() * 10}s`,
-              color: isDefaultColor ? flowerPalette[(i + 2) % flowerPalette.length] : color
+              color: flowerColor
             }}
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full drop-shadow-md">
@@ -1221,7 +1219,7 @@ function InvitationBody({
     paddingRight: `${contentMargin}px`,
   };
   const invitationBackgroundImage = invitation.settings.invitation_background_image || invitation.settings.background_image;
-  const footerCreditText = invitation.settings.footer_credit_text || 'disediakan oleh';
+  const footerCreditText = 'meraikan';
   const footerLogoUrl = invitation.settings.footer_logo_url || '/logo.png';
   const showFooterCredit = invitation.settings.show_footer_credit !== false;
 
@@ -2040,7 +2038,7 @@ function InvitationBody({
             <div className="relative z-10 px-8">
               {showFooterCredit && (
                 <div className="mt-8 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">{footerCreditText}</p>
+                  <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-1 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>{footerCreditText}</h4>
                   <Link to="/" className="group relative">
                     <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
                       <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>

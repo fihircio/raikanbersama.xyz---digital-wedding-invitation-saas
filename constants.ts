@@ -146,7 +146,7 @@ export const PACKAGE_PLANS: Plan[] = [
     price: '69',
     period: 'Seumur Hidup',
     description: 'Pengalaman digital paling lengkap',
-    features: ['Edit seumur hidup', 'Galeri tanpa had', 'Video terbenam', 'Wishlist fizikal', 'Ubah background katalog sendiri', 'Penjana Magic Link (URL jemputan unik)'],
+    features: ['Edit seumur hidup', 'Galeri tanpa had', 'Video terbenam', 'Wishlist fizikal', 'Ubah background footer, katalog dan lain-lain', 'Penjana Magic Link (URL jemputan unik)'],
     isPopular: false
   }
 ];

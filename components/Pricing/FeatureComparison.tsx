@@ -19,7 +19,7 @@ const FeatureComparison: React.FC<FeatureComparisonProps> = ({ plans }) => {
     { name: 'Galeri gambar', lite: false, pro: false, elite: true },
     { name: 'Hadiah wang digital', lite: false, pro: false, elite: true },
     { name: 'Wishlist fizikal', lite: false, pro: false, elite: true },
-    { name: 'Ubah background katalog sendiri', lite: false, pro: false, elite: true },
+    { name: 'Ubah background footer, katalog dan lain-lain', lite: false, pro: false, elite: true },
     { name: 'Penjana Magic Link (URL jemputan unik)', lite: false, pro: false, elite: true },
   ];
 
