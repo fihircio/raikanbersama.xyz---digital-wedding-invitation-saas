@@ -1219,7 +1219,7 @@ function InvitationBody({
     paddingRight: `${contentMargin}px`,
   };
   const invitationBackgroundImage = invitation.settings.invitation_background_image || invitation.settings.background_image;
-  const footerCreditText = 'meraikan';
+  const footerCreditText = invitation.settings.package_plan === 'elite' ? 'meraikan' : 'disediakan oleh';
   const footerLogoUrl = invitation.settings.footer_logo_url || '/logo.png';
   const showFooterCredit = invitation.settings.show_footer_credit !== false;
 

@@ -1166,6 +1166,29 @@ const EditorPage: React.FC = () => {
               </div>
             </button>
           ))}
+
+          {bgPagination.hasNext && (
+            <div className="col-span-3 pt-2 pb-1">
+              <button
+                type="button"
+                onClick={() => fetchBackgrounds(bgPagination.page + 1, true)}
+                disabled={bgPagination.isLoading}
+                className="w-full py-3 bg-gray-50 border border-gray-200 rounded-xl text-[10px] font-bold text-gray-500 uppercase tracking-widest hover:bg-gray-100 hover:text-gray-700 transition flex items-center justify-center gap-2"
+              >
+                {bgPagination.isLoading ? (
+                  <>
+                    <svg className="animate-spin h-3 w-3 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading...
+                  </>
+                ) : (
+                  <>Muat Lebih Banyak Design ({backgrounds.length})</>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {inv.settings.package_plan === 'elite' && (
