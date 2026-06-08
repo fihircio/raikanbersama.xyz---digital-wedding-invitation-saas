@@ -23,6 +23,25 @@ const upload = multer({
   },
 });
 
+const MB = 1024 * 1024;
+const getPurposeLimit = (fileType: FileType, target?: string): number => {
+  if (fileType === FileType.QR_CODE) return 1 * MB;
+
+  if (fileType === FileType.BACKGROUND) {
+    if (target === 'opening-button' || target === 'footer-logo') return 1 * MB;
+    return 2 * MB;
+  }
+
+  if (fileType === FileType.GALLERY_IMAGE) {
+    if (target === 'wishlist-item') return 1 * MB;
+    return 2 * MB;
+  }
+
+  return config.maxFileSize;
+};
+
+const formatMb = (bytes: number) => `${bytes / MB}MB`;
+
 /**
  * Middleware to handle single file upload
  * @param fileType - Type of file being uploaded
@@ -86,6 +105,15 @@ export const uploadSingle = (fileType: FileType) => {
           res.status(401).json({
             success: false,
             error: 'User not authenticated',
+          });
+          return;
+        }
+
+        const purposeLimit = getPurposeLimit(fileType, req.body?.target);
+        if (req.file.buffer.length > purposeLimit) {
+          res.status(400).json({
+            success: false,
+            error: `File size exceeds maximum allowed size of ${formatMb(purposeLimit)} for this upload.`,
           });
           return;
         }
@@ -180,9 +208,20 @@ export const uploadMultiple = (fileType: FileType, maxCount: number = 5) => {
           });
           return;
         }
+
+        const files = req.files as Express.Multer.File[];
+        const purposeLimit = getPurposeLimit(fileType, req.body?.target);
+        const oversizedFile = files.find(file => file.buffer.length > purposeLimit);
+        if (oversizedFile) {
+          res.status(400).json({
+            success: false,
+            error: `One or more files exceed maximum allowed size of ${formatMb(purposeLimit)} for this upload.`,
+          });
+          return;
+        }
         
         // Extract buffers from uploaded files
-        const fileBuffers = (req.files as Express.Multer.File[]).map(file => file.buffer);
+        const fileBuffers = files.map(file => file.buffer);
         
         // Upload the files to S3
         const uploadResults = await fileStorageService.uploadMultipleFiles(

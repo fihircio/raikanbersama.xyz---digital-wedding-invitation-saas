@@ -26,7 +26,7 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
   </div>
 );
 
-const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = 'Maksimum 5MB. Sistem akan auto-compress ke WebP selepas upload.', note }) => (
+const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = 'Sistem akan semak saiz fail dan auto-compress imej yang disokong selepas upload.', note }) => (
   <div className="rounded-2xl border border-rose-100/60 bg-white/80 p-3 text-[9px] font-medium leading-relaxed text-gray-500">
     <p><span className="font-bold text-rose-500">Panduan upload:</span> {ratio}</p>
     {note && <p className="mt-1 text-gray-400">{note}</p>}
@@ -661,8 +661,27 @@ const EditorPage: React.FC = () => {
     setInv({ ...inv, wishlist_details: { ...inv.wishlist_details, [field]: value } });
   };
 
+  const uploadLimitsMb = {
+    gallery: 2,
+    cover: 2,
+    invitation: 2,
+    'opening-button': 1,
+    'footer-logo': 1,
+    qr: 1,
+    wishlist: 1
+  } as const;
+
+  const validateUploadSize = (file: File, limitMb: number) => {
+    const limitBytes = limitMb * 1024 * 1024;
+    if (file.size <= limitBytes) return true;
+    showNotification(`Saiz fail terlalu besar. Maksimum ${limitMb}MB untuk upload ini.`, 'error');
+    return false;
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file && !validateUploadSize(file, uploadLimitsMb.gallery)) return;
     if (file && token && id && !isDemo) {
       const getCookie = (name: string) => {
         const value = `; ${document.cookie}`;
@@ -722,6 +741,7 @@ const EditorPage: React.FC = () => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file || !inv) return;
+    if (!validateUploadSize(file, uploadLimitsMb[target])) return;
 
     if (inv.settings.package_plan !== 'elite') {
       showNotification('Upload gambar sendiri hanya tersedia untuk pakej Elite.', 'error');
@@ -783,6 +803,8 @@ const EditorPage: React.FC = () => {
 
   const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file && !validateUploadSize(file, uploadLimitsMb.qr)) return;
     if (file && token && id && !isDemo) {
       const getCookie = (name: string) => {
         const value = `; ${document.cookie}`;
@@ -830,6 +852,8 @@ const EditorPage: React.FC = () => {
 
   const handleWishlistItemImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file && !validateUploadSize(file, uploadLimitsMb.wishlist)) return;
     if (file && token && id && currentWishlistItemIdx !== null && !isDemo) {
       const getCookie = (name: string) => {
         const value = `; ${document.cookie}`;
@@ -842,6 +866,7 @@ const EditorPage: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('invitation_id', id);
+      formData.append('target', 'wishlist-item');
 
       try {
         const headers: Record<string, string> = {
@@ -1075,7 +1100,7 @@ const EditorPage: React.FC = () => {
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Gambar Sendiri</p>
                 <UploadGuide
-                  ratio="Maksimum 5MB. Disarankan 768x1408px atau nisbah 9:19.5."
+                  ratio="Maksimum 2MB. Disarankan 768x1408px atau nisbah 9:19.5."
                   note="Sistem akan crop portrait dan compress ke WebP untuk kad."
                 />
               </div>
@@ -1163,7 +1188,7 @@ const EditorPage: React.FC = () => {
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Background Butiran</p>
                 <UploadGuide
-                  ratio="Maksimum 5MB. Disarankan portrait 768x1408px atau nisbah 9:19.5."
+                  ratio="Maksimum 2MB. Disarankan portrait 768x1408px atau nisbah 9:19.5."
                   note="Background ini hanya untuk bahagian selepas cover dan akan di-compress ke WebP."
                 />
               </div>
@@ -1226,7 +1251,7 @@ const EditorPage: React.FC = () => {
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Logo Footer</p>
               <UploadGuide
-                ratio="Maksimum 5MB. Disarankan square 512x512px."
+                ratio="Maksimum 1MB. Disarankan square 512x512px."
                 note="PNG transparent paling sesuai untuk logo. Sistem akan compress imej sebelum simpan."
               />
             </div>
@@ -1527,7 +1552,7 @@ const EditorPage: React.FC = () => {
                             <div className="min-w-0 flex-1">
                               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Image Button</p>
                               <UploadGuide
-                                ratio="Maksimum 5MB. Disarankan 800x400px atau gambar ringkas."
+                                ratio="Maksimum 1MB. Disarankan 800x400px atau gambar ringkas."
                                 note='Pilihan ini ubah latar belakang butang "Buka" dan akan di-compress ke WebP.'
                               />
                             </div>
@@ -2384,7 +2409,7 @@ const EditorPage: React.FC = () => {
                       <div className="space-y-3">
                         <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gallery Images</h3>
                         <UploadGuide
-                          ratio="Maksimum 5MB setiap gambar. Disarankan 1200x1200px atau kurang."
+                          ratio="Maksimum 2MB setiap gambar. Disarankan 1200x1200px atau kurang."
                           note="Sistem akan resize dan compress ke WebP untuk galeri."
                         />
                       </div>
@@ -2545,7 +2570,7 @@ const EditorPage: React.FC = () => {
                       <div className="space-y-4 pt-6 border-t border-gray-100">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">QR Code (DuitNow/TNG)</label>
                         <UploadGuide
-                          ratio="Maksimum 5MB. Disarankan 800x800px, jelas dan tidak kabur."
+                          ratio="Maksimum 1MB. Disarankan 800x800px, jelas dan tidak kabur."
                           note="QR boleh JPG, PNG, WebP atau SVG. Pastikan kod boleh diimbas selepas upload."
                         />
                         {inv.money_gift_details.qr_url ? (
@@ -2620,7 +2645,7 @@ const EditorPage: React.FC = () => {
                           <div className="space-y-3">
                             <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Permintaan Hadiah</h4>
                             <UploadGuide
-                              ratio="Maksimum 5MB setiap gambar item. Disarankan square 800x800px."
+                              ratio="Maksimum 1MB setiap gambar item. Disarankan square 800x800px."
                               note="Sistem akan resize dan compress ke WebP untuk imej hadiah."
                             />
                           </div>
