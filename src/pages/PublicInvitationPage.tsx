@@ -363,6 +363,17 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
   const isBlurOpening = openingType === 'blur';
   const showOpeningShell = showOpeningSkin && !isOpen && openingType !== 'none';
   const buttonIsShellIntegrated = showOpeningShell && (isWindowOpening || isSlideOpening || isEnvelopeOpening || isBlurOpening);
+  const openingButtonBgOpacity = invitation.settings.opening_button_bg_opacity ?? 0.9;
+  const openingButtonBgColor = invitation.settings.opening_button_bg_color || (buttonIsShellIntegrated ? '#ffffff' : undefined);
+  const openingButtonBackground = invitation.settings.opening_button_bg_image
+    ? {
+      backgroundImage: `linear-gradient(rgba(255,255,255,${Math.max(0, Math.min(1, openingButtonBgOpacity))}), rgba(255,255,255,${Math.max(0, Math.min(1, openingButtonBgOpacity))})), url(${invitation.settings.opening_button_bg_image})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }
+    : openingButtonBgColor
+      ? { backgroundColor: openingButtonBgColor }
+      : {};
   const coverContentClass = 'relative z-10 w-full h-full transition-all duration-700 opacity-100 blur-0 scale-100';
   const showCoverOpenButton = !isOpen && (!isPreview || showOpeningShell);
   const shellTransition = 'transition-all duration-[1100ms] ease-[cubic-bezier(0.76,0,0.24,1)]';
@@ -573,7 +584,7 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
           <button
             onClick={onOpen}
             className={buttonClass}
-            style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined, ...openingButtonStyle }}
+            style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined, ...openingButtonStyle, ...openingButtonBackground }}
           >
             Buka
             <div className={`${buttonIsShellIntegrated ? 'w-7 h-7 bg-black/10 text-current' : 'w-6 h-6 bg-white/20 text-white group-hover:bg-rose-500'} rounded-full flex items-center justify-center transform transition-transform group-hover:rotate-12`}>
@@ -1209,6 +1220,10 @@ function InvitationBody({
     paddingLeft: `${contentMargin}px`,
     paddingRight: `${contentMargin}px`,
   };
+  const invitationBackgroundImage = invitation.settings.invitation_background_image || invitation.settings.background_image;
+  const footerCreditText = invitation.settings.footer_credit_text || 'disediakan oleh';
+  const footerLogoUrl = invitation.settings.footer_logo_url || '/logo.png';
+  const showFooterCredit = invitation.settings.show_footer_credit !== false;
 
   return (
     <>
@@ -1238,7 +1253,7 @@ function InvitationBody({
 
         <div className={`relative min-h-screen font-sans text-gray-900 transition-opacity duration-1000 ${activeModal ? 'overflow-hidden' : ''} ${!isOpen ? 'opacity-0 h-screen overflow-hidden' : 'opacity-100'}`}>
           {/* Fixed Background Layer - Perfect scale, constrained to card width on desktop */}
-          {invitation.settings.background_image && (
+          {invitationBackgroundImage && (
             <div
               className="fixed inset-0 pointer-events-none z-0 max-w-[500px] w-full left-1/2 -translate-x-1/2"
               style={{
@@ -1249,7 +1264,7 @@ function InvitationBody({
                   const g = parseInt(color.slice(3, 5), 16);
                   const b = parseInt(color.slice(5, 7), 16);
                   const overlay = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                  return `linear-gradient(${overlay}, ${overlay}), url(${invitation.settings.background_image})`;
+                  return `linear-gradient(${overlay}, ${overlay}), url(${invitationBackgroundImage})`;
                 })(),
                 backgroundSize: 'inherit',
                 backgroundPosition: 'center',
@@ -1258,7 +1273,7 @@ function InvitationBody({
           )}
 
           {/* Background Color fallback (if no image) - Constrained to card width */}
-          {!invitation.settings.background_image && (
+          {!invitationBackgroundImage && (
             <div
               className="fixed inset-0 pointer-events-none z-0 max-w-[500px] w-full left-1/2 -translate-x-1/2"
               style={{
@@ -2001,12 +2016,12 @@ function InvitationBody({
                 const b = parseInt(color.slice(5, 7), 16);
                 const overlay = `rgba(${r}, ${g}, ${b}, ${opacity})`;
 
-                if (invitation.settings.background_image) {
-                  return `linear-gradient(${overlay}, ${overlay}), url(${invitation.settings.background_image})`;
+                if (invitationBackgroundImage) {
+                  return `linear-gradient(${overlay}, ${overlay}), url(${invitationBackgroundImage})`;
                 }
                 return 'none';
               })(),
-              backgroundColor: !invitation.settings.background_image ? (() => {
+              backgroundColor: !invitationBackgroundImage ? (() => {
                 const color = invitation.settings.background_color || '#ffffff';
                 const opacity = invitation.settings.background_opacity ?? 1;
                 const r = parseInt(color.slice(1, 3), 16);
@@ -2023,19 +2038,21 @@ function InvitationBody({
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0"></div>
 
             <div className="relative z-10 px-8">
-              <div className="mt-8 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">disediakan oleh</p>
-                <Link to="/" className="group relative">
-                  <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
-                    <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>
-                    <img
-                      src="/logo.png"
-                      alt="RaikanBersama Logo"
-                      className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-                </Link>
-              </div>
+              {showFooterCredit && (
+                <div className="mt-8 flex flex-col items-center gap-4 opacity-70 hover:opacity-100 transition duration-500">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">{footerCreditText}</p>
+                  <Link to="/" className="group relative">
+                    <div className="relative h-14 w-14 rounded-full overflow-hidden border border-gray-100 shadow-inner bg-white">
+                      <div className="absolute inset-0 z-10 pointer-events-none shadow-[inset_0_0_12px_rgba(0,0,0,0.15)] rounded-full"></div>
+                      <img
+                        src={footerLogoUrl}
+                        alt="Footer Logo"
+                        className="h-full w-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

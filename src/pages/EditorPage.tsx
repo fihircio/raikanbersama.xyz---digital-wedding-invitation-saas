@@ -55,6 +55,9 @@ const EditorPage: React.FC = () => {
   const [isDesignDropdownOpen, setIsDesignDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backgroundFileInputRef = useRef<HTMLInputElement>(null);
+  const invitationBackgroundFileInputRef = useRef<HTMLInputElement>(null);
+  const openingButtonBgFileInputRef = useRef<HTMLInputElement>(null);
+  const footerLogoFileInputRef = useRef<HTMLInputElement>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
   const wishlistItemInputRef = useRef<HTMLInputElement>(null);
   const [currentWishlistItemIdx, setCurrentWishlistItemIdx] = useState<number | null>(null);
@@ -64,7 +67,7 @@ const EditorPage: React.FC = () => {
   const [showMobilePreview, setShowMobilePreview] = useState(false);
   const [showEditorOnboarding, setShowEditorOnboarding] = useState(false);
   const [editorOnboardingIndex, setEditorOnboardingIndex] = useState(0);
-  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [uploadingVisualAsset, setUploadingVisualAsset] = useState<string | null>(null);
   const [backgrounds, setBackgrounds] = useState<any[]>([]);
   const [bgPagination, setBgPagination] = useState({ page: 1, hasNext: false, isLoading: false });
 
@@ -700,7 +703,15 @@ const EditorPage: React.FC = () => {
     }
   };
 
-  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  type VisualAssetTarget = 'cover' | 'invitation' | 'opening-button' | 'footer-logo';
+  const visualAssetFieldMap: Record<VisualAssetTarget, keyof Invitation['settings']> = {
+    cover: 'background_image',
+    invitation: 'invitation_background_image',
+    'opening-button': 'opening_button_bg_image',
+    'footer-logo': 'footer_logo_url'
+  };
+
+  const handleVisualAssetUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: VisualAssetTarget) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file || !inv) return;
@@ -713,7 +724,7 @@ const EditorPage: React.FC = () => {
     if (isDemo || !token || !id) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        updateSettings('background_image', reader.result as string);
+        updateSettings(visualAssetFieldMap[target], reader.result as string);
         showNotification('Preview gambar dimuat naik secara lokal. Save & Unlock untuk simpan ke akaun.', 'success');
       };
       reader.readAsDataURL(file);
@@ -731,9 +742,10 @@ const EditorPage: React.FC = () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('invitation_id', id);
+    formData.append('target', target);
 
     try {
-      setIsUploadingBackground(true);
+      setUploadingVisualAsset(target);
       const headers: Record<string, string> = {
         Authorization: `Bearer ${token}`
       };
@@ -748,17 +760,17 @@ const EditorPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        updateSettings('background_image', data.data.url);
-        showNotification('Background custom berjaya dimuat naik.', 'success');
+        updateSettings(visualAssetFieldMap[target], data.data.url);
+        showNotification('Asset custom berjaya dimuat naik.', 'success');
       } else {
         const err = await response.json().catch(() => ({}));
-        showNotification(`Upload background gagal: ${err.error || 'Unknown error'}`, 'error');
+        showNotification(`Upload asset gagal: ${err.error || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('❌ Background upload error:', error);
-      showNotification('Gagal memuat naik background. Sila cuba lagi.', 'error');
+      showNotification('Gagal memuat naik asset. Sila cuba lagi.', 'error');
     } finally {
-      setIsUploadingBackground(false);
+      setUploadingVisualAsset(null);
     }
   };
 
@@ -1062,17 +1074,17 @@ const EditorPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => backgroundFileInputRef.current?.click()}
-                disabled={isUploadingBackground}
+                disabled={uploadingVisualAsset === 'cover'}
                 className="rounded-full bg-rose-600 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-100 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isUploadingBackground ? 'Uploading...' : 'Upload'}
+                {uploadingVisualAsset === 'cover' ? 'Uploading...' : 'Upload'}
               </button>
               <input
                 ref={backgroundFileInputRef}
                 type="file"
                 hidden
                 accept="image/png,image/jpeg,image/webp"
-                onChange={handleBackgroundUpload}
+                onChange={(e) => handleVisualAssetUpload(e, 'cover')}
               />
             </div>
           </div>
@@ -1081,6 +1093,159 @@ const EditorPage: React.FC = () => {
 
     </section>
   );
+
+  const renderInvitationBackgroundSection = () => {
+    const selectedBackground = inv.settings.invitation_background_image || '';
+    return (
+      <section className="space-y-8 pt-10 border-t border-gray-100">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Latar Belakang Butiran</h3>
+            <p className="mt-3 text-[9px] font-medium leading-relaxed text-gray-400">Untuk Elite: asingkan background bahagian butiran daripada cover. Kosongkan untuk ikut background cover.</p>
+          </div>
+          {selectedBackground && (
+            <button
+              type="button"
+              onClick={() => updateSettings('invitation_background_image', '')}
+              className="shrink-0 rounded-full border border-gray-200 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-gray-400 hover:border-rose-200 hover:text-rose-500"
+            >
+              Ikut Cover
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 max-h-[260px] overflow-y-auto no-scrollbar pr-1">
+          {backgroundOptions.map((bg: any, idx) => (
+            <button
+              key={`invitation-${bg.url}-${idx}`}
+              onClick={() => updateSettings('invitation_background_image', bg.url)}
+              className={`aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all relative group ${selectedBackground === bg.url ? 'border-rose-500 ring-2 ring-rose-200 scale-95' : 'border-transparent hover:border-gray-200'}`}
+            >
+              <img src={bg.thumbnail || bg.url} alt={bg.name} className="w-full h-full object-cover" />
+              <div className={`absolute inset-0 bg-black/20 transition-opacity ${selectedBackground === bg.url ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                {selectedBackground === bg.url && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {inv.settings.package_plan === 'elite' && (
+          <div className="rounded-[2rem] border border-rose-100 bg-rose-50/60 p-4 space-y-4">
+            <input
+              type="text"
+              placeholder="https://..."
+              value={selectedBackground}
+              onChange={(e) => updateSettings('invitation_background_image', e.target.value)}
+              className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
+            />
+            <div className="flex items-center gap-4">
+              <div className="h-20 w-14 shrink-0 overflow-hidden rounded-2xl border border-white bg-white shadow-sm">
+                {selectedBackground ? (
+                  <img src={selectedBackground} alt="Invitation background preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-center text-[8px] font-bold uppercase tracking-widest text-gray-300">Ikut Cover</div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Background Butiran</p>
+                <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Background ini hanya untuk bahagian selepas cover.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => invitationBackgroundFileInputRef.current?.click()}
+                disabled={uploadingVisualAsset === 'invitation'}
+                className="rounded-full bg-rose-600 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-100 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {uploadingVisualAsset === 'invitation' ? 'Uploading...' : 'Upload'}
+              </button>
+              <input
+                ref={invitationBackgroundFileInputRef}
+                type="file"
+                hidden
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => handleVisualAssetUpload(e, 'invitation')}
+              />
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  };
+
+  const renderFooterBrandingSection = () => {
+    const footerLogo = inv.settings.footer_logo_url || '/logo.png';
+    return (
+      <section className="space-y-8 pt-10 border-t border-gray-100">
+        <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Footer Kad</h3>
+        <div className="rounded-[2rem] border border-gray-100 bg-gray-50 p-4 space-y-5">
+          <label className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 border border-gray-100">
+            <span>
+              <span className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">Papar Footer Credit</span>
+              <span className="mt-1 block text-[9px] font-medium text-gray-400">Teks dan logo di bahagian bawah kad.</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={inv.settings.show_footer_credit !== false}
+              onChange={(e) => updateSettings('show_footer_credit', e.target.checked)}
+              className="h-5 w-5 accent-rose-600"
+            />
+          </label>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Wording Footer</label>
+            <input
+              type="text"
+              value={inv.settings.footer_credit_text || 'disediakan oleh'}
+              onChange={(e) => updateSettings('footer_credit_text', e.target.value)}
+              className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">URL Logo Footer</label>
+            <input
+              type="text"
+              value={inv.settings.footer_logo_url || ''}
+              placeholder="/logo.png"
+              onChange={(e) => updateSettings('footer_logo_url', e.target.value)}
+              className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white bg-white shadow-sm">
+              <img src={footerLogo} alt="Footer logo preview" className="h-full w-full object-cover" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Logo Footer</p>
+              <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Sesuai untuk vendor/brand sendiri. Gunakan logo square atau transparent PNG.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => footerLogoFileInputRef.current?.click()}
+              disabled={uploadingVisualAsset === 'footer-logo'}
+              className="rounded-full bg-rose-600 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-100 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {uploadingVisualAsset === 'footer-logo' ? 'Uploading...' : 'Upload'}
+            </button>
+            <input
+              ref={footerLogoFileInputRef}
+              type="file"
+              hidden
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => handleVisualAssetUpload(e, 'footer-logo')}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  };
 
   return (
     <div className="pt-16 h-screen bg-gray-50 flex flex-col md:flex-row overflow-hidden">
@@ -1312,6 +1477,71 @@ const EditorPage: React.FC = () => {
                           </label>
                         </div>
                       </div>
+                      {inv.settings.package_plan === 'elite' && (
+                        <div className="rounded-[2rem] border border-rose-100 bg-rose-50/50 p-4 space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <label className="space-y-2">
+                              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Background Buka</span>
+                              <input
+                                type="color"
+                                value={inv.settings.opening_button_bg_color || '#ffffff'}
+                                onChange={(e) => updateSettings('opening_button_bg_color', e.target.value)}
+                                className="w-full h-12 rounded-xl overflow-hidden border border-gray-100 p-1 cursor-pointer bg-white"
+                              />
+                            </label>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                                <span>Tint Image</span>
+                                <span>{Math.round((inv.settings.opening_button_bg_opacity ?? 0.9) * 100)}%</span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={inv.settings.opening_button_bg_opacity ?? 0.9}
+                                onChange={(e) => updateSettings('opening_button_bg_opacity', parseFloat(e.target.value))}
+                                className="w-full accent-rose-600 h-2 rounded-full"
+                              />
+                            </div>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="URL image button Buka"
+                            value={inv.settings.opening_button_bg_image || ''}
+                            onChange={(e) => updateSettings('opening_button_bg_image', e.target.value)}
+                            className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
+                          />
+                          <div className="flex items-center gap-4">
+                            <div className="h-14 w-20 shrink-0 overflow-hidden rounded-2xl border border-white bg-white shadow-sm">
+                              {inv.settings.opening_button_bg_image ? (
+                                <img src={inv.settings.opening_button_bg_image} alt="Buka button background preview" className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="h-full w-full" style={{ backgroundColor: inv.settings.opening_button_bg_color || '#ffffff' }} />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Image Button</p>
+                              <p className="mt-1 text-[9px] font-medium leading-relaxed text-gray-500">Pilihan ini ubah latar belakang butang "Buka".</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => openingButtonBgFileInputRef.current?.click()}
+                              disabled={uploadingVisualAsset === 'opening-button'}
+                              className="rounded-full bg-rose-600 px-4 py-3 text-[9px] font-black uppercase tracking-widest text-white shadow-lg shadow-rose-100 transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {uploadingVisualAsset === 'opening-button' ? 'Uploading...' : 'Upload'}
+                            </button>
+                            <input
+                              ref={openingButtonBgFileInputRef}
+                              type="file"
+                              hidden
+                              accept="image/png,image/jpeg,image/webp"
+                              onChange={(e) => handleVisualAssetUpload(e, 'opening-button')}
+                            />
+                          </div>
+                        </div>
+                      )}
                       <div className="grid grid-cols-2 gap-3">
                         {OPENING_TYPES.map(type => (
                           <button
@@ -1444,6 +1674,10 @@ const EditorPage: React.FC = () => {
                 </section>
 
                 {renderBackgroundColorSection()}
+
+                {inv.settings.package_plan === 'elite' && renderInvitationBackgroundSection()}
+
+                {inv.settings.package_plan === 'elite' && renderFooterBrandingSection()}
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Margin Kandungan</h3>

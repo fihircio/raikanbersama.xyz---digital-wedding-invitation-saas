@@ -202,7 +202,7 @@ export const uploadQrCode = async (req: AuthenticatedRequest, res: Response): Pr
 export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    const { invitation_id } = req.body;
+    const { invitation_id, target = 'cover' } = req.body;
 
     if (!userId) {
       res.status(401).json({
@@ -244,23 +244,32 @@ export const uploadBackgroundImage = async (req: AuthenticatedRequest, res: Resp
       return;
     }
 
-    // Update background image in settings
+    const targetMap: Record<string, { urlField: string; keyField: string }> = {
+      cover: { urlField: 'background_image', keyField: 'custom_background_key' },
+      invitation: { urlField: 'invitation_background_image', keyField: 'custom_invitation_background_key' },
+      'opening-button': { urlField: 'opening_button_bg_image', keyField: 'custom_opening_button_bg_key' },
+      'footer-logo': { urlField: 'footer_logo_url', keyField: 'custom_footer_logo_key' }
+    };
+    const targetConfig = targetMap[target as string] || targetMap.cover;
+
+    // Update targeted visual asset in settings
     const settings = {
       ...invitation.settings,
-      background_image: req.uploadResult.url,
-      custom_background_key: req.uploadResult.key
+      [targetConfig.urlField]: req.uploadResult.url,
+      [targetConfig.keyField]: req.uploadResult.key
     };
     await databaseService.updateInvitation(invitation_id, {
       settings
     });
 
-    logger.info(`Background image uploaded: ${req.uploadResult.url} to invitation: ${invitation_id}`);
+    logger.info(`Background image uploaded: ${req.uploadResult.url} to invitation: ${invitation_id} target: ${target}`);
 
     res.status(201).json({
       success: true,
       data: {
         url: req.uploadResult.url,
         key: req.uploadResult.key,
+        target,
         thumbnails: req.uploadResult.thumbnails
       }
     } as ApiResponse);

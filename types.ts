@@ -106,6 +106,7 @@ export interface Invitation {
     show_gallery: boolean;
     is_published: boolean;
     background_image?: string;
+    invitation_background_image?: string;
     background_color?: string;
     background_opacity?: number;
     pantun?: string;
@@ -183,6 +184,12 @@ export interface Invitation {
     opening_color?: string;
     opening_button_color?: string;
     opening_button_font?: string;
+    opening_button_bg_color?: string;
+    opening_button_bg_image?: string;
+    opening_button_bg_opacity?: number;
+    footer_credit_text?: string;
+    footer_logo_url?: string;
+    show_footer_credit?: boolean;
     effect_style?: 'none' | 'bubble' | 'snow' | 'stars';
     effect_color?: string;
     layout_settings?: {

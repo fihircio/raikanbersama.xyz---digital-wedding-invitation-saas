@@ -24,6 +24,7 @@ export class Invitation extends Model {
     show_gallery: boolean;
     is_published: boolean;
     background_image?: string;
+    invitation_background_image?: string;
     pantun?: string;
     our_story?: string;
     hero_title?: string;
@@ -41,6 +42,12 @@ export class Invitation extends Model {
     invitation_color?: string;
     invitation_size?: string;
     youtube_url?: string;
+    opening_button_bg_color?: string;
+    opening_button_bg_image?: string;
+    opening_button_bg_opacity?: number;
+    footer_credit_text?: string;
+    footer_logo_url?: string;
+    show_footer_credit?: boolean;
     language_mode?: 'melayu' | 'english' | 'bilingual';
     pdf_export_enabled?: boolean;
   };

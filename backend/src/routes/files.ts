@@ -33,6 +33,16 @@ const uploadBackgroundImageSchema = {
   invitation_id: {
     type: 'string',
     required: true
+  },
+  target: {
+    type: 'string',
+    required: false,
+    custom: (value: string) => {
+      if (!value) return true;
+      return ['cover', 'invitation', 'opening-button', 'footer-logo'].includes(value)
+        ? true
+        : 'Invalid background upload target';
+    }
   }
 };
 
