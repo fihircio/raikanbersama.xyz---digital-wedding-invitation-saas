@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import logger from '../utils/logger';
 import crypto from 'crypto';
 import { PaymentService } from '../services/paymentService'; // Import Service
+import MetaConversionsService from '../services/metaConversionsService';
 
 const BILLPLZ_API_KEY = process.env.BILLPLZ_API_KEY;
 const BILLPLZ_COLLECTION_ID = process.env.BILLPLZ_COLLECTION_ID;
@@ -83,6 +84,44 @@ export const createCheckout = async (req: Request, res: Response): Promise<void>
         if (phone && (!user.phone_number || user.phone_number !== phone)) {
             await user.update({ phone_number: phone });
             logger.info(`Updated phone number for user ${userId}: ${phone}`);
+        }
+
+        // -----------------------------------------------------
+        // META CAPI: server-side InitiateCheckout mirror
+        // -----------------------------------------------------
+        // Mirrors the browser event so ad blockers / ITP cannot hide the
+        // funnel step. Only fires when the browser sent its own event_id,
+        // otherwise Meta would count two distinct InitiateCheckouts.
+        const metaEventId = typeof req.body.metaEventId === 'string' ? req.body.metaEventId.trim() : '';
+        if (metaEventId) {
+            const forwardedFor = req.headers['x-forwarded-for'];
+            const clientIp = Array.isArray(forwardedFor)
+                ? forwardedFor[0]
+                : (forwardedFor ? forwardedFor.split(',')[0].trim() : req.ip);
+
+            const cookieFbp = (req.cookies && req.cookies['_fbp']) || req.body.fbp || null;
+            const cookieFbc = (req.cookies && req.cookies['_fbc']) || req.body.fbc || null;
+
+            const eventSourceUrl = req.headers.referer || process.env.FRONTEND_URL || 'https://www.raikanbersama.xyz';
+
+            void MetaConversionsService.trackInitiateCheckout({
+                eventId: metaEventId,
+                orderId: order.id,
+                userId: userId,
+                amount: amount,
+                planTier: planId,
+                email: user.email,
+                phone: phone || user.phone_number || null,
+                fullName: user.name || null,
+                couponCode: couponId ? couponCode : null,
+                eventSourceUrl,
+                fbp: cookieFbp,
+                fbc: cookieFbc,
+                clientIpAddress: clientIp || null,
+                clientUserAgent: req.get('user-agent') || null,
+            }).catch((error) => {
+                logger.error('Meta CAPI InitiateCheckout failed:', error);
+            });
         }
 
         // Determine Frontend URL for redirect

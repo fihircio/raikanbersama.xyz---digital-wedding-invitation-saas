@@ -151,3 +151,4 @@ Open the `vercel.json` file in the root of your project. Change the `destination
 - [ ] Try creating an account or logging in to test the Database connection.
 - [ ] Try uploading an image/QR code in the dashboard to test AWS S3 integration.
 - [ ] Ensure the live domain is correct on both Vercel (`FRONTEND_URL`) and Railway (`vercel.json`).
+- [ ] Set `META_CAPI_ACCESS_TOKEN` on Railway and run `npm run test:capi` to confirm server-side Purchase tracking works. See [docs/META_CAPI.md](docs/META_CAPI.md).

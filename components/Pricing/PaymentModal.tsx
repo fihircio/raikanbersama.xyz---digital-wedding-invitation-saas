@@ -3,7 +3,7 @@ import { Plan } from '../../types';
 import { buildApiUrl } from '../../src/config';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { XMarkIcon, TagIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-import { trackCustom, trackInitiateCheckout } from '../../src/utils/metaPixel';
+import { trackCustom, trackInitiateCheckout, newEventId, getMetaBrowserIds } from '../../src/utils/metaPixel';
 
 interface PaymentModalProps {
   plan: Plan;
@@ -85,16 +85,22 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
     }
 
     setIsProcessing(true);
+
+    // One event id shared by the browser Pixel and the server-side CAPI event,
+    // so Meta deduplicates them instead of counting two checkouts.
+    const metaEventId = newEventId();
+
     trackInitiateCheckout({
-      content_name: `$Pelan {plan.name}`,
+      content_name: `Pelan ${plan.name}`,
       content_category: 'pricing_plan',
       content_ids: [plan.id],
       content_type: 'product',
       coupon: discountInfo ? couponCode : undefined,
       value: discountedPrice,
-    });
+    }, metaEventId);
 
     try {
+      const metaIds = getMetaBrowserIds();
       const response = await fetch(buildApiUrl('/payments/checkout'), {
         method: 'POST',
         headers: {
@@ -105,7 +111,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
           planId: plan.id,
           invitationId: invitationId,
           couponCode: discountInfo ? couponCode : undefined,
-          phone: phoneNumber // Send phone to backend
+          phone: phoneNumber, // Send phone to backend
+          metaEventId: metaEventId,
+          fbp: metaIds.fbp,
+          fbc: metaIds.fbc
         })
       });
 

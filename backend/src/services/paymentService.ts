@@ -1,7 +1,44 @@
 
-import { Order, Coupon, Invitation, Affiliate, AffiliateEarning } from '../models';
+import { Order, Coupon, Invitation, Affiliate, AffiliateEarning, User } from '../models';
 import { OrderStatus } from '../types/models';
 import logger from '../utils/logger';
+import MetaConversionsService from './metaConversionsService';
+
+/**
+ * Sends the authoritative server-side Purchase conversion.
+ *
+ * This runs from the payment webhook (not the browser redirect) because a
+ * customer can close the Billplz tab and never return to the success page.
+ * Failures are logged only - tracking must never break order completion.
+ */
+const sendPurchaseConversion = async (order: Order): Promise<void> => {
+    try {
+        const user = await User.findByPk(order.user_id);
+
+        let couponCode: string | null = null;
+        if (order.coupon_id) {
+            const coupon = await Coupon.findByPk(order.coupon_id);
+            couponCode = coupon ? coupon.code : null;
+        }
+
+        const frontendUrl = (process.env.FRONTEND_URL || 'https://www.raikanbersama.xyz')
+            .replace(/\/+$/, '');
+
+        await MetaConversionsService.trackPurchase({
+            orderId: order.id,
+            userId: order.user_id,
+            amount: Number(order.amount),
+            planTier: order.plan_tier,
+            email: user ? user.email : null,
+            phone: user ? (user.phone_number ?? null) : null,
+            fullName: user ? user.name : null,
+            couponCode,
+            eventSourceUrl: `${frontendUrl}/#/orders?status=success`,
+        });
+    } catch (error) {
+        logger.error(`Meta Purchase conversion failed for order ${order.id}:`, error);
+    }
+};
 
 export const PaymentService = {
     /**
@@ -9,6 +46,15 @@ export const PaymentService = {
      */
     completeOrder: async (order: Order, paymentMethod: string = 'Billplz') => {
         try {
+            // 0. Idempotency guard.
+            // Billplz retries the callback until it receives a 200, so without this
+            // a retry would re-increment coupon usage, duplicate affiliate commission
+            // and fire a second Purchase conversion.
+            if (order.status === OrderStatus.COMPLETED) {
+                logger.info(`Order ${order.id} is already COMPLETED - skipping duplicate processing`);
+                return true;
+            }
+
             // 1. Update Order Status
             await order.update({
                 status: OrderStatus.COMPLETED,
@@ -99,6 +145,9 @@ export const PaymentService = {
                     logger.info(`Invitation ${order.invitation_id} upgraded to ${order.plan_tier} and marked as PAID`);
                 }
             }
+
+            // 4. Server-side Meta Purchase conversion (authoritative revenue event)
+            await sendPurchaseConversion(order);
 
             return true;
         } catch (error) {
