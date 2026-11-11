@@ -4,7 +4,34 @@ import { Invitation, MembershipTier } from '../types/models';
 import databaseService from '../services/databaseService';
 import { getPaginationParams, getFilterParams, calculatePagination, paginateArray, sortArray, searchArray } from '../utils/pagination';
 import { convertInvitationToApi, convertInvitationsToApi } from '../utils/typeConversion';
+import { sanitizeInvitationPayload } from '../utils/invitationUpdatePolicy';
 import logger from '../utils/logger';
+
+function isRecord(value: unknown): value is Record<string, any> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+// Lower rank = shorter edit window. A card's paid plan and the account tier can
+// disagree (payment writes the card plan only), so the effective plan is the
+// higher of the two: never downgrade access that the account already has.
+const PLAN_RANK: Record<string, number> = { free: 0, lite: 1, pro: 2, elite: 3 };
+const EDIT_WINDOW_DAYS: Record<string, number> = {
+  free: 30,
+  lite: 60,
+  pro: 120,
+  elite: 99999 // Practically lifetime
+};
+
+function normalizePlan(plan: unknown): string | undefined {
+  return typeof plan === 'string' && PLAN_RANK[plan] !== undefined ? plan : undefined;
+}
+
+function resolveEffectivePlan(userTier: unknown, paidCardPlan: unknown): string {
+  const tier = normalizePlan(userTier) ?? 'free';
+  const cardPlan = normalizePlan(paidCardPlan);
+  if (!cardPlan) return tier;
+  return PLAN_RANK[cardPlan] > PLAN_RANK[tier] ? cardPlan : tier;
+}
 
 /**
  * Invitation Controller
@@ -170,10 +197,25 @@ export const createInvitation = async (req: AuthenticatedRequest, res: Response)
       return;
     }
 
-    const invitationData = req.body as Omit<Invitation, 'id' | 'views' | 'wishes'>;
+    // Whitelist-sanitize creation too: `settings.is_paid` is server-owned and new
+    // invitations always start as Draft, so a crafted payload cannot create an
+    // already-published or already-paid card.
+    const sanitized = sanitizeInvitationPayload(req.body, {});
 
-    // Set user ID
-    invitationData.user_id = userId;
+    if (sanitized.rejected.length > 0) {
+      res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: sanitized.rejected.map(item => `${item.field}: ${item.reason}`)
+      } as ApiResponse);
+      return;
+    }
+
+    const invitationData = {
+      ...sanitized.fields,
+      user_id: userId,
+      settings: { ...sanitized.settings, is_published: false }
+    } as unknown as Omit<Invitation, 'id' | 'views' | 'wishes'>;
 
     // Check if slug is already taken
     const existingInvitation = await databaseService.getInvitationBySlug(invitationData.slug);
@@ -238,68 +280,67 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
       return;
     }
 
-    // 1. Get user tier for enforcement
+    // 1. Resolve the effective entitlement for this card.
+    // The card's purchased plan is what grants the edit window; the account tier is
+    // only a fallback/floor (admin-granted accounts may hold a higher tier than the
+    // plan they bought per card). Payment only writes `settings`, so relying on the
+    // account tier alone gave paid customers the Free 30-day window.
     const user = await databaseService.getUserById(userId);
-    const tier = user?.membership_tier || MembershipTier.FREE;
+    const userTier = (user?.membership_tier || MembershipTier.FREE) as string;
+    const existingSettings = (existingInvitation.settings || {}) as Record<string, any>;
+    const paidCardPlan = existingSettings.is_paid === true ? existingSettings.package_plan : undefined;
+    const effectivePlan = resolveEffectivePlan(userTier, paidCardPlan);
 
     // 2. Enforce Edit Window
     const createdAt = new Date(existingInvitation.created_at);
     const now = new Date();
     const daysSinceCreation = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-
-    let editWindow = 30; // Default for Free
-    if (tier === MembershipTier.LITE) editWindow = 60;
-    else if (tier === MembershipTier.PRO) editWindow = 120;
-    else if (tier === MembershipTier.ELITE) editWindow = 99999; // Practically lifetime
+    const editWindow = EDIT_WINDOW_DAYS[effectivePlan];
 
     if (daysSinceCreation > editWindow) {
       res.status(403).json({
         success: false,
-        error: `Edit window closed. ${tier.toUpperCase()} plans can only edit for ${editWindow === 99999 ? 'unlimited' : editWindow} days after creation.`
+        error: `Edit window closed. ${effectivePlan.toUpperCase()} plans can only edit for ${editWindow === 99999 ? 'unlimited' : editWindow} days after creation.`
       } as ApiResponse);
       return;
     }
 
-    // Check if slug is being changed and if it's already taken
-    const updateData = req.body as Partial<Invitation>;
+    // 3. Whitelist-sanitize the payload. Unknown fields are dropped, `settings`
+    // is merged over the existing row (never replaced), and server-owned keys
+    // such as `is_paid` cannot be written by the client.
+    const sanitized = sanitizeInvitationPayload(req.body, existingSettings);
+    const updateData = sanitized.fields;
 
-    // 3. Strip Features based on Tier
-    if (updateData.settings) {
-      const eliteOnlyFields = ['youtube_url', 'language_mode', 'pdf_export_enabled'];
-
-      // Elite only
-      if (tier !== MembershipTier.ELITE) {
-        eliteOnlyFields.forEach(field => {
-          if ((updateData.settings as any)[field]) {
-            delete (updateData.settings as any)[field];
-            logger.warn(`Stripped elite-only field '${field}' from update by ${tier} user ${userId}`);
-          }
-        });
-      }
+    if (sanitized.rejected.length > 0) {
+      res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: sanitized.rejected.map(item => `${item.field}: ${item.reason}`)
+      } as ApiResponse);
+      return;
     }
 
-    // Wishlist available for Premium and Elite
-    if (updateData.wishlist_details && tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
-      delete (updateData as any).wishlist_details;
-      logger.warn(`Stripped wishlist_details from update by ${tier} user ${userId}`);
+    // Publish requires paid entitlement. Unpaid cards cannot be made live, and a
+    // legacy published-but-unpaid card is forced back to Draft on its next save
+    // instead of leaking paid content.
+    const incomingSettings = isRecord(req.body?.settings) ? req.body.settings : {};
+
+    const mergedSettings: Record<string, any> = sanitized.settings;
+
+    if (incomingSettings.is_published === true && existingSettings.is_paid !== true) {
+      mergedSettings.is_published = false;
+      logger.warn(
+        `Blocked publish without paid entitlement for invitation ${id} (user ${userId}); forced is_published=false`
+      );
     }
 
-    // Pro / Elite only features (e.g., Money Gift)
-    if (updateData.money_gift_details && updateData.money_gift_details.enabled) {
-      if (tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
-        updateData.money_gift_details.enabled = false;
-        logger.warn(`Disabled money gift for unauthorized ${tier} user ${userId}`);
-      }
+    if (isRecord(req.body?.settings)) {
+      updateData.settings = mergedSettings as any;
     }
 
-    // RSVP Settings available for Premium and Elite
-    if (updateData.rsvp_settings && tier !== MembershipTier.PRO && tier !== MembershipTier.ELITE) {
-      delete (updateData as any).rsvp_settings;
-      logger.warn(`Stripped rsvp_settings from update by ${tier} user ${userId}`);
-    }
+    const requestedSlug = typeof updateData.slug === 'string' ? updateData.slug : undefined;
 
-    if (updateData.slug && updateData.slug !== existingInvitation.slug) {
-      const existingSettings = (existingInvitation.settings || {}) as Record<string, any>;
+    if (requestedSlug && requestedSlug !== existingInvitation.slug) {
       const isPaidEliteInvitation = existingSettings.package_plan === 'elite' && existingSettings.is_paid === true;
 
       if (!isPaidEliteInvitation) {
@@ -310,7 +351,7 @@ export const updateInvitation = async (req: AuthenticatedRequest, res: Response)
         return;
       }
 
-      const slugExists = await databaseService.getInvitationBySlug(updateData.slug);
+      const slugExists = await databaseService.getInvitationBySlug(requestedSlug);
       if (slugExists) {
         res.status(400).json({
           success: false,

@@ -93,6 +93,37 @@ const EditorPage: React.FC = () => {
       ...rest
     } = draft as Invitation & { created_at?: string; updated_at?: string };
 
+    // Demo uploads are held as `data:` URLs for local preview only. They cannot be
+    // persisted (the API rejects inline payloads), so drop them before handoff
+    // instead of failing the whole conversion.
+    const isInlineAsset = (value: unknown): boolean => typeof value === 'string' && value.startsWith('data:');
+    const stripInlineAsset = (value: unknown) => (isInlineAsset(value) ? '' : value);
+
+    const draftSettings = (draft.settings || {}) as Record<string, unknown>;
+    const cleanedSettings: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(draftSettings)) {
+      if (isInlineAsset(value)) {
+        console.warn(`Handoff: dropped inline ${key} from guest draft (re-upload after login).`);
+        cleanedSettings[key] = '';
+      } else {
+        cleanedSettings[key] = value;
+      }
+    }
+
+    const cleanedMoneyGift = draft.money_gift_details
+      ? { ...draft.money_gift_details, qr_url: stripInlineAsset(draft.money_gift_details.qr_url) }
+      : draft.money_gift_details;
+
+    const cleanedWishlist = draft.wishlist_details
+      ? {
+          ...draft.wishlist_details,
+          items: (draft.wishlist_details.items || []).map(item => ({
+            ...item,
+            url: stripInlineAsset((item as any).url)
+          }))
+        }
+      : draft.wishlist_details;
+
     return {
       ...rest,
       slug,
@@ -108,8 +139,11 @@ const EditorPage: React.FC = () => {
       address: draft.address || 'Alamat Majlis, Bandar Baru, Kuala Lumpur',
       google_maps_url: draft.google_maps_url || '',
       waze_url: draft.waze_url || '',
+      gallery: (draft.gallery || []).filter(item => !isInlineAsset(item)),
+      money_gift_details: cleanedMoneyGift,
+      wishlist_details: cleanedWishlist,
       settings: {
-        ...(draft.settings || {}),
+        ...cleanedSettings,
         is_published: false,
         is_paid: false
       }
