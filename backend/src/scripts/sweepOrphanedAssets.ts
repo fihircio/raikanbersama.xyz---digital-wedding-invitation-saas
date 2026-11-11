@@ -246,7 +246,7 @@ async function main() {
 
   console.log(`\n=== Asset sweep (${mode}) ===`);
   console.log(`Objects: ${objects.length} (${(totalBytes / 1048576).toFixed(1)} MB)`);
-  console.log(`References found: ${objects.length - candidates.length}`);
+  console.log(`Referenced objects: ${objects.length - unreferenced.length} (kept)`);
   console.log(`Orphan candidates: ${candidates.length} (${(candidateBytes / 1048576).toFixed(1)} MB)`);
   console.log(
     `Skipped shared/catalog assets: ${skippedShared.length} ` +
