@@ -5,6 +5,7 @@ import databaseService from '../services/databaseService';
 import { getPaginationParams, getFilterParams, calculatePagination, paginateArray, sortArray, searchArray } from '../utils/pagination';
 import { convertInvitationToApi, convertInvitationsToApi } from '../utils/typeConversion';
 import { sanitizeInvitationPayload } from '../utils/invitationUpdatePolicy';
+import { cleanupInvitationAssets } from '../utils/s3AssetCleanup';
 import logger from '../utils/logger';
 
 function isRecord(value: unknown): value is Record<string, any> {
@@ -420,6 +421,9 @@ export const deleteInvitation = async (req: AuthenticatedRequest, res: Response)
     const deleted = await databaseService.deleteInvitation(id);
 
     if (deleted) {
+      // Remove the invitation's uploaded objects; otherwise every deleted card
+      // leaves its images and thumbnails in the bucket indefinitely.
+      await cleanupInvitationAssets(existingInvitation as any, userId);
       logger.info(`Invitation deleted: ${id} by user: ${userId}`);
 
       res.status(200).json({
