@@ -15,6 +15,11 @@
  *  - Only the known upload folders are walked, and only objects older than
  *    --min-age-hours (default 24) are eligible, so an upload that has not been
  *    persisted yet can never be swept.
+ *  - Shared/catalog assets are never candidates. Catalog rows
+ *    (background_images) are part of the reference scan, and keys whose owner
+ *    segment is not a UUID (e.g. the seeded `background/admin/...` catalog
+ *    folder) are skipped outright. Catalog images are shown on the catalog page
+ *    for users to pick from, so deleting them would empty the design catalog.
  *  - Referenced objects and non-upload keys are never touched.
  *
  * Usage:
@@ -28,6 +33,16 @@ import { Client } from 'pg';
 import config from '../config';
 import fileStorageService from '../services/fileStorageService';
 import logger from '../utils/logger';
+
+// Catalog/shared assets are seeded under `<folder>/admin/...`; user uploads always
+// live under `<folder>/<user-uuid>/`. Anything that is not a user folder is shared
+// and must never be swept.
+const USER_FOLDER_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUserOwnedKey(key: string): boolean {
+  const parts = key.split('/');
+  return parts.length >= 3 && USER_FOLDER_PATTERN.test(parts[1]);
+}
 
 const ASSET_FOLDERS = [
   'background',
@@ -149,6 +164,9 @@ async function collectReferencedKeys(): Promise<Set<string>> {
       'SELECT settings, money_gift_details, wishlist_details FROM invitations'
     );
     const gallery = await pg.query('SELECT image_url FROM gallery');
+    // Catalog designs are shared assets shown on the catalog page. They must be
+    // part of the reference set or every non-selected design looks orphaned.
+    const catalog = await pg.query('SELECT url, thumbnail FROM background_images');
 
     const referenced = new Set<string>();
     for (const row of invitations.rows) {
@@ -157,6 +175,10 @@ async function collectReferencedKeys(): Promise<Set<string>> {
       collectKeysFromValue(row.wishlist_details || {}, referenced);
     }
     gallery.rows.forEach(row => collectKeysFromValue(row.image_url, referenced));
+    catalog.rows.forEach(row => {
+      collectKeysFromValue(row.url, referenced);
+      collectKeysFromValue(row.thumbnail, referenced);
+    });
     return referenced;
   } finally {
     await pg.end();
@@ -172,9 +194,13 @@ async function main() {
   const [objects, referenced] = await Promise.all([listObjects(), collectReferencedKeys()]);
   const cutoff = Date.now() - options.minAgeHours * 60 * 60 * 1000;
 
-  const candidates = objects.filter(
+  const unreferenced = objects.filter(
     object => !referenced.has(object.key) && object.lastModified.getTime() < cutoff
   );
+
+  // Shared/catalog assets are reported but never deleted.
+  const skippedShared = unreferenced.filter(object => !isUserOwnedKey(object.key));
+  const candidates = unreferenced.filter(object => isUserOwnedKey(object.key));
 
   const totalBytes = objects.reduce((sum, object) => sum + object.size, 0);
   const candidateBytes = candidates.reduce((sum, object) => sum + object.size, 0);
@@ -198,10 +224,12 @@ async function main() {
       minAgeHours: options.minAgeHours,
       totals: {
         objects: objects.length,
-        referenced: objects.length - candidates.length,
+        referenced: objects.length - unreferenced.length,
         orphaned: candidates.length,
         bytes: totalBytes,
-        orphanedBytes: candidateBytes
+        orphanedBytes: candidateBytes,
+        skippedSharedAssets: skippedShared.length,
+        skippedSharedBytes: skippedShared.reduce((sum, object) => sum + object.size, 0)
       },
       byFolder,
       candidates: candidates.map(object => ({
@@ -220,6 +248,10 @@ async function main() {
   console.log(`Objects: ${objects.length} (${(totalBytes / 1048576).toFixed(1)} MB)`);
   console.log(`References found: ${objects.length - candidates.length}`);
   console.log(`Orphan candidates: ${candidates.length} (${(candidateBytes / 1048576).toFixed(1)} MB)`);
+  console.log(
+    `Skipped shared/catalog assets: ${skippedShared.length} ` +
+      `(${(skippedShared.reduce((sum, object) => sum + object.size, 0) / 1048576).toFixed(1)} MB, never deleted)`
+  );
   console.table(byFolder.map(entry => ({
     folder: entry.folder,
     objects: entry.objects,
