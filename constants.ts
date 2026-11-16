@@ -1,4 +1,5 @@
 import { Invitation, RSVP, Plan } from './types';
+import { demoEventDate } from './src/utils/fixtureDate';
 
 export const MOCK_INVITATIONS: Invitation[] = [
   {
@@ -10,7 +11,7 @@ export const MOCK_INVITATIONS: Invitation[] = [
     bride_name: 'Siti Hawa',
     groom_name: 'Adam Malik',
     host_names: 'Encik Ahmad & Puan Aminah',
-    event_date: '2025-12-25',
+    event_date: demoEventDate(),
     start_time: '11:00',
     end_time: '16:00',
     location_name: 'Dewan Banquet Melati',

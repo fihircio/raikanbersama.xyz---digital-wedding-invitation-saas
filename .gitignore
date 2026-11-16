@@ -23,3 +23,6 @@ cred.md
 *.njsproj
 *.sln
 *.sw?
+
+# Generated ad footage (large binaries, regenerate with the recorder)
+marketing/footage/

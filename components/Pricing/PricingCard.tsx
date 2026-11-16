@@ -42,7 +42,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
       <div className={`relative rounded-3xl p-8 ${plan.isPopular ? 'bg-rose-50 border-2 border-rose-200 shadow-xl' : 'bg-white border border-gray-200 shadow-lg'}`}>
         {plan.isPopular && (
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-            <span className="bg-rose-600 text-white px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider">
+            <span className="bg-rose-600 text-white px-4 sm:px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider whitespace-nowrap">
               Pilihan Popular
             </span>
           </div>
