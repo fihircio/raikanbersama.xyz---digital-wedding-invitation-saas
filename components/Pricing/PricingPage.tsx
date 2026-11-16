@@ -3,12 +3,23 @@ import PricingCard from './PricingCard';
 import FeatureComparison from './FeatureComparison';
 import SEO from '../SEO';
 import { Plan } from '../../types';
+import { trackViewContent } from '../../src/utils/metaPixel';
 
 import { useSearchParams } from 'react-router-dom';
 
 const PricingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const invitationId = searchParams.get('invitationId');
+
+  // ViewContent feeds the "viewed pricing, did not purchase" retargeting
+  // audience. Ref-guarded so React StrictMode cannot double-fire it in dev.
+  const viewContentSent = React.useRef(false);
+  React.useEffect(() => {
+    if (viewContentSent.current) return;
+    viewContentSent.current = true;
+    trackViewContent('Pricing', { content_category: 'pricing', content_type: 'product' });
+  }, []);
+
   const plans: Plan[] = [
     {
       id: 'lite',

@@ -6,6 +6,7 @@ import SEO from '../SEO';
 import { BackgroundImage } from '../../types';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { buildApiUrl } from '../../src/config';
+import { trackViewContent } from '../../src/utils/metaPixel';
 
 const CATEGORIES = [
   'Baby', 'Party', 'Ramadan', 'Raya', 'Floral', 'Islamic',
@@ -104,6 +105,15 @@ const CatalogPage: React.FC = () => {
       setState(prev => ({ ...prev, isLoading: false }));
     }
   }, [currentPage, currentSort, currentSearch, currentCategories.join(','), currentThemes.join(','), currentColors.join(',')]);
+
+  // ViewContent feeds the "browsed the catalog, did not purchase" retargeting
+  // audience. Ref-guarded so StrictMode cannot double-fire it in development.
+  const viewContentSent = React.useRef(false);
+  useEffect(() => {
+    if (viewContentSent.current) return;
+    viewContentSent.current = true;
+    trackViewContent('Catalog', { content_category: 'catalog', content_type: 'product' });
+  }, []);
 
   useEffect(() => {
     fetchBackgrounds();
