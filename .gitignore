@@ -25,4 +25,4 @@ cred.md
 *.sw?
 
 # Generated ad footage (large binaries, regenerate with the recorder)
-marketing/footage/
+marketing/footage/*.mp4
