@@ -9,8 +9,8 @@ Real UI capture of raikanbersama.xyz, recorded headlessly at iPhone size
 | `02_catalog_filter.mp4` | Catalog, 2-up design grid (real production data) | 10.2s | B1 Catalog Explorer |
 | `03_pricing_pro.mp4` | Pro RM49 card, PILIHAN POPULAR badge | 3.9s | C1 Pro Hero |
 | `04_elite_hadiah_qr.mp4` | HADIAH modal: DuitNow QR, Maybank, copy-account, wishlist | 9.0s | B3 / B5 Elite, retargeting |
-| `05_elite_lokasi.mp4` | LOKASI modal: map, Waze + Google Maps | 6.0s | B3 feature deep-dive |
-| `06_rsvp_flow.mp4` | SAHKAN KEHADIRAN: RSVP form | 6.0s | B2 RSVP deep-dive |
+| `05_elite_lokasi.mp4` | LOKASI modal → tap G-Maps → Google Maps opens on the venue | 8.4s | B3 feature deep-dive |
+| `06_rsvp_flow.mp4` | SAHKAN KEHADIRAN: name, phone, Hadir, 2 guests, wish typed live | 20.6s | B2 RSVP deep-dive |
 
 Recorded against the Elite sample invitation `sample-pakej-kayangan`
 (real production data: Maybank `1234567890` "Ahmad & Sarah", 2 wishlist items).
@@ -37,3 +37,8 @@ a fully settled modal, not a mid-fade frame.
   intercepted. Dispatch `element.click()` instead.
 - Fine serif text is slightly soft from the 1x upscale. For hero shots, capture
   on the real device via Openscreen at Retina.
+- `05` is a two-part join: the invitation tab closes at the tap, then the Google
+  Maps tab is concatenated. Both sides are frame-matched on the same map pin, so
+  the cut reads as one action.
+- `06` deliberately stops before submitting, so no test RSVP row is written to
+  the production database.
