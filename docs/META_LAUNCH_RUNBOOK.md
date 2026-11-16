@@ -92,9 +92,28 @@ Notes:
 3. After ~1 hour, open Events Manager → confirm `InitiateCheckout` now shows both
    **Browser** and **Server** for the same event (this proves the CAPI mirror works
    and dedupe is active).
-4. Confirm the ad link opens `/pricing` and the pixel fires `ViewContent`… **note:**
-   `ViewContent` is not currently wired on `/pricing` (known gap). Only `PageView`
-   and `AddToCart` will appear until that is fixed.
+4. Confirm the ad link opens `/pricing` and the pixel fires `ViewContent`
+   (wired and verified; see section 9).
+
+## 9. Verified event coverage
+
+Checked against production with the pixel intercepted, one landing each:
+
+| URL | PageView | ViewContent |
+|---|---|---|
+| `/pricing?utm_source=facebook` | 1 | 1 (`Pricing`) |
+| `/catalog` | 1 | 1 (`Catalog`) |
+| `/#/pricing` (legacy hash) | 1 | 1 (`Pricing`) |
+| `/` | 1 | 0 (correct — home is not a product view) |
+
+Funnel sequence on `/pricing` → tapping "Pilih Sekarang":
+`PageView` → `ViewContent(Pricing)` → `AddToCart(Lite, RM29)` → `SelectPlan` →
+`PageView(Catalog)` → `ViewContent(Catalog)`.
+
+Two duplicate-counting bugs were fixed before launch:
+- Legacy hash URLs fired **two** PageViews (redirect + resolved path).
+- The route tracker remounted and fired twice for the same path; dedupe now lives
+  in the pixel helper, keyed by pathname+search, so remounts cannot double-count.
 
 ## 5. Day 1–3: what to watch
 
