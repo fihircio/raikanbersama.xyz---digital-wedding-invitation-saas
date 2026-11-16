@@ -21,6 +21,27 @@ node meta.mjs assets
 
 Requires Node 18+ (uses global `fetch`). No dependencies.
 
+## What the system user must have assigned
+
+A system user only sees what is assigned to it. For ads management you need
+**five** asset types, not two:
+
+| Asset | Permission needed | Why |
+|---|---|---|
+| Ad account | **Full control** (or Manage campaigns) | without it the token cannot create anything |
+| Facebook Page | Advertise / Manage Page | the Page is the ad identity in feed and Reels |
+| Instagram account | Manage / Create content | IG placements |
+| Pixel | View / Manage | conversion attribution |
+| App | at minimum Partial access | the token is issued through the app |
+
+The Conversions API system user typically only has **App + Pixel** assigned,
+which is enough to send server events but cannot touch campaigns. That is why
+`node meta.mjs doctor` reports `ads_read` / `ads_management` / `business_management`
+as missing no matter how many times a token is regenerated.
+
+Check with: Business settings → Users → System users → (select user) →
+**Assigned assets**. The counter should read 5+ assets and list the ad account.
+
 ## Getting a token that can manage ads
 
 The Conversions API token cannot do this — its only scope is
