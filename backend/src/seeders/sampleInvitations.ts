@@ -161,6 +161,10 @@ export const seedSampleInvitations = async () => {
             } else {
                 console.log(`ℹ️ Invitation ${sample.slug} already exists, updating...`);
                 await inv.update({
+                    // Refresh the fixture date too: seeders previously left existing
+                    // rows untouched, so sample cards kept a date that had drifted
+                    // into the past.
+                    event_date: new Date(demoEventDate()),
                     groom_name: sample.slug.includes('aswa') ? 'Ahmad' : (sample.slug.includes('asmaradana') ? 'Firas' : 'Zaim'),
                     bride_name: sample.slug.includes('aswa') ? 'Sarah' : (sample.slug.includes('asmaradana') ? 'Aisyah' : 'Sofea'),
                     settings,
