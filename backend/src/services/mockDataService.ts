@@ -1,3 +1,4 @@
+import { demoEventDate, futureDate } from '../utils/fixtureDates';
 import {
   Invitation,
   RSVP,
@@ -21,7 +22,7 @@ const MOCK_INVITATIONS: Invitation[] = [
     bride_name: 'Siti Hawa',
     groom_name: 'Adam Malik',
     host_names: 'Encik Ahmad & Puan Aminah',
-    event_date: '2025-12-25',
+    event_date: demoEventDate(),
     start_time: '11:00',
     end_time: '16:00',
     location_name: 'Dewan Banquet Melati',
@@ -124,7 +125,7 @@ const MOCK_USERS: User[] = [
     name: 'Test User',
     password: '$2b$10$example_hashed_password', // This would be a bcrypt hash in production
     membership_tier: MembershipTier.ELITE,
-    membership_expires_at: '2025-12-31T23:59:59Z',
+    membership_expires_at: futureDate().toISOString(),
     email_verified: true,
     role: UserRole.ADMIN,
     created_at: '2024-01-01T00:00:00Z',

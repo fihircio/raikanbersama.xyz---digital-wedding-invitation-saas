@@ -1,4 +1,5 @@
 
+import { demoEventDate } from '../utils/fixtureDates';
 import { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery } from '../models';
 import { MembershipTier } from '../types/models';
 // @ts-ignore
@@ -135,7 +136,7 @@ export const seedSampleInvitations = async () => {
                     bride_name: 'Sarah',
                     groom_name: 'Ahmad',
                     host_names: 'Keluarga Hj. Ali & Hjh. Fatimah',
-                    event_date: new Date('2025-12-25'),
+                    event_date: new Date(demoEventDate()),
                     start_time: '11:00 AM',
                     end_time: '04:00 PM', // 11-4pm
                     location_name: 'Grand Ballroom, Hotel Royale',

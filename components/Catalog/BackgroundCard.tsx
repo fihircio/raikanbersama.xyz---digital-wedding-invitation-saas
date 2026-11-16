@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BackgroundImage, Invitation } from '../../types';
+import { demoEventDate, formatMalayDate } from '../../src/utils/fixtureDate';
 import CoverLayout from '../Invitation/CoverLayout';
 
 interface BackgroundCardProps {
@@ -24,12 +25,16 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
     onToggleFavorite();
   };
 
+  // Fixture date is derived from today so catalog previews never show a past
+  // event date (it used to be a hardcoded 2025 literal).
+  const demoDate = demoEventDate();
+
   // Create a mock invitation for preview
   const mockInvitation: Partial<Invitation> = {
     groom_name: 'Adam Malik',
     bride_name: 'Siti Hawa',
     location_name: 'Dewan Banquet Melati',
-    event_date: '2025-12-25',
+    event_date: demoDate,
     settings: {
       music_url: '',
       primary_color: background.primary_color !== 'Varies' ? background.primary_color : '#8B4513',
@@ -80,7 +85,7 @@ const BackgroundCard: React.FC<BackgroundCardProps> = ({
 
             {/* Design Preview (CoverLayout) scaled down */}
             <div className={`absolute left-0 top-0 pointer-events-none origin-top-left scale-[0.333] w-[300%] h-[300%] transition-opacity duration-500 ${isHovered ? 'opacity-40' : 'opacity-100'}`}>
-              <CoverLayout invitation={mockInvitation} formattedDate="25 Disember 2025" isCatalog={true} />
+              <CoverLayout invitation={mockInvitation} formattedDate={formatMalayDate(demoDate)} isCatalog={true} />
             </div>
 
 

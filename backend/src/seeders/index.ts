@@ -1,4 +1,5 @@
 import { User, Invitation, RSVP, GuestWish, ItineraryItem, ContactPerson, Gallery, BackgroundImage, Order } from '../models';
+import { demoEventDate, futureDate } from '../utils/fixtureDates';
 import { MembershipTier, OrderStatus } from '../types/models';
 import { seedSampleInvitations } from './sampleInvitations';
 import bcrypt from 'bcrypt';
@@ -969,7 +970,7 @@ const seedUsers = async (): Promise<void> => {
       name: 'Elite User',
       password: hashedPassword,
       membership_tier: MembershipTier.ELITE,
-      membership_expires_at: new Date('2025-12-31'),
+      membership_expires_at: futureDate(),
       email_verified: true,
     },
     {
@@ -977,7 +978,7 @@ const seedUsers = async (): Promise<void> => {
       name: 'Basic User',
       password: hashedPassword,
       membership_tier: MembershipTier.LITE,
-      membership_expires_at: new Date('2025-12-31'),
+      membership_expires_at: futureDate(),
       email_verified: true,
     },
     {
@@ -985,7 +986,7 @@ const seedUsers = async (): Promise<void> => {
       name: 'Premium User',
       password: hashedPassword,
       membership_tier: MembershipTier.PRO,
-      membership_expires_at: new Date('2025-12-31'),
+      membership_expires_at: futureDate(),
       email_verified: true,
     },
     {
@@ -1027,7 +1028,7 @@ const seedInvitations = async (): Promise<void> => {
       bride_name: 'Siti Hawa',
       groom_name: 'Adam Malik',
       host_names: 'Encik Ahmad & Puan Aminah',
-      event_date: new Date('2025-12-25'),
+      event_date: new Date(demoEventDate()),
       start_time: '11:00',
       end_time: '16:00',
       location_name: 'Dewan Banquet Melati',
