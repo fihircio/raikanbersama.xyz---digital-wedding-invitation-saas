@@ -57,7 +57,25 @@ const track = (eventName: string, params?: Record<string, unknown>, eventId?: st
   window.fbq('track', eventName);
 };
 
+/**
+ * Successful PageViews, keyed by path, so a remount cannot double-count one
+ * landing. The route tracker's ref guard resets when React remounts the
+ * component (which happens on the legacy-hash redirect), so the dedupe has to
+ * live here, outside component state.
+ */
+let lastPageView: { key: string; at: number } = { key: '', at: 0 };
+const PAGEVIEW_DEDUPE_MS = 2000;
+
 export const trackPageView = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const key = `${window.location.pathname}${window.location.search}`;
+  const now = Date.now();
+  if (key === lastPageView.key && now - lastPageView.at < PAGEVIEW_DEDUPE_MS) {
+    return;
+  }
+  lastPageView = { key, at: now };
   track('PageView');
 };
 
