@@ -55,11 +55,13 @@ see 2+ purchases per day sustained — the CAPI event is already live and dedupl
 ## 3. Ads (3 creatives, same ad set)
 
 Landing page for all three:
-`https://www.raikanbersama.xyz/?utm_source=facebook&utm_medium=cpc&utm_campaign=c1_pro_hero&utm_content=<SLOT>#/pricing`
 
-> Put the UTM **before** the `#`. The site uses hash routing, so
-> `/#/pricing?utm=...` puts the parameters inside the fragment where analytics
-> will not see them.
+`https://www.raikanbersama.xyz/pricing?utm_source=facebook&utm_medium=cpc&utm_campaign=c1_pro_hero&utm_content=<SLOT>`
+
+> Use the **clean path** (`/pricing`), not the old hash form (`/#/pricing`).
+> Hash URLs are still supported, but they bounce through a redirect first, which
+> costs a round trip. Vercel rewrites unknown paths to `index.html`, so
+> `/pricing` serves the app directly.
 
 | Slot | Video | Primary text | Headline | Description | CTA |
 |---|---|---|---|---|---|

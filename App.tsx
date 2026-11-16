@@ -129,6 +129,11 @@ const MetaPixelRouteTracker: React.FC = () => {
   const lastTrackedPath = React.useRef<string | null>(null);
 
   React.useEffect(() => {
+    // A legacy hash URL (/#/pricing) is immediately redirected to /pricing by
+    // LegacyHashRedirect. Tracking the pre-redirect "/" would log two PageViews
+    // for a single landing, inflating reach reports.
+    if (window.location.hash.startsWith('#/')) return;
+
     const currentPath = `${location.pathname}${location.search}`;
     if (lastTrackedPath.current === currentPath) return;
 
