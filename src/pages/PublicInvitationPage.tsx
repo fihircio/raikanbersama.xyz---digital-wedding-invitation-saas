@@ -654,6 +654,46 @@ const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSi
 // --- Template Renderer ---
 
 // Function to get CSRF token from server
+/**
+ * Resolves the outbound navigation link for a venue.
+ *
+ * Configured values are often a bare domain ("https://maps.google.com",
+ * "https://waze.com"), which drops the guest on the provider's homepage instead
+ * of the wedding venue. Only trust the configured URL when it actually carries a
+ * location query; otherwise build a search link from the venue details.
+ */
+const resolveMapsLink = (app: 'gmaps' | 'waze', invitation: Invitation): string => {
+    const raw = (app === 'gmaps' ? invitation.google_maps_url : invitation.waze_url)?.trim() || '';
+    const query = invitation.settings?.location_gps || invitation.address || invitation.location_name || '';
+
+    const carriesLocation = (url: string): boolean => {
+        if (!url) return false;
+        try {
+            const parsed = new URL(url);
+            if (parsed.searchParams.has('q') || parsed.searchParams.has('query') || parsed.searchParams.has('destination')) {
+                return true;
+            }
+            const path = parsed.pathname.replace(/\/+$/, '');
+            // /maps/place/<something>, /ul?q=..., /maps/search/... all count
+            return /\/maps\/(place|search|dir)\/./.test(parsed.pathname) || /\/ul\b/.test(path) && parsed.search.length > 1;
+        } catch {
+            return false;
+        }
+    };
+
+    if (carriesLocation(raw)) {
+        return raw;
+    }
+
+    if (!query) {
+        return raw || (app === 'gmaps' ? 'https://maps.google.com' : 'https://waze.com');
+    }
+
+    return app === 'gmaps'
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+        : `https://waze.com/ul?q=${encodeURIComponent(query)}&navigate=yes`;
+};
+
 const getCsrfToken = async () => {
   try {
     console.log('🔄 Fetching CSRF token...');
@@ -1584,7 +1624,7 @@ function InvitationBody({
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <a
-                        href={invitation.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(invitation.settings.location_gps || invitation.address || invitation.location_name)}`}
+                        href={resolveMapsLink('gmaps', invitation)}
                         target="_blank"
                         rel="noreferrer"
                         className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
@@ -1592,7 +1632,7 @@ function InvitationBody({
                         G-Maps
                       </a>
                       <a
-                        href={invitation.waze_url || `https://waze.com/ul?q=${encodeURIComponent(invitation.settings.location_gps || invitation.address || invitation.location_name)}&navigate=yes`}
+                        href={resolveMapsLink('waze', invitation)}
                         target="_blank"
                         rel="noreferrer"
                         className="py-4 bg-gray-50 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-white border border-gray-100 transition shadow-sm"
