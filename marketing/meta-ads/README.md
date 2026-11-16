@@ -1,8 +1,39 @@
-# meta-ads — a Meta Marketing API helper
+# meta-ads
 
-Meta ships **no** official "Facebook CLI". Managing Ads Manager from a terminal
-just means calling the Graph API with an access token, so this is a thin,
-read-only wrapper around the handful of endpoints needed for a launch.
+**Meta now ships an official CLI and MCP server. Use those first.**
+
+- Ads CLI docs: https://developers.facebook.com/documentation/ads-commerce/ads-ai-connectors/ads-cli/ads-cli-overview
+- Ads MCP server: https://developers.facebook.com/documentation/ads-commerce/ads-ai-connectors/ads-mcp-server/ads-mcp-server-overview
+
+Installed on this machine:
+
+```bash
+meta --version   # 1.3.1
+
+# ~/.env or a project .env
+ACCESS_TOKEN=<system user token>
+AD_ACCOUNT_ID=4244078779240218
+APP_ID=1640196200491938
+BUSINESS_ID=1937706830452016
+
+meta auth status
+meta ads adaccount list
+meta ads campaign list
+```
+
+Required scopes on the system user token: `business_management`,
+`ads_management`, `pages_show_list`, `pages_read_engagement`,
+`pages_manage_ads`, `read_insights`.
+
+---
+
+## meta.mjs (this folder)
+
+A dependency-free fallback for the one thing the official CLI does not do as
+clearly: telling you **which scopes are missing**. Kept because that is what
+diagnosed the whole permissions problem.
+
+Read-only helper that queries the Graph API directly.
 
 ## Setup
 

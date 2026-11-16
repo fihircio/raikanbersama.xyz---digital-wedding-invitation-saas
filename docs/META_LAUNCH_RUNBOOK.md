@@ -152,14 +152,44 @@ reassurance about the plan, not another feature tour.
 | Video too short for Reels | Clips under 4s: `03_pricing_pro.mp4` is 3.9s — pair it with another clip or use in feed only |
 | Landing page mismatch | The ad says RM29 and `/pricing` shows RM29 first — that is consistent |
 
-## 8. Why there is no API automation
+## 8. API automation — what exists now
 
-There is no Meta CLI on this machine, and the only Meta credential on Railway is a
-**System User token on app `1640196200491938` ("Conversions API Application")** whose
-entire scope list is `read_ads_dataset_quality`. It can send events; it cannot read
-`/me/adaccounts` (#200 Missing Permissions) and cannot create campaigns.
+Meta ships an **official Ads CLI** (documented Apr 29 2026) and an **Ads MCP
+server**. The CLI is installed on this machine:
 
-To automate later, you need a System User token with `ads_management`, `ads_read`,
-`business_management`, `pages_read_engagement`, plus the ad account ID (`act_…`),
-Page ID, and IG account ID. The n8n workflow named "AI FB IG Agent" is an empty
-shell (0 nodes) — nothing was ever wired up there.
+```
+brew tap facebook/fb && brew trust facebook/fb && brew install facebook/fb/meta-ads
+meta --version   # 1.3.1
+```
+
+It needs a system user token with these scopes:
+
+`business_management`, `ads_management`, `pages_show_list`,
+`pages_read_engagement`, `pages_manage_ads`, `read_insights`
+
+Configured via `.env` in the working directory:
+
+```
+ACCESS_TOKEN=<system user token>
+AD_ACCOUNT_ID=4244078779240218
+APP_ID=1640196200491938
+BUSINESS_ID=1937706830452016
+```
+
+Then:
+
+```
+meta auth status
+meta ads adaccount list
+meta ads campaign list
+```
+
+**Current blocker:** the only token on Railway is the Conversions API token whose
+entire scope list is `read_ads_dataset_quality`. It cannot read
+`act_4244078779240218` — the Graph API answers
+"Ad account owner has NOT grant ads_management or ads_read permission". Assigning
+assets to the system user does not change an existing token; a **new token** must
+be generated with the scopes above.
+
+Keep the first launch manual regardless: audience and creative decisions deserve
+human review, and `ads_management` mistakes are expensive to unwind.
