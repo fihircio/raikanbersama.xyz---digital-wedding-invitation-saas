@@ -74,18 +74,19 @@ print(int(d.timestamp()))
       -F "published=false" \
       -F "scheduled_publish_time=$SCHEDULE_TS" \
       -F "access_token=$PAGE_TOKEN")"
+    STATE="scheduled for $(python3 -c "import datetime;print(datetime.datetime.fromtimestamp($SCHEDULE_TS).astimezone().strftime('%Y-%m-%d %H:%M'))")"
   else
     RESP="$(curl -s --max-time 300 -X POST "$GRAPH/$PAGE_ID/videos" \
       -F "source=@$ASSET" \
       -F "description=$CAPTION" \
       -F "published=true" \
       -F "access_token=$PAGE_TOKEN")"
+    STATE="live"
   fi
 
   VID="$(echo "$RESP" | jq -r '.id // empty' 2>/dev/null || true)"
   if [ -n "$VID" ]; then
-    SCOPED="$(echo "$RESP" | sed "s|$PAGE_TOKEN|***|g" | jq -r 'if .post_id then .post_id else "scheduled" end')"
-    echo "  ✓ $SLOT → video $VID ($SCOPED)"
+    echo "  ✓ $SLOT → video $VID ($STATE)"
     if [ "$FIRST" -eq 0 ]; then echo "," >> "$OUT"; fi
     FIRST=0
     printf '  {"slot":"%s","video_id":"%s","asset":"%s"}' "$SLOT" "$VID" "$ASSET" >> "$OUT"

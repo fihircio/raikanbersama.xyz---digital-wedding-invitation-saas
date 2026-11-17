@@ -1,0 +1,31 @@
+{
+  "published_at": "2026-11-17T11:55+08:00",
+  "page_id": "979562428571695",
+  "posts": [
+    {
+      "slot": "01_reveal",
+      "video_id": "29487071090916483",
+      "post_id": "979562428571695_122150446635244956",
+      "state": "live",
+      "url": "https://www.facebook.com/reel/29487071090916483/"
+    },
+    {
+      "slot": "02_katalog",
+      "video_id": "1672896914539519",
+      "state": "scheduled",
+      "scheduled_utc": "2026-11-18T11:00:00+0000"
+    },
+    {
+      "slot": "03_hadiah",
+      "video_id": "1847064959938140",
+      "state": "scheduled",
+      "scheduled_utc": "2026-11-19T11:00:00+0000"
+    },
+    {
+      "slot": "04_rsvp",
+      "video_id": "2120259278600718",
+      "state": "scheduled",
+      "scheduled_utc": "2026-11-20T11:00:00+0000"
+    }
+  ]
+}
