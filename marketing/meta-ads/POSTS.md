@@ -1,6 +1,18 @@
 # Organic Page posts — PUBLISHED
 
-Page audience at time of writing: **0 followers** (IG: 6, 0 posts). These posts
+Page audience at time of writing: **0 followers**. Instagram `raikanbersamaxyz`
+has **6 followers and 11 feed posts** (verified with `instagram_basic`).
+
+> Correction: an earlier check reported IG as "0 posts". That reading was taken
+> with a token lacking `instagram_basic`, and the API returns a misleading
+> `media_count: 0` in that case. With the scope granted, the real count is 11.
+
+Crossposting is real and working: IG posts mirror the Facebook Page with a
+~2 second offset (FB 14:32:02 → IG 14:32:04), same content, same schedule.
+All 11 IG items are `FEED` — there are **no Reels yet**.
+
+API video uploads to the Page do **not** crosspost to IG (the Reel published
+2026-11-17 is Facebook-only; IG's newest item is still 2026-06-17). These posts
 exist to make the Page look legitimate for ad traffic, and to give boostable
 post IDs — not for organic reach.
 
