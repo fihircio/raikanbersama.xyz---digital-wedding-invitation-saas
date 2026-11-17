@@ -184,6 +184,44 @@ spending anything until it is deliberately activated.
 Token lifetime: expires **2027-01-16** (~60 days). Regenerate before then —
 `meta auth status` names the expiry date.
 
+## 7c. CLI build attempt — blocked on advertiser verification
+
+Campaign was created on the ad account and left **PAUSED**:
+
+| Object | ID | Status |
+|---|---|---|
+| Campaign `RB \| C1 Pro Hero \| Sales \| 2026-11` | `120251351270700214` | PAUSED, `OUTCOME_SALES`, no budget (ABO) |
+| Ad sets | none | blocked |
+| Creatives | none | not built |
+
+**The blocker:** creating the ad set with Malaysia targeting returns
+
+```
+API error (100): Invalid parameter
+Provide a verified advertiser so that ads in this ad set can be delivered to
+audiences in the selected locations.
+```
+
+Diagnosis:
+- The same ad set with `--targeting-countries US` **was accepted** (then deleted),
+  so this is **location-specific**, not an account-wide failure.
+- Business portfolio `1937706830452016` reports `verification_status: not_verified`.
+
+So Malaysian delivery now requires a **verified advertiser**. Fix (days, not minutes):
+
+1. Business settings → **Security Center** → *Start verification* — upload the
+   business registration for `RaikanBersamaxyz` (SSM/SSB).
+2. And/or ad account → **Advertiser verification** (identity confirmation).
+
+Until that clears, no ad set for MY can be saved, by CLI or by hand.
+
+**Second issue — video creatives via CLI.** `meta ads creative create --video`
+fails with `Please specify one of image_hash or image_url in the video_data
+field`, and `--image` cannot be combined with `--video` ("Provide --image or
+--video, not both"). The CLI has no thumbnail flag, so video creatives must be
+built either in the Ads Manager UI or through `--object-story-spec` with a
+pre-uploaded `image_hash` + `video_id`.
+
 ## 8. API automation — what exists now
 
 Meta ships an **official Ads CLI** (documented Apr 29 2026) and an **Ads MCP

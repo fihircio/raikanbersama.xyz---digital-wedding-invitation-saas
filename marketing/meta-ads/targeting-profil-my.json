@@ -1,0 +1,21 @@
+{
+  "geo_locations": {
+    "countries": ["MY"]
+  },
+  "age_min": 22,
+  "age_max": 38,
+  "genders": [1, 2],
+  "flexible_spec": [
+    {
+      "interests": [
+        { "id": "6003409392877", "name": "Weddings" },
+        { "id": "6003360603580", "name": "Engagement" },
+        { "id": "6003349071605", "name": "Wedding photography" }
+      ]
+    }
+  ],
+  "publisher_platforms": ["facebook", "instagram"],
+  "targeting_automation": {
+    "advantage_audience": 1
+  }
+}
