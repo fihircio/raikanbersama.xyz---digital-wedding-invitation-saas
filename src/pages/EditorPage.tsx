@@ -26,12 +26,15 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
   </div>
 );
 
-const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = '', note }) => (
-  <div className="rounded-2xl border border-rose-100/60 bg-white/80 p-3 text-[9px] font-medium leading-relaxed text-gray-500">
-    <p><span className="font-bold text-rose-500">{t('editor.common.uploadGuide')}</span> {ratio}</p>
-    {note && <p className="mt-1 text-gray-400">{note}</p>}
-  </div>
-);
+const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = '', note }) => {
+  const { t } = usePlatformLanguage();
+  return (
+    <div className="rounded-2xl border border-rose-100/60 bg-white/80 p-3 text-[9px] font-medium leading-relaxed text-gray-500">
+      <p><span className="font-bold text-rose-500">{t('editor.common.uploadGuide')}</span> {ratio}</p>
+      {note && <p className="mt-1 text-gray-400">{note}</p>}
+    </div>
+  );
+};
 
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
@@ -1392,8 +1395,8 @@ const EditorPage: React.FC = () => {
             <div>
               <p className="text-[9px] font-bold text-rose-400 uppercase tracking-[0.25em]">{t('editor.steps.title')}</p>
               <p className="text-sm font-black text-gray-900">{activeStepIndex + 1}/{editorSteps.length} · {activeStep ? t(activeStep.labelKey) : ''}</p>
-              {activeStep?.description && (
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{activeStep ? t(activeStep.descriptionKey) : ''}</p>
+              {activeStep && (
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{t(activeStep.descriptionKey)}</p>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -1504,7 +1507,7 @@ const EditorPage: React.FC = () => {
                             <div className="flex justify-between items-center mb-4">
                               <div>
                                 <p className="text-[9px] font-bold text-rose-100 uppercase tracking-widest opacity-80">{t('editor.pkg.unlock')}</p>
-                                <p className="text-white font-bold text-lg">Pakej {PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.label}</p>
+                                <p className="text-white font-bold text-lg">{t('editor.pkg.packageLabel')} {PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.label}</p>
                               </div>
                               <p className="text-2xl font-bold text-white">RM{PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.price}</p>
                             </div>
@@ -3116,10 +3119,10 @@ const EditorPage: React.FC = () => {
                   Step {editorOnboardingIndex + 1}/{editorSteps.length}
                 </p>
                 <h3 className="text-2xl font-serif italic font-black text-gray-950">
-                  {activeEditorOnboardingStep.label}
+                  {t(activeEditorOnboardingStep.labelKey)}
                 </h3>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  {activeEditorOnboardingStep.description}
+                  {t(activeEditorOnboardingStep.descriptionKey)}
                 </p>
               </div>
               <button

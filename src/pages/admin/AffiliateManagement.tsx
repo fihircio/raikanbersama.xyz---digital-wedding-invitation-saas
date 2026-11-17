@@ -260,6 +260,7 @@ const AffiliateManagement: React.FC = () => {
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
+    const { t } = usePlatformLanguage();
     switch (status) {
         case 'active':
             return <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('adm.status.active')}</span>;
