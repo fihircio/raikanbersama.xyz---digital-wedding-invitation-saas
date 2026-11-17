@@ -1,0 +1,45 @@
+{
+  "_comment": "Assets uploaded to the ad account. Reusable once the blockers clear; nothing here is secret.",
+  "ad_account": "act_4244078779240218",
+  "page_id": "979562428571695",
+  "instagram_actor_id": "17841480083586425",
+  "campaign": {
+    "id": "120251351270700214",
+    "name": "RB | C1 Pro Hero | Sales | 2026-11",
+    "status": "PAUSED"
+  },
+  "videos": {
+    "reveal": {
+      "video_id": "2680376895715678",
+      "status": "ready"
+    },
+    "hadiah": {
+      "video_id": "1075921422173934",
+      "status": "ready"
+    },
+    "katalog": {
+      "video_id": "1146741877712830",
+      "status": "ready"
+    }
+  },
+  "thumbnails": {
+    "reveal": {
+      "image_hash": "c510edf354061ebbee3124ac4d3e9134"
+    },
+    "hadiah": {
+      "image_hash": "5b3b33893941f5a0d48e56f87677fa63"
+    },
+    "katalog": {
+      "image_hash": "23c7010ee006be53f138debcc2e6566e"
+    }
+  },
+  "object_story_specs": [
+    "spec-reveal.json",
+    "spec-hadiah.json",
+    "spec-katalog.json"
+  ],
+  "blockers": [
+    "Ad set creation for MY: 'Provide a verified advertiser' (business verification_status: not_verified)",
+    "Creative creation: 'Ads creative post was created by an app that is in development mode. It must be in public' (app 3822869751351876)"
+  ]
+}
