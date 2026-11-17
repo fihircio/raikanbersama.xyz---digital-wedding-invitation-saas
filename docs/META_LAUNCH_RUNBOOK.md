@@ -152,6 +152,38 @@ reassurance about the plan, not another feature tour.
 | Video too short for Reels | Clips under 4s: `03_pricing_pro.mp4` is 3.9s — pair it with another clip or use in feed only |
 | Landing page mismatch | The ad says RM29 and `/pricing` shows RM29 first — that is consistent |
 
+## 7b. Verified account identifiers (from `meta` CLI, 2026-11-17)
+
+| Asset | ID | State |
+|---|---|---|
+| Ad account | `act_4244078779240218` | **ACTIVE** (`account_status` 1), MYR, Asia/Kuala_Lumpur |
+| Facebook Page | `979562428571695` | RaikanBersama — *Wedding planning service* |
+| Instagram | `17841480083586425` | `raikanbersamaxyz` |
+| Dataset / Pixel | `968435972628878` | last fired 2026-11-16 21:36 — events flowing |
+| Business portfolio | `1937706830452016` | RaikanBersama |
+
+Current spend: RM0. No campaigns, no ad sets, no creatives on the account — this
+is a genuine greenfield launch, not a re-launch.
+
+The earlier "Primary Page: None" in Business settings was misleading: the Page
+**is** reachable from the ad account, so feed and Reels placements are available.
+
+### Running the CLI
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"     # brew prefix, not on nvm PATH
+cd marketing/meta-ads                      # .env lives here
+meta auth status
+meta ads campaign list
+```
+
+`meta ads campaign create` **defaults to `--status PAUSED`** and supports
+`--dry-run`, so a campaign can be built and inspected on the account without
+spending anything until it is deliberately activated.
+
+Token lifetime: expires **2027-01-16** (~60 days). Regenerate before then —
+`meta auth status` names the expiry date.
+
 ## 8. API automation — what exists now
 
 Meta ships an **official Ads CLI** (documented Apr 29 2026) and an **Ads MCP
