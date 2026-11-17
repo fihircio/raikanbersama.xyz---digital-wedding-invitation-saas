@@ -59,3 +59,44 @@ well if you want IG cross-posting later.
 
 Instagram publishing is not covered here: the IG account has 0 posts and the
 token has no IG scopes, so cross-post from Meta Business Suite instead.
+
+
+## Instagram — 4 Reels published 2026-11-17
+
+Instagram ingests video by **public URL**, so clips were uploaded to S3
+(`raikanbersamaxyz` bucket, `marketing/ig-reels/*.mp4`) and passed as short-lived
+signed URLS. Publishing is in `backend/publish-ig-reels.mjs`.
+
+| Slot | Reel |
+|---|---|
+| reveal | https://www.instagram.com/reel/Df1DDe9lQlP/ |
+| katalog | https://www.instagram.com/reel/Df1DLo5lY7Q/ |
+| hadiah | https://www.instagram.com/reel/Df1DX1nmebh/ |
+| rsvp | https://www.instagram.com/reel/Df1DdnYiqRH/ |
+
+Before this the account had 11 FEED posts and **zero Reels**.
+
+### Known limitation: profile cannot be edited via API
+
+Updating bio/website is not supported by the Instagram Graph API:
+
+```
+Unsupported post request ... does not support this operation
+```
+
+Editing `biography` or `website` must be done manually in the Instagram app
+(Edit profile). The profile's `website` field is currently **null**; the link
+lives inside the bio text and points at a sample invitation:
+`raikanbersama.xyz/i/sample-pakej-kayangan`.
+
+Recommended replacement (single destination, tracked):
+
+```
+https://www.raikanbersama.xyz/pricing?utm_source=instagram&utm_medium=social&utm_campaign=bio
+```
+
+Why not Linktree: it inserts a redirect and an intermediate page between an
+interested visitor and the product, hides the real domain, and breaks UTM
+attribution unless configured carefully. If multiple links are genuinely needed
+(catalog, pricing, affiliates), host a link page on the project's own domain
+rather than a third-party.

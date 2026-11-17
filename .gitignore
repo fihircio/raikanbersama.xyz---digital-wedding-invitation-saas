@@ -27,3 +27,4 @@ cred.md
 # Generated ad footage (large binaries, regenerate with the recorder)
 marketing/footage/*.mp4
 marketing/meta-ads/.env.local
+marketing/meta-ads/.env.bak
