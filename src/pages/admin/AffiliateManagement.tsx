@@ -199,7 +199,7 @@ const AffiliateManagement: React.FC = () => {
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center justify-center w-8 h-8 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition shadow-sm border border-blue-100"
-                                                title="Lihat Media Sosial"
+                                                title={t('adm.aff.viewSocial')}
                                             >
                                                 <LinkIcon className="w-4 h-4" />
                                             </a>
@@ -214,7 +214,7 @@ const AffiliateManagement: React.FC = () => {
                                                         disabled={isProcessing === affiliate.id}
                                                         onClick={() => handleUpdateStatus(affiliate.id, 'active', affiliate.referral_code || generateReferralCode(affiliate.business_name))}
                                                         className="p-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition shadow-sm border border-green-100 disabled:opacity-50"
-                                                        title="Terima / Aktifkan"
+                                                        title={t('adm.aff.acceptActivate')}
                                                     >
                                                         <CheckCircleIcon className="w-5 h-5" />
                                                     </button>

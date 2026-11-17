@@ -7,6 +7,7 @@ import CoverLayout from '../../components/Invitation/CoverLayout';
 import SEO from '../../components/SEO';
 import { buildApiUrl } from '../config';
 import { InvitationLanguageProvider, useInvitationLanguage } from '../i18n/InvitationLanguage';
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 
 
 // --- Font Loading ---
@@ -1101,7 +1102,7 @@ const InvitationContentInner: React.FC<InvitationContentProps> = ({ invitation, 
           }
           footerContent={
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 italic text-[10px] text-gray-400 text-center leading-relaxed">
-              Mainkan video untuk mendengar lagu.
+              {t('musicHint')}
             </div>
           }
         />
@@ -1708,7 +1709,7 @@ function InvitationBody({
                       className="w-full py-5 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 uppercase text-[10px] tracking-widest"
                       style={{ backgroundColor: primaryColor }}
                     >
-                      Tambah Ke Kalendar
+                      {t('addToCalendar')}
                     </button>
                   </div>
                 )}
@@ -1827,7 +1828,7 @@ function InvitationBody({
                                         rel="noreferrer"
                                         className="inline-flex items-center text-[9px] font-bold uppercase tracking-widest text-rose-400 hover:text-rose-600 transition"
                                       >
-                                        Beli Secara Online
+                                        {t('buyOnline')}
                                         <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                       </a>
                                     )}
@@ -2144,6 +2145,9 @@ function InvitationBody({
 };
 
 const PublicInvitationPage: React.FC = () => {
+  // Loading / not-found states render before any invitation exists, so they use
+  // the platform language rather than the per-card invitation language.
+  const { t } = usePlatformLanguage();
   const { slug } = useParams<{ slug: string }>();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -2199,12 +2203,12 @@ const PublicInvitationPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center font-serif italic text-gray-400 text-xl bg-white">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
-        <p className="mt-4">Loading invitation...</p>
+        <p className="mt-4">{t('loading')}</p>
       </div>
     );
   }
 
-  if (!inv) return <div className="min-h-screen flex items-center justify-center font-serif italic text-gray-400 text-xl bg-white">Undangan tidak dijumpai.</div>;
+  if (!inv) return <div className="min-h-screen flex items-center justify-center font-serif italic text-gray-400 text-xl bg-white">{t('notFound')}</div>;
 
   return <InvitationContent invitation={inv} guestName={guestName || undefined} setInv={setInv} />;
 };

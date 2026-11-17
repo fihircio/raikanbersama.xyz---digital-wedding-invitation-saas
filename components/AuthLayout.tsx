@@ -51,7 +51,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, sub
                 <div className="text-center mb-8">
                     <Link to="/" className="inline-flex items-center gap-1 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-rose-600 transition-colors">
                         <ArrowLeftIcon className="w-3 h-3" />
-                        Kembali ke Laman Utama
+                        {t('auth.backHome')}
                     </Link>
                 </div>
 

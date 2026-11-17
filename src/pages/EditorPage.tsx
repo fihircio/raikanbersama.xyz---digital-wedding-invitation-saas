@@ -55,7 +55,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const EditorPage: React.FC = () => {
-  const { t } = usePlatformLanguage();
+  const { t, lang: platformLang } = usePlatformLanguage();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -149,6 +149,7 @@ const EditorPage: React.FC = () => {
       wishlist_details: cleanedWishlist,
       settings: {
         ...cleanedSettings,
+        language_mode: cleanedSettings.language_mode || platformLang,
         is_published: false,
         is_paid: false
       }
@@ -288,6 +289,9 @@ const EditorPage: React.FC = () => {
               show_countdown: true,
               show_gallery: true,
               is_published: false,
+              // A new card starts in the owner's interface language; they can
+              // change it per card in Step 4 > Invitation Language.
+              language_mode: platformLang,
               layout_settings: {
                 cover_layout: layout as any,
                 font_family: font
@@ -1094,7 +1098,7 @@ const EditorPage: React.FC = () => {
                     Loading...
                   </>
                 ) : (
-                  <>Muat Lebih Banyak Design ({backgrounds.length})</>
+                  <>{t('editor.common.loadMore')} ({backgrounds.length})</>
                 )}
               </button>
             </div>
@@ -1114,7 +1118,7 @@ const EditorPage: React.FC = () => {
                   Disarankan saiz <span className="font-bold text-white">768x1408px (Portrait)</span>.
                 </p>
                 <p className="leading-relaxed opacity-70 italic text-[9px]">
-                  Gambar ini akan dijadikan latar belakang penuh untuk kad jemputan digital anda.
+                  {t('editor.pkg.bgHint')}
                 </p>
                 <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900/95"></div>
               </div>
@@ -1223,7 +1227,7 @@ const EditorPage: React.FC = () => {
                     Loading...
                   </>
                 ) : (
-                  <>Muat Lebih Banyak Design ({backgrounds.length})</>
+                  <>{t('editor.common.loadMore')} ({backgrounds.length})</>
                 )}
               </button>
             </div>
@@ -1521,7 +1525,7 @@ const EditorPage: React.FC = () => {
                               }}
                               className="w-full py-4 bg-white text-rose-600 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-rose-50 transition-colors shadow-lg"
                             >
-                              Beli & Aktifkan Sekarang
+                              {t('editor.pkg.buyNow')}
                             </button>
                             <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">{t('editor.pkg.oncePayment')}</p>
                           </div>
@@ -1646,7 +1650,7 @@ const EditorPage: React.FC = () => {
                               : 'border-gray-200 bg-white text-gray-500 hover:border-rose-200'
                               }`}
                           >
-                            <span className="text-xs font-bold">{type.label}</span>
+                            <span className="text-xs font-bold">{type.labelKey ? t(type.labelKey) : type.label}</span>
                           </button>
                         ))}
                       </div>
@@ -1665,7 +1669,7 @@ const EditorPage: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
                         <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                           <p className="text-[9px] font-medium leading-relaxed text-gray-400">
-                            Effect akan ikut warna pilihan ini. Default putih sesuai untuk kebanyakan background.
+                            {t('editor.pkg.effectColorHint')}
                           </p>
                         </div>
                         <label className="space-y-2 min-w-[160px]">
@@ -1708,9 +1712,9 @@ const EditorPage: React.FC = () => {
                   <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
                     <div className="grid grid-cols-3 gap-2">
                       {([
-                        { id: 'melayu', label: 'Bahasa Melayu' },
-                        { id: 'english', label: 'English' },
-                        { id: 'bilingual', label: 'Dwibahasa' }
+                        { id: 'melayu', labelKey: 'editor.design.lang.melayu' },
+                        { id: 'english', labelKey: 'editor.design.lang.english' },
+                        { id: 'bilingual', labelKey: 'editor.design.lang.bilingual' }
                       ] as const).map(option => {
                         const active = (inv.settings.language_mode || 'melayu') === option.id;
                         return (
@@ -1719,7 +1723,7 @@ const EditorPage: React.FC = () => {
                             onClick={() => updateSettings('language_mode', option.id)}
                             className={`p-3 rounded-2xl border text-[10px] font-bold uppercase tracking-wider transition-all ${active ? 'border-rose-500 bg-rose-50 text-rose-600 ring-1 ring-rose-200' : 'border-gray-100 bg-white text-gray-500 hover:border-rose-200'}`}
                           >
-                            {option.label}
+                            {option.labelKey ? t(option.labelKey) : option.label}
                           </button>
                         );
                       })}
@@ -1934,7 +1938,7 @@ const EditorPage: React.FC = () => {
                           </div>
 
                           <p className="text-[8px] text-gray-400 leading-relaxed pt-4 border-t border-gray-100 px-1">
-                            Simbol seperti &, +, / atau | dalam Tajuk Cover akan ikut font, warna dan saiz tajuk ini.
+                            {t('editor.cover.symbolHint')}
                           </p>
                         </div>
                       </div>
@@ -2030,9 +2034,9 @@ const EditorPage: React.FC = () => {
                             <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.textPosition')}</label>
                             <div className="grid grid-cols-3 gap-2">
                               {[
-                                { id: 'left', label: 'Kiri', icon: 'M4 7h10M4 12h16M4 17h8' },
-                                { id: 'center', label: 'Tengah', icon: 'M7 7h10M4 12h16M8 17h8' },
-                                { id: 'right', label: 'Kanan', icon: 'M10 7h10M4 12h16M12 17h8' }
+                                { id: 'left', labelKey: 'editor.cover.align.left', icon: 'M4 7h10M4 12h16M4 17h8' },
+                                { id: 'center', labelKey: 'editor.cover.align.center', icon: 'M7 7h10M4 12h16M8 17h8' },
+                                { id: 'right', labelKey: 'editor.cover.align.right', icon: 'M10 7h10M4 12h16M12 17h8' }
                               ].map(option => {
                                 const isSelected = (inv.settings.layout_settings?.cover_text_align || 'center') === option.id;
                                 return (
@@ -2045,7 +2049,7 @@ const EditorPage: React.FC = () => {
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" d={option.icon} />
                                     </svg>
-                                    <span className="text-[8px] font-black uppercase tracking-widest">{option.label}</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest">{option.labelKey ? t(option.labelKey) : option.label}</span>
                                   </button>
                                 );
                               })}
@@ -2056,9 +2060,9 @@ const EditorPage: React.FC = () => {
                             <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.alignment')}</label>
                             <div className="grid grid-cols-3 gap-2">
                               {[
-                                { id: 'top', label: 'Atas', y: '5' },
-                                { id: 'middle', label: 'Tengah', y: '10' },
-                                { id: 'bottom', label: 'Bawah', y: '15' }
+                                { id: 'top', labelKey: 'editor.cover.pos.top', y: '5' },
+                                { id: 'middle', labelKey: 'editor.cover.pos.middle', y: '10' },
+                                { id: 'bottom', labelKey: 'editor.cover.pos.bottom', y: '15' }
                               ].map(option => {
                                 const isSelected = (inv.settings.layout_settings?.cover_vertical_align || 'middle') === option.id;
                                 return (
@@ -2072,7 +2076,7 @@ const EditorPage: React.FC = () => {
                                       <rect x="6" y="4" width="12" height="16" rx="2" strokeWidth="1.8" />
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" d={`M9 ${option.y}h6`} />
                                     </svg>
-                                    <span className="text-[8px] font-black uppercase tracking-widest">{option.label}</span>
+                                    <span className="text-[8px] font-black uppercase tracking-widest">{option.labelKey ? t(option.labelKey) : option.label}</span>
                                   </button>
                                 );
                               })}
@@ -2461,7 +2465,7 @@ const EditorPage: React.FC = () => {
                           <div className="flex flex-col gap-2 p-4 bg-gray-50/50 rounded-2xl">
                             <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('editor.media.autoplaySupport')}</span>
                             <span className="text-[9px] text-gray-500 leading-relaxed font-medium">
-                              Menyokong peranti terkini (Chrome, Safari, Edge, dll.). Tidak menyokong In-App Browser (FB/IG/Telegram).
+                              {t('editor.media.autoplayNote')}
                             </span>
                           </div>
                         </div>
@@ -2749,7 +2753,7 @@ const EditorPage: React.FC = () => {
                             }}
                             className="text-[10px] bg-rose-50 text-rose-600 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest hover:bg-rose-100 transition"
                           >
-                            + Tambah Item
+                            {t('editor.common.addItem')}
                           </button>
                         </div>
 
@@ -2841,10 +2845,10 @@ const EditorPage: React.FC = () => {
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">{t('editor.rsvp.mode')}</label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { id: 'rsvp_and_wish', label: 'RSVP + Ucapan' },
-                          { id: 'wish_only', label: 'Ucapan Sahaja' },
-                          { id: 'external', label: 'Pihak Ketiga (Google Form dll)' },
-                          { id: 'none', label: 'Tiada RSVP' }
+                          { id: 'rsvp_and_wish', labelKey: 'editor.rsvp.mode.rsvpAndWish' },
+                          { id: 'wish_only', labelKey: 'editor.rsvp.mode.wishOnly' },
+                          { id: 'external', labelKey: 'editor.rsvp.mode.external' },
+                          { id: 'none', labelKey: 'editor.rsvp.mode.none' }
                         ].map((mode) => (
                           <button
                             key={mode.id}
@@ -2854,7 +2858,7 @@ const EditorPage: React.FC = () => {
                               : 'bg-gray-50 border-transparent text-gray-500 hover:bg-gray-100'
                               }`}
                           >
-                            {mode.label}
+                            {mode.labelKey ? t(mode.labelKey) : mode.label}
                           </button>
                         ))}
                       </div>
@@ -2922,7 +2926,7 @@ const EditorPage: React.FC = () => {
                               disabled={field.id === 'name'}
                               className="w-4 h-4 accent-rose-600 rounded"
                             />
-                            <span className="text-xs font-bold text-gray-600">{field.label} {field.id === 'name' && '(Wajib)'}</span>
+                            <span className="text-xs font-bold text-gray-600">{field.labelKey ? t(field.labelKey) : field.label} {field.id === 'name' && '(Wajib)'}</span>
                           </label>
                         ))}
                       </div>
@@ -3141,7 +3145,7 @@ const EditorPage: React.FC = () => {
 
             {isDemo && editorOnboardingIndex === 0 && (
               <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-700">
-                Demo boleh cuba semua setting. Untuk simpan, publish dan dapat link live, tekan Save & Unlock.
+                {t('editor.onboard.demoNote')}
               </div>
             )}
 

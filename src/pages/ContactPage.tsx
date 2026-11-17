@@ -54,16 +54,16 @@ const ContactPage: React.FC = () => {
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white flex flex-col">
             <SEO
-                title="Hubungi Kami"
-                description="Ada soalan atau perlukan bantuan? Hubungi pasukan RaikanBersama.xyz. Kami sedia membantu anda."
+                title={t('contact.seoTitle')}
+                description={t('contact.seoDesc')}
             />
             <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4 italic">
-                        Hubungi Kami
+                        {t('contact.heading')}
                     </h1>
                     <p className="text-gray-500 max-w-2xl mx-auto">
-                        Kami sedia membantu anda. Sila isi borang di bawah atau hubungi kami melalui maklumat yang disediakan.
+                        {t('contact.intro')}
                     </p>
                 </div>
 
@@ -76,12 +76,12 @@ const ContactPage: React.FC = () => {
                                     <CheckCircleIcon className="w-10 h-10" />
                                 </div>
                                 <h2 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">{t('contact.sent')}</h2>
-                                <p className="text-gray-500">Terima kasih kerana menghubungi kami. Pasukan kami akan membalas mesej anda melalui email secepat mungkin.</p>
+                                <p className="text-gray-500">{t('contact.thanks')}</p>
                                 <button
                                     onClick={() => setIsSuccess(false)}
                                     className="mt-8 text-rose-600 font-bold uppercase text-[10px] tracking-widest hover:underline"
                                 >
-                                    Hantar Mesej Lain
+                                    {t('contact.sendAnother')}
                                 </button>
                             </div>
                         ) : (

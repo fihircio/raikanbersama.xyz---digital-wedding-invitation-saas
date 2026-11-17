@@ -153,7 +153,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ plan, invitationId, onClose
           </div>
 
           <p className="text-center text-gray-400 text-[11px] font-medium mb-4 leading-relaxed max-w-[280px] mx-auto">
-            Semak pelan pilihan anda dan masukkan kod kupon jika ada.
+            {t('pricing.paymentIntro')}
           </p>
         </div>
 

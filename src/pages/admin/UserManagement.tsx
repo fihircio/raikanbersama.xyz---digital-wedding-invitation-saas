@@ -154,7 +154,7 @@ const UserManagement: React.FC = () => {
                                     <tr>
                                         <td colSpan={5} className="px-8 py-20 text-center text-gray-400 italic">
                                             <ArrowPathIcon className="w-8 h-8 mx-auto mb-4 animate-spin text-rose-200" />
-                                            Memuatkan senarai pengguna...
+                                            {t('adm.user.loading')}
                                         </td>
                                     </tr>
                                 ) : users.map((u) => (
@@ -204,7 +204,7 @@ const UserManagement: React.FC = () => {
                                                                     <button
                                                                         onClick={() => handleDeleteInvitation(u.id, inv.id)}
                                                                         className="p-1 text-rose-300 hover:text-rose-600 border-l border-rose-100/50 transition opacity-0 group-hover/pill:opacity-100"
-                                                                        title="Padam Kad"
+                                                                        title={t('adm.user.deleteCard')}
                                                                     >
                                                                         <XMarkIcon className="w-2.5 h-2.5" />
                                                                     </button>

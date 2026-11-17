@@ -87,7 +87,12 @@ const MELAYU: Messages = {
   thanksTitle: 'Alhamdulillah!',
   thanksBody: 'Terima kasih atas maklum balas anda. Jumpa nanti!',
   wishTitle: 'Titipkan Ucapan',
-  wishPlaceholder: 'Selamat pengantin baru...'
+  wishPlaceholder: 'Selamat pengantin baru...',
+  addToCalendar: "Tambah Ke Kalendar",
+  buyOnline: "Beli Secara Online",
+  loading: "Memuatkan jemputan...",
+  musicHint: "Mainkan video untuk mendengar lagu.",
+  notFound: "Undangan tidak dijumpai.",
 };
 
 const ENGLISH: Messages = {
@@ -160,7 +165,17 @@ const ENGLISH: Messages = {
   thanksTitle: 'Thank you!',
   thanksBody: 'Thank you for your response. See you there!',
   wishTitle: 'Leave a Wish',
-  wishPlaceholder: 'Congratulations...'
+  wishPlaceholder: 'Congratulations...',
+  addToCalendar: "Add to Calendar",
+  buyOnline: "Buy Online",
+  loading: "Loading invitation...",
+  musicHint: "Play the video to hear the song.",
+  notFound: "Invitation not found.",
+  addToCalendar: "Add to Calendar",
+  buyOnline: "Buy Online",
+  loading: "Loading invitation...",
+  musicHint: "Play the video to hear the song.",
+  notFound: "Invitation not found.",
 };
 
 export const INVITATION_MESSAGES: Record<InvitationLang, Messages> = {

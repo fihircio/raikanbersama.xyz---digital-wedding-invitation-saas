@@ -162,19 +162,19 @@ export const PACKAGE_PLANS: Plan[] = [
 ];
 
 export const OPENING_TYPES = [
-  { id: 'none', label: 'Tiada (None)' },
-  { id: 'window-a', label: 'Tingkap A' },
-  { id: 'window-c', label: 'Tingkap B' },
-  { id: 'slide-a', label: 'Gelongsor A' },
-  { id: 'slide-b', label: 'Gelongsor B' },
-  { id: 'slide-up', label: 'Menaik' },
-  { id: 'envelope-a', label: 'Sampul A' },
-  { id: 'envelope-b', label: 'Sampul B' },
-  { id: 'blur', label: 'Memudar' }
+  { id: 'none', label: 'Tiada (None)', labelKey: 'opening.none' },
+  { id: 'window-a', label: 'Tingkap A', labelKey: 'opening.windowA' },
+  { id: 'window-c', label: 'Tingkap B', labelKey: 'opening.windowB' },
+  { id: 'slide-a', label: 'Gelongsor A', labelKey: 'opening.slideA' },
+  { id: 'slide-b', label: 'Gelongsor B', labelKey: 'opening.slideB' },
+  { id: 'slide-up', label: 'Menaik', labelKey: 'opening.slideUp' },
+  { id: 'envelope-a', label: 'Sampul A', labelKey: 'opening.envelopeA' },
+  { id: 'envelope-b', label: 'Sampul B', labelKey: 'opening.envelopeB' },
+  { id: 'blur', label: 'Memudar', labelKey: 'opening.blur' }
 ];
 
 export const EFFECT_STYLES = [
-  { id: 'none', label: 'Tiada (None)' },
+  { id: 'none', label: 'Tiada (None)', labelKey: 'effect.none' },
   { id: 'bubble', label: 'Floating Bubbles' },
   { id: 'snow', label: 'Snow Fall' },
   { id: 'stars', label: 'Shining Stars' },

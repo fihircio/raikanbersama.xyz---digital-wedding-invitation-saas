@@ -1,8 +1,10 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const OAuthCallbackPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { handleOAuthCallback } = useAuth();
@@ -66,7 +68,7 @@ const OAuthCallbackPage: React.FC = () => {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 border-t-transparent mx-auto mb-4"></div>
               <h2 className="text-2xl font-bold text-gray-900 font-serif mb-2">
-                Memproses...
+                {t('oauth.wait')}
               </h2>
               <p className="text-gray-600">
                 Sila tunggu sebentar...
@@ -83,7 +85,7 @@ const OAuthCallbackPage: React.FC = () => {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 font-serif mb-2">
-                Berjaya!
+                {t('oauth.success')}
               </h2>
               <p className="text-gray-600">
                 Anda telah berjaya masuk. Mengalihkan ke dashboard...
@@ -100,13 +102,13 @@ const OAuthCallbackPage: React.FC = () => {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 font-serif mb-2">
-               Ralat Berlaku
+               {t('oauth.errorTitle')}
               </h2>
               <p className="text-gray-600 mb-4">
                 {errorMessage}
               </p>
               <p className="text-sm text-gray-500">
-                Anda akan dialihkan ke halaman log masuk dalam beberapa saat...
+                {t('oauth.error')}
               </p>
             </div>
           )}

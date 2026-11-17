@@ -63,7 +63,7 @@ const FAQPage: React.FC = () => {
                         {t('faq.title')}
                     </h1>
                     <p className="text-gray-500">
-                        Segala jawapan untuk persoalan anda mengenai RaikanBersama.
+                        {t('faq.subtitle')}
                     </p>
                 </div>
 
@@ -87,7 +87,7 @@ const FAQPage: React.FC = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif">{t('faq.stillQuestions')}</h3>
                     <p className="text-gray-600 mb-6 text-sm">{t('faq.contactSupport')}</p>
                     <a href="#/contact" className="inline-block bg-rose-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-rose-100 hover:bg-rose-700 transition transform active:scale-95">
-                        Hubungi Kami
+                        {t('contact.heading')}
                     </a>
                 </div>
             </div>

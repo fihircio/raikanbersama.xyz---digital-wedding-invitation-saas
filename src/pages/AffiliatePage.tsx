@@ -217,11 +217,11 @@ const AffiliatePage: React.FC = () => {
                                         <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
                                             <CurrencyDollarIcon className="w-6 h-6 text-rose-300" />
                                         </div>
-                                        <h3 className="text-2xl font-serif italic font-bold">Sistem Dua Manfaat</h3>
+                                        <h3 className="text-2xl font-serif italic font-bold">{t('aff.dual.title')}</h3>
                                     </div>
                                     <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                                        Setiap kod referral berfungsi sebagai <strong className="text-white">{t('aff.tier.discount')}</strong> untuk pelanggan
-                                        dan <strong className="text-white"> {t('aff.calc.commissionId')}</strong> untuk vendor. Pelanggan berjimat, vendor pula menjana pendapatan daripada setiap tempahan berjaya.
+                                        {t('aff.dual.body1')} <strong className="text-white">{t('aff.tier.discount')}</strong> {t('aff.dual.bodyOffer')}
+                                        {t('aff.dual.bodyAnd')} <strong className="text-white">{t('aff.calc.commissionId')}</strong> {t('aff.dual.bodyVendor')}
                                     </p>
                                     <div className="space-y-4">
                                         <div className="flex gap-4">
@@ -282,7 +282,7 @@ const AffiliatePage: React.FC = () => {
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic">{t('aff.tier.title')}</h2>
                         <p className="text-gray-500 max-w-2xl mx-auto">
-                            Tingkatkan pendapatan anda dengan mencapai tier yang lebih tinggi. Semakin banyak jualan, semakin tinggi komisen anda.
+                            {t('aff.tier.growthBody')}
                         </p>
                     </div>
 

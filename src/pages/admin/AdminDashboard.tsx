@@ -81,10 +81,10 @@ const AdminDashboard = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 {/* Quick Actions / Management Hub */}
                 <div className="flex flex-wrap gap-4 mb-10">
-                    <QuickLink to="/admin/affiliates" icon={<BriefcaseIcon className="w-5 h-5 text-indigo-600" />} label="Urus Affiliate" />
-                    <QuickLink to="/admin/contacts" icon={<ChatBubbleLeftRightIcon className="w-5 h-5 text-rose-600" />} label="Peti Masuk" />
-                    <QuickLink to="/admin/coupons" icon={<TicketIcon className="w-5 h-5 text-amber-600" />} label="Kupon & Insentif" />
-                    <QuickLink to="/admin/users" icon={<UsersIcon className="w-5 h-5 text-blue-600" />} label="Urus Pengguna" />
+                    <QuickLink to="/admin/affiliates" icon={<BriefcaseIcon className="w-5 h-5 text-indigo-600" />} label={t('adm.nav.affiliate')} />
+                    <QuickLink to="/admin/contacts" icon={<ChatBubbleLeftRightIcon className="w-5 h-5 text-rose-600" />} label={t('adm.nav.inbox')} />
+                    <QuickLink to="/admin/coupons" icon={<TicketIcon className="w-5 h-5 text-amber-600" />} label={t('adm.nav.coupons')} />
+                    <QuickLink to="/admin/users" icon={<UsersIcon className="w-5 h-5 text-blue-600" />} label={t('adm.nav.users')} />
                 </div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                     <div>

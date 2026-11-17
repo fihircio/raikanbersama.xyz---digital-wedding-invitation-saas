@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="pt-24 min-h-screen bg-white overflow-hidden">
       <SEO
-        title="Bina Kad Jemputan Digital & Wedding No.1 Malaysia"
+        title={t('home.seoTitle')}
         description="{t('home.heroDesc')} Mudah & Pantas."
       />
 
@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
             <span className="text-rose-600 italic">{t('home.hero2')}</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-16 font-light leading-relaxed font-sans">
-            Platform premium untuk kad jemputan digital. Bina sendiri kad idaman anda secara real-time dari peranti anda.
+            {t('home.heroDesc')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <Link

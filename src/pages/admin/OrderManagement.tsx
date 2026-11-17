@@ -99,7 +99,7 @@ const OrderManagement: React.FC = () => {
                                     <tr>
                                         <td colSpan={6} className="px-8 py-20 text-center text-gray-400 italic">
                                             <ArrowPathIcon className="w-8 h-8 mx-auto mb-4 animate-spin text-rose-200" />
-                                            Memuatkan senarai transaksi...
+                                            {t('adm.order.loading')}
                                         </td>
                                     </tr>
                                 ) : orders.map((o) => (

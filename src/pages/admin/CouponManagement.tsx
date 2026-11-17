@@ -200,7 +200,7 @@ const CouponManagement: React.FC = () => {
                             className="flex items-center gap-2 bg-rose-600 text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 shadow-xl shadow-rose-100 transition"
                         >
                             <PlusIcon className="w-4 h-4" />
-                            Cipta Kupon
+                            {t('adm.coupon.create')}
                         </button>
                         <button onClick={fetchCoupons} className="p-2 bg-white rounded-full border border-gray-100 shadow-sm hover:bg-gray-50 transition">
                             <ArrowPathIcon className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
@@ -318,14 +318,14 @@ const CouponManagement: React.FC = () => {
                                                 <button
                                                     onClick={() => setEditingCoupon(coupon)}
                                                     className="p-1.5 bg-indigo-50 text-indigo-400 hover:bg-indigo-600 hover:text-white rounded-lg transition-all"
-                                                    title="Edit Kupon"
+                                                    title={t('adm.coupon.edit')}
                                                 >
                                                     <PencilSquareIcon className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCoupon(coupon.id)}
                                                     className="p-1.5 bg-rose-50 text-rose-400 hover:bg-rose-600 hover:text-white rounded-lg transition-all"
-                                                    title="Padam Kupon"
+                                                    title={t('adm.coupon.delete')}
                                                 >
                                                     <TrashIcon className="w-4 h-4" />
                                                 </button>
@@ -432,7 +432,7 @@ const CouponManagement: React.FC = () => {
                                         type="submit"
                                         className="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-rose-100 hover:bg-rose-700 transition"
                                     >
-                                        Cipta Kupon
+                                        {t('adm.coupon.create')}
                                     </button>
                                 </div>
                             </form>
@@ -509,7 +509,7 @@ const CouponManagement: React.FC = () => {
                                     <div className="p-5 bg-rose-50 rounded-2xl border border-rose-100 space-y-3">
                                         <label className="text-[10px] font-bold text-rose-600 uppercase tracking-[0.2em] flex items-center gap-2">
                                             <CurrencyDollarIcon className="w-3.5 h-3.5" />
-                                            Affiliate Komisen Setting
+                                            {t('adm.coupon.affiliateSetting')}
                                         </label>
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
@@ -529,7 +529,7 @@ const CouponManagement: React.FC = () => {
                                             </div>
                                         </div>
                                         <p className="text-[9px] text-rose-400 italic">
-                                            Komisen dikira berdasarkan jumlah yang pelanggan bayar (selepas diskaun).
+                                            {t('adm.coupon.commissionHint')}
                                         </p>
                                     </div>
                                 )}
@@ -555,7 +555,7 @@ const CouponManagement: React.FC = () => {
                                         type="submit"
                                         className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition"
                                     >
-                                        Simpan Perubahan
+                                        {t('adm.coupon.saveChanges')}
                                     </button>
                                 </div>
                             </form>

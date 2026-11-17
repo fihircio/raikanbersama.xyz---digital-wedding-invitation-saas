@@ -646,7 +646,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
             <div className="bg-white p-12 rounded-[3.5rem] shadow-sm border border-gray-100">
               <h3 className="font-serif italic font-bold text-2xl mb-4">Magic Link & Custom URL</h3>
               <p className="text-gray-400 text-sm mb-12 leading-relaxed">
-                Tetapkan link utama yang mudah diingat, kemudian hasilkan link khas untuk setiap tetamu.
+                {t('manage.magic.intro')}
               </p>
 
               <div className="space-y-8">
@@ -654,7 +654,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                   <div className="mb-5">
                     <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.main')}</label>
                     <p className="mt-2 text-xs leading-6 text-gray-500">
-                      Tukar nombor panjang pada link jemputan kepada nama yang lebih pendek dan mudah diingati, contohnya <span className="font-bold text-gray-700">/i/adam-hawa</span>.
+                      {t('manage.magic.slugHint2')} <span className="font-bold text-gray-700">/i/adam-hawa</span>.
                     </p>
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
@@ -695,7 +695,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                   <div className="mb-5">
                     <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.guestName')}</label>
                     <p className="mt-2 text-xs leading-6 text-gray-500">
-                      Masukkan nama tetamu untuk jana link peribadi. Nama ini akan dipaparkan pada kad apabila tetamu membuka jemputan.
+                      {t('manage.magic.guestHint2')}
                     </p>
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
@@ -720,7 +720,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                       <div className="mb-5">
                         <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.ready')}</label>
                         <p className="mt-2 text-xs leading-6 text-gray-500">
-                          Link ini khas untuk tetamu tersebut. Salin link atau hantar melalui WhatsApp selepas kad dipublish.
+                          {t('manage.magic.shareHint')}
                         </p>
                       </div>
                       <div className="rounded-2xl bg-white/80 p-4 mb-8">
@@ -746,7 +746,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                           href="#"
                           className="bg-green-500 text-white py-4 rounded-2xl text-center text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-green-100 hover:bg-green-600 transition"
                         >
-                          Hantar WhatsApp
+                          {t('manage.share.whatsapp')}
                         </a>
                       </div>
                     </div>

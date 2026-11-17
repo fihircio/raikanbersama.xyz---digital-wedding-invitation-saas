@@ -90,17 +90,17 @@ const PricingPage: React.FC = () => {
   return (
     <div className="pt-24 min-h-screen bg-white">
       <SEO
-        title="Harga & Pelan"
-        description="Pilih pelan kad jemputan digital yang sesuai dengan bajet anda. Pelan Lite, Pro dan Elite dengan pelbagai ciri premium."
+        title={t('pricing.seoTitle')}
+        description={t('pricing.seoDesc')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-serif font-bold text-gray-900 mb-6">
-            Pilih Pelan Anda
+            {t('pricing.heading')}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Jemputan digital yang premium, bermakna, dan kekal selamanya.
+            {t('pricing.subheading')}
           </p>
         </div>
 
