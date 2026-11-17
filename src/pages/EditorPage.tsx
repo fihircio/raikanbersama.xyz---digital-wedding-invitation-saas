@@ -26,9 +26,9 @@ const FontPicker: React.FC<{ value?: string, onChange: (font: string) => void, l
   </div>
 );
 
-const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = 'Sistem akan semak saiz fail dan auto-compress imej yang disokong selepas upload.', note }) => (
+const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = '', note }) => (
   <div className="rounded-2xl border border-rose-100/60 bg-white/80 p-3 text-[9px] font-medium leading-relaxed text-gray-500">
-    <p><span className="font-bold text-rose-500">Panduan upload:</span> {ratio}</p>
+    <p><span className="font-bold text-rose-500">{t('editor.common.uploadGuide')}</span> {ratio}</p>
     {note && <p className="mt-1 text-gray-400">{note}</p>}
   </div>
 );
@@ -36,6 +36,7 @@ const UploadGuide: React.FC<{ ratio?: string; note?: string }> = ({ ratio = 'Sis
 import { InvitationContent } from './PublicInvitationPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import {
   PlusIcon,
   TagIcon,
@@ -51,6 +52,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const EditorPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -241,7 +243,7 @@ const EditorPage: React.FC = () => {
           } else {
             const errorData = await response.json();
             console.error('❌ Handoff: Conversion failed', errorData);
-            showNotification('Draft digital anda gagal disimpan ke akaun anda. Sila bina baru di Catalog.', 'error');
+            showNotification(t('editor.notify.handoffFailed'), 'error');
             navigate('/catalog', { replace: true });
             return;
           }
@@ -494,7 +496,7 @@ const EditorPage: React.FC = () => {
     }
   };
 
-  if (authLoading || !inv) return <div className="pt-32 text-center font-serif italic text-gray-400 text-xl">Loading Studio...</div>;
+  if (authLoading || !inv) return <div className="pt-32 text-center font-serif italic text-gray-400 text-xl">{t('editor.common.loadingStudio')}</div>;
 
   const currentTier = inv.settings.package_plan || 'free';
 
@@ -517,28 +519,28 @@ const EditorPage: React.FC = () => {
   };
 
   const editorSteps = [
-    { id: 'pembukaan', label: 'Pakej', description: 'Pelan, background, animasi' },
-    { id: 'utama', label: 'Utama', description: 'Cover, nama, wording' },
-    { id: 'butiran', label: 'Butiran', description: 'Tarikh, lokasi, masa' },
-    { id: 'design', label: 'Design', description: 'Layout dan warna tema' },
-    { id: 'media', label: 'Media', description: 'Muzik, video, galeri' },
-    { id: 'tetamu', label: 'Keluarga', description: 'Contact person' },
-    { id: 'hadiah', label: 'Hadiah', description: 'Money gift', feature: 'money_gift' },
-    { id: 'wishlist', label: 'Wishlist', description: 'Senarai hadiah', feature: 'wish_list' },
-    { id: 'rsvp', label: 'RSVP', description: 'Tetapan kehadiran', feature: 'rsvp' },
+    { id: 'pembukaan', labelKey: 'editor.step.package', descriptionKey: 'editor.step.package.desc' },
+    { id: 'utama', labelKey: 'editor.step.cover', descriptionKey: 'editor.step.cover.desc' },
+    { id: 'butiran', labelKey: 'editor.step.details', descriptionKey: 'editor.step.details.desc' },
+    { id: 'design', labelKey: 'editor.step.design', descriptionKey: 'editor.step.design.desc' },
+    { id: 'media', labelKey: 'editor.step.media', descriptionKey: 'editor.step.media.desc' },
+    { id: 'tetamu', labelKey: 'editor.step.contacts', descriptionKey: 'editor.step.contacts.desc' },
+    { id: 'hadiah', labelKey: 'editor.step.gifts', descriptionKey: 'editor.step.gifts.desc', feature: 'money_gift' },
+    { id: 'wishlist', labelKey: 'editor.step.wishlist', descriptionKey: 'editor.step.wishlist.desc', feature: 'wish_list' },
+    { id: 'rsvp', labelKey: 'editor.step.rsvp', descriptionKey: 'editor.step.rsvp.desc', feature: 'rsvp' },
   ].filter(step => !step.feature || canAccess(step.feature));
   const activeStepIndex = Math.max(0, editorSteps.findIndex(step => step.id === activeTab));
   const activeStep = editorSteps[activeStepIndex] || editorSteps[0];
   const editorOnboardingDescriptions: Record<string, string> = {
-    pembukaan: 'Pilih pakej, latar belakang, animasi pembukaan dan effect. Untuk demo, bahagian ini boleh diuji penuh sebelum bayar.',
-    utama: 'Tetapkan cover utama: nama, wording cover, tarikh, lokasi, hashtag dan susun atur paparan pertama.',
-    butiran: 'Isi kandungan jemputan seperti kata aluan, butiran majlis, atur cara, ucapan doa dan maklumat tambahan.',
-    design: 'Laraskan identiti visual, warna tema, gaya tajuk, latar belakang dan margin kandungan jemputan.',
-    media: 'Tambah muzik, video dan galeri supaya kad lebih hidup. Tetamu akan nampak ini selepas buka jemputan.',
-    tetamu: 'Masukkan contact person keluarga supaya tetamu boleh hubungi pihak majlis dengan mudah.',
-    hadiah: 'Aktifkan money gift dan QR jika mahu tetamu beri sumbangan digital.',
-    wishlist: 'Tambah wishlist fizikal untuk hadiah yang tetamu boleh rujuk sebelum majlis.',
-    rsvp: 'Tetapkan borang RSVP, had pax, slot masa dan maklumat tetamu yang perlu dikumpul.'
+    pembukaan: 'editor.onboard.package',
+    utama: 'editor.onboard.cover',
+    butiran: 'editor.onboard.details',
+    design: 'editor.onboard.design',
+    media: 'editor.onboard.media',
+    tetamu: 'editor.onboard.contacts',
+    hadiah: 'editor.onboard.gifts',
+    wishlist: 'editor.onboard.wishlist',
+    rsvp: 'editor.onboard.rsvp'
   };
   const activeEditorOnboardingStep = editorSteps[Math.min(editorOnboardingIndex, editorSteps.length - 1)] || editorSteps[0];
   const goToEditorStep = (stepId: string) => setActiveTab(stepId);
@@ -625,7 +627,7 @@ const EditorPage: React.FC = () => {
           onChange={(e) => updateSettings(field, e.target.checked)}
           className="w-4 h-4 accent-rose-600"
         />
-        <span>Papar</span>
+        <span>{t('editor.common.show')}</span>
       </label>
     );
   };
@@ -648,13 +650,13 @@ const EditorPage: React.FC = () => {
       <div className="space-y-3">
         <input
           type="text"
-          placeholder="Contoh: #AisyahDanAhmun2025"
+          placeholder={t('editor.example.hashtag')}
           value={inv.settings.hashtag_text || ''}
           onChange={(e) => updateSettings('hashtag_text', e.target.value)}
           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
         />
-        <FontPicker label="Font Hashtag" value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
-        <p className="text-[8px] text-gray-400 italic px-1">Hashtag ini akan dipaparkan di bawah nama lokasi pada cover dan bahagian butiran.</p>
+        <FontPicker label={t('editor.common.hashtagFont')} value={inv.settings.hashtag_font} onChange={(font) => updateSettings('hashtag_font', font)} />
+        <p className="text-[8px] text-gray-400 italic px-1">{t('editor.common.hashtagHint')}</p>
       </div>
     </div>
     );
@@ -747,11 +749,11 @@ const EditorPage: React.FC = () => {
           updateField('gallery', [...(inv.gallery || []), data.data.url]);
         } else {
           const err = await response.json();
-          showNotification(`Upload gagal: ${err.error || 'Unknown error'}`, 'error');
+          showNotification(`${t('editor.notify.uploadFailedPrefix')}${err.error || 'Unknown error'}`, 'error');
         }
       } catch (error) {
         console.error('❌ Upload error:', error);
-        showNotification('Gagal memuat naik imej. Sila cuba lagi.', 'error');
+        showNotification(t('editor.notify.imageUploadFailed'), 'error');
       }
     } else if (file && isDemo) {
       // Keep demo behavior (local preview only)
@@ -778,7 +780,7 @@ const EditorPage: React.FC = () => {
     if (!validateUploadSize(file, uploadLimitsMb[target])) return;
 
     if (inv.settings.package_plan !== 'elite') {
-      showNotification('Upload gambar sendiri hanya tersedia untuk pakej Elite.', 'error');
+      showNotification(t('editor.notify.uploadEliteOnly'), 'error');
       return;
     }
 
@@ -786,7 +788,7 @@ const EditorPage: React.FC = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         updateSettings(visualAssetFieldMap[target], reader.result as string);
-        showNotification('Preview gambar dimuat naik secara lokal. Save & Unlock untuk simpan ke akaun.', 'success');
+        showNotification(t('editor.notify.localPreview'), 'success');
       };
       reader.readAsDataURL(file);
       return;
@@ -822,14 +824,14 @@ const EditorPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         updateSettings(visualAssetFieldMap[target], data.data.url);
-        showNotification('Asset custom berjaya dimuat naik.', 'success');
+        showNotification(t('editor.notify.assetUploaded'), 'success');
       } else {
         const err = await response.json().catch(() => ({}));
-        showNotification(`Upload asset gagal: ${err.error || 'Unknown error'}`, 'error');
+        showNotification(`${t('editor.notify.assetUploadFailedPrefix')}${err.error || 'Unknown error'}`, 'error');
       }
     } catch (error) {
       console.error('❌ Background upload error:', error);
-      showNotification('Gagal memuat naik asset. Sila cuba lagi.', 'error');
+      showNotification(t('editor.notify.assetUploadRetry'), 'error');
     } finally {
       setUploadingVisualAsset(null);
     }
@@ -870,7 +872,7 @@ const EditorPage: React.FC = () => {
           updateMoneyGift('qr_url', data.data.url);
         } else {
           const err = await response.json();
-          showNotification(`Upload QR gagal: ${err.error || 'Unknown error'}`, 'error');
+          showNotification(`${t('editor.notify.qrUploadFailedPrefix')}${err.error || 'Unknown error'}`, 'error');
         }
       } catch (error) {
         console.error('❌ QR Upload error:', error);
@@ -965,7 +967,7 @@ const EditorPage: React.FC = () => {
             <div className="absolute inset-0 border-4 border-rose-100 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-rose-600 rounded-full border-t-transparent animate-spin"></div>
           </div>
-          <p className="text-lg font-serif italic text-gray-500 animate-pulse">Menghidupkan Studio Rekaan...</p>
+          <p className="text-lg font-serif italic text-gray-500 animate-pulse">{t('editor.common.startingStudio')}</p>
         </div>
       </div>
     );
@@ -973,9 +975,9 @@ const EditorPage: React.FC = () => {
 
   const renderBackgroundColorSection = () => (
     <section className="space-y-8 pt-10 border-t border-gray-100">
-      <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Warna Latar Belakang</h3>
+      <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.bgColourHeading')}</h3>
       <div className="space-y-4">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Latar Belakang</label>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.bgColourHeading')}</label>
         <div className="space-y-3">
           <div className="flex items-center gap-4">
             <input
@@ -986,7 +988,7 @@ const EditorPage: React.FC = () => {
             />
             <div className="flex-1">
               <p className="text-sm font-bold text-gray-900 mb-1">{inv.settings.background_color || '#ffffff'}</p>
-              <p className="text-[9px] text-gray-400 leading-relaxed">Pilih warna latar untuk keseluruhan kad jemputan anda</p>
+              <p className="text-[9px] text-gray-400 leading-relaxed">{t('editor.pkg.bgColourHint')}</p>
             </div>
           </div>
           <div className="grid grid-cols-6 gap-2">
@@ -1005,7 +1007,7 @@ const EditorPage: React.FC = () => {
           </div>
           <div className="space-y-2 pt-2">
             <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-              <span>Ketelusan (Opacity)</span>
+              <span>{t('editor.pkg.opacity')}</span>
               <span>{Math.round((inv.settings.background_opacity ?? 1) * 100)}%</span>
             </div>
             <input
@@ -1017,7 +1019,7 @@ const EditorPage: React.FC = () => {
               onChange={(e) => updateSettings('background_opacity', parseFloat(e.target.value))}
               className="w-full accent-rose-600 h-2 rounded-full"
             />
-            <p className="text-[8px] text-gray-400 italic">0% = Lutsinar, 100% = Pejal</p>
+            <p className="text-[8px] text-gray-400 italic">{t('editor.pkg.opacityScale')}</p>
           </div>
         </div>
       </div>
@@ -1049,10 +1051,10 @@ const EditorPage: React.FC = () => {
 
   const renderBackgroundSection = () => (
     <section className="space-y-8 pt-10 border-t border-gray-100">
-      <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Latar Belakang</h3>
+      <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.background')}</h3>
 
       <div className="space-y-4">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilih Background Image</label>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.chooseBg')}</label>
         <div className="grid grid-cols-3 gap-3 max-h-[320px] overflow-y-auto no-scrollbar pr-1">
           {backgroundOptions.map((bg: any, idx) => (
             <button
@@ -1100,11 +1102,11 @@ const EditorPage: React.FC = () => {
       {inv.settings.package_plan === 'elite' && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Atau Masukkan URL Gambar (Custom)</label>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.customUrl')}</label>
             <div className="relative group">
               <InformationCircleIcon className="w-4 h-4 text-gray-400 cursor-help hover:text-rose-500 transition" />
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-4 bg-gray-900/95 text-white text-[10px] rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 pointer-events-none backdrop-blur-sm transform scale-95 group-hover:scale-100 origin-bottom">
-                <p className="font-bold mb-1.5 text-rose-300 uppercase tracking-wider text-[9px]">Panduan Saiz Image</p>
+                <p className="font-bold mb-1.5 text-rose-300 uppercase tracking-wider text-[9px]">{t('editor.pkg.sizeGuide')}</p>
                 <p className="leading-relaxed opacity-90 mb-2">
                   Disarankan saiz <span className="font-bold text-white">768x1408px (Portrait)</span>.
                 </p>
@@ -1132,7 +1134,7 @@ const EditorPage: React.FC = () => {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Gambar Sendiri</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">{t('editor.pkg.uploadOwn')}</p>
                 <UploadGuide
                   ratio="Maksimum 2MB. Disarankan 768x1408px atau nisbah 9:19.5."
                   note="Sistem akan crop portrait dan compress ke WebP untuk kad."
@@ -1167,8 +1169,8 @@ const EditorPage: React.FC = () => {
       <section className="space-y-8 pt-10 border-t border-gray-100">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Latar Belakang Butiran</h3>
-            <p className="mt-3 text-[9px] font-medium leading-relaxed text-gray-400">Untuk Elite: asingkan background bahagian butiran daripada cover. Kosongkan untuk ikut background cover.</p>
+            <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.detailsBg')}</h3>
+            <p className="mt-3 text-[9px] font-medium leading-relaxed text-gray-400">{t('editor.pkg.detailsBgHint')}</p>
           </div>
           {selectedBackground && (
             <button
@@ -1239,11 +1241,11 @@ const EditorPage: React.FC = () => {
                 {selectedBackground ? (
                   <img src={selectedBackground} alt="Invitation background preview" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-center text-[8px] font-bold uppercase tracking-widest text-gray-300">Ikut Cover</div>
+                  <div className="flex h-full w-full items-center justify-center text-center text-[8px] font-bold uppercase tracking-widest text-gray-300">{t('editor.pkg.followCover')}</div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Background Butiran</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">{t('editor.pkg.uploadDetailsBg')}</p>
                 <UploadGuide
                   ratio="Maksimum 2MB. Disarankan portrait 768x1408px atau nisbah 9:19.5."
                   note="Background ini hanya untuk bahagian selepas cover dan akan di-compress ke WebP."
@@ -1275,12 +1277,12 @@ const EditorPage: React.FC = () => {
     const footerLogo = inv.settings.footer_logo_url || '/logo.png';
     return (
       <section className="space-y-8 pt-10 border-t border-gray-100">
-        <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Footer Kad</h3>
+        <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.footerCard')}</h3>
         <div className="rounded-[2rem] border border-gray-100 bg-gray-50 p-4 space-y-5">
           <label className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 border border-gray-100">
             <span>
-              <span className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">Papar Footer Credit</span>
-              <span className="mt-1 block text-[9px] font-medium text-gray-400">Teks dan logo di bahagian bawah kad.</span>
+              <span className="block text-[10px] font-bold uppercase tracking-widest text-gray-500">{t('editor.pkg.showFooterCredit')}</span>
+              <span className="mt-1 block text-[9px] font-medium text-gray-400">{t('editor.pkg.footerHint')}</span>
             </span>
             <input
               type="checkbox"
@@ -1291,7 +1293,7 @@ const EditorPage: React.FC = () => {
           </label>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">URL Logo Footer</label>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.footerLogoUrl')}</label>
             <input
               type="text"
               value={inv.settings.footer_logo_url || ''}
@@ -1306,7 +1308,7 @@ const EditorPage: React.FC = () => {
               <img src={footerLogo} alt="Footer logo preview" className="h-full w-full object-cover" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Logo Footer</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">{t('editor.pkg.uploadFooterLogo')}</p>
               <UploadGuide
                 ratio="Maksimum 1MB. Disarankan square 512x512px."
                 note="PNG transparent paling sesuai untuk logo. Sistem akan compress imej sebelum simpan."
@@ -1352,7 +1354,7 @@ const EditorPage: React.FC = () => {
                   <button
                     onClick={() => {
                       if (!inv.settings.is_paid) {
-                        alert('Sila beli pakej untuk mengaktifkan fungsi Publish (Live).');
+                        alert(t('editor.notify.publishNeedsPackage'));
                         return;
                       }
                       updateSettings('is_published', !inv.settings.is_published);
@@ -1388,10 +1390,10 @@ const EditorPage: React.FC = () => {
         <div className="border-b border-gray-200 bg-gray-50/80 p-4 sticky top-0 z-10">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[9px] font-bold text-rose-400 uppercase tracking-[0.25em]">Langkah Editor</p>
-              <p className="text-sm font-black text-gray-900">{activeStepIndex + 1}/{editorSteps.length} · {activeStep?.label}</p>
+              <p className="text-[9px] font-bold text-rose-400 uppercase tracking-[0.25em]">{t('editor.steps.title')}</p>
+              <p className="text-sm font-black text-gray-900">{activeStepIndex + 1}/{editorSteps.length} · {activeStep ? t(activeStep.labelKey) : ''}</p>
               {activeStep?.description && (
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{activeStep.description}</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{activeStep ? t(activeStep.descriptionKey) : ''}</p>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -1400,7 +1402,7 @@ const EditorPage: React.FC = () => {
                 onClick={goToPreviousStep}
                 disabled={activeStepIndex === 0}
                 className="w-9 h-9 rounded-full border border-gray-200 bg-white text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:border-rose-200 hover:text-rose-500 transition flex items-center justify-center"
-                aria-label="Langkah sebelumnya"
+                aria-label={t('editor.steps.prev')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
               </button>
@@ -1409,7 +1411,7 @@ const EditorPage: React.FC = () => {
                 onClick={goToNextStep}
                 disabled={activeStepIndex === editorSteps.length - 1}
                 className="w-9 h-9 rounded-full border border-gray-200 bg-white text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:border-rose-200 hover:text-rose-500 transition flex items-center justify-center"
-                aria-label="Langkah seterusnya"
+                aria-label={t('editor.steps.next')}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
               </button>
@@ -1421,14 +1423,14 @@ const EditorPage: React.FC = () => {
           {activeTab === 'pembukaan' && (
             <div className="space-y-10 relative">
               <section className="space-y-8">
-                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Pakej & Konsep</h3>
+                <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.panelTitle')}</h3>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pilihan Pakej</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.options')}</label>
                   <div className="relative">
                     {initialPackagePlan !== 'free' ? (
                       <div className="w-full bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 flex flex-col items-center text-center shadow-inner">
-                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">Pakej Langganan Aktif</span>
+                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">{t('editor.pkg.activeSub')}</span>
                         <span className="text-2xl font-black text-rose-600 capitalize mb-2">{PACKAGE_PLANS.find(p => p.id === initialPackagePlan)?.label}</span>
                         <div className="flex items-center gap-2 px-4 py-1.5 bg-white rounded-full border border-rose-100 shadow-sm">
                           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -1443,14 +1445,14 @@ const EditorPage: React.FC = () => {
                           className={`w-full bg-white border-2 rounded-3xl p-5 flex items-center justify-between transition-all shadow-sm group ${isPackageDropdownOpen ? 'border-rose-400 ring-4 ring-rose-50' : 'border-rose-100 hover:border-rose-300'}`}
                         >
                           <div className="text-left">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pelan Dipilih</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">{t('editor.pkg.selectedPlan')}</span>
                             <div className="flex items-center gap-2">
                               <span className="text-xl font-bold text-gray-900 capitalize">{PACKAGE_PLANS.find(p => p.id === (inv.settings.package_plan || 'free'))?.label || 'Free'}</span>
                               {inv.settings.package_plan !== initialPackagePlan && initialPackagePlan === 'free' && (
                                 <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-bold rounded-full uppercase tracking-tighter">Preview</span>
                               )}
                             </div>
-                            <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">Tukar Pakej</span>
+                            <span className="text-xs text-rose-500 font-bold mt-1 inline-block group-hover:underline">{t('editor.pkg.changePlan')}</span>
                           </div>
                           <div className={`w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center transition-transform duration-300 ${isPackageDropdownOpen ? 'rotate-180' : ''}`}>
                             <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -1501,7 +1503,7 @@ const EditorPage: React.FC = () => {
                           <div className="p-5 bg-rose-600 rounded-[2.5rem] shadow-2xl shadow-rose-200 animate-slide-up mt-4">
                             <div className="flex justify-between items-center mb-4">
                               <div>
-                                <p className="text-[9px] font-bold text-rose-100 uppercase tracking-widest opacity-80">Buka Semua Fungsi</p>
+                                <p className="text-[9px] font-bold text-rose-100 uppercase tracking-widest opacity-80">{t('editor.pkg.unlock')}</p>
                                 <p className="text-white font-bold text-lg">Pakej {PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.label}</p>
                               </div>
                               <p className="text-2xl font-bold text-white">RM{PACKAGE_PLANS.find(p => p.id === inv.settings.package_plan)?.price}</p>
@@ -1518,7 +1520,7 @@ const EditorPage: React.FC = () => {
                             >
                               Beli & Aktifkan Sekarang
                             </button>
-                            <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">*Pembayaran sekali sahaja untuk setiap invite</p>
+                            <p className="text-[9px] text-rose-100 text-center mt-3 font-medium opacity-70 italic">{t('editor.pkg.oncePayment')}</p>
                           </div>
                         )}
                       </>
@@ -1533,18 +1535,18 @@ const EditorPage: React.FC = () => {
 
               {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Animasi Pembukaan</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.openingAnim')}</h3>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex justify-between">
-                        <span>Jenis Animasi</span>
+                        <span>{t('editor.pkg.animType')}</span>
                       </label>
                       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
-                        <FontPicker label="Font Butang Buka" value={inv.settings.opening_button_font} onChange={(font) => updateSettings('opening_button_font', font)} />
+                        <FontPicker label={t('editor.pkg.openBtnFont')} value={inv.settings.opening_button_font} onChange={(font) => updateSettings('opening_button_font', font)} />
                         <div className="grid grid-cols-2 gap-3">
                           <label className="space-y-2">
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Skin</span>
+                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.skinColour')}</span>
                             <input
                               type="color"
                               value={inv.settings.opening_color || '#ffffff'}
@@ -1553,7 +1555,7 @@ const EditorPage: React.FC = () => {
                             />
                           </label>
                           <label className="space-y-2">
-                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Font Buka</span>
+                            <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.openBtnColour')}</span>
                             <input
                               type="color"
                               value={inv.settings.opening_button_color || '#374151'}
@@ -1567,7 +1569,7 @@ const EditorPage: React.FC = () => {
                         <div className="rounded-[2rem] border border-rose-100 bg-rose-50/50 p-4 space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <label className="space-y-2">
-                              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Background Buka</span>
+                              <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.openBtnBg')}</span>
                               <input
                                 type="color"
                                 value={inv.settings.opening_button_bg_color || '#ffffff'}
@@ -1577,7 +1579,7 @@ const EditorPage: React.FC = () => {
                             </label>
                             <div className="space-y-2">
                               <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                                <span>Tint Image</span>
+                                <span>{t('editor.pkg.tintImage')}</span>
                                 <span>{Math.round((inv.settings.opening_button_bg_opacity ?? 0.9) * 100)}%</span>
                               </div>
                               <input
@@ -1593,7 +1595,7 @@ const EditorPage: React.FC = () => {
                           </div>
                           <input
                             type="text"
-                            placeholder="URL image button Buka"
+                            placeholder={t('editor.pkg.openBtnUrl')}
                             value={inv.settings.opening_button_bg_image || ''}
                             onChange={(e) => updateSettings('opening_button_bg_image', e.target.value)}
                             className="w-full px-5 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium"
@@ -1607,7 +1609,7 @@ const EditorPage: React.FC = () => {
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">Upload Image Button</p>
+                              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-rose-500">{t('editor.pkg.uploadBtnImage')}</p>
                               <UploadGuide
                                 ratio="Maksimum 1MB. Disarankan 800x400px atau gambar ringkas."
                                 note='Pilihan ini ubah latar belakang butang "Buka" dan akan di-compress ke WebP.'
@@ -1652,11 +1654,11 @@ const EditorPage: React.FC = () => {
 
               {['pro', 'elite'].includes(inv.settings.package_plan || 'free') && (
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Effect & Hiasan</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.pkg.effects')}</h3>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Effect</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.effectType')}</label>
                       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
                         <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
                           <p className="text-[9px] font-medium leading-relaxed text-gray-400">
@@ -1664,7 +1666,7 @@ const EditorPage: React.FC = () => {
                           </p>
                         </div>
                         <label className="space-y-2 min-w-[160px]">
-                          <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Warna Effect</span>
+                          <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.pkg.effectColour')}</span>
                           <input
                             type="color"
                             value={inv.settings.effect_color || '#ffffff'}
@@ -1698,7 +1700,7 @@ const EditorPage: React.FC = () => {
             activeTab === 'design' && (
               <div className="space-y-10 relative">
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Bahasa Jemputan</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.design.language')}</h3>
 
                   <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
                     <div className="grid grid-cols-3 gap-2">
@@ -1720,23 +1722,22 @@ const EditorPage: React.FC = () => {
                       })}
                     </div>
                     <p className="text-[8px] text-gray-400 italic leading-relaxed px-1">
-                      Menukar bahasa untuk teks sistem jemputan (tajuk seksyen, butang, borang RSVP dan tarikh).
-                      Teks yang anda taip sendiri seperti kata aluan, kisah dan doa tidak diterjemah.
+                      {t('editor.design.languageNote')}
                     </p>
                     <p className="text-[8px] text-gray-400 italic leading-relaxed px-1">
-                      Tetamu boleh menukar BM / EN sendiri melalui butang pada kad selepas jemputan dibuka.
+                      {t('editor.design.languageGuestNote')}
                     </p>
                   </div>
                 </section>
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gaya Tajuk Seksyen</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.design.sectionTitleStyle')}</h3>
 
                   <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
-                    <FontPicker label="Font Tajuk Seksyen" value={inv.settings.section_title_font} onChange={(font) => updateSettings('section_title_font', font)} />
+                    <FontPicker label={t('editor.design.sectionTitleFont')} value={inv.settings.section_title_font} onChange={(font) => updateSettings('section_title_font', font)} />
                     <div className="space-y-1">
                       <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                        <span>Saiz Tajuk</span>
+                        <span>{t('editor.design.titleSize')}</span>
                         <span>{inv.settings.section_title_size || '12'}px</span>
                       </div>
                       <input
@@ -1747,16 +1748,16 @@ const EditorPage: React.FC = () => {
                         onChange={(e) => updateSettings('section_title_size', e.target.value)}
                         className="w-full accent-rose-600 h-1"
                       />
-                      <p className="text-[8px] text-gray-400 italic px-1">Kesan kepada tajuk Maklumat Tambahan, Atur Cara Majlis, Ucapan & Doa, Hashtag dan Footer Kad.</p>
+                      <p className="text-[8px] text-gray-400 italic px-1">{t('editor.design.sectionTitleHint')}</p>
                     </div>
                   </div>
                 </section>
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Identiti Visual & Tema</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.design.identity')}</h3>
 
                   <div className="space-y-6">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Primary Theme Color (Button & Navigasi)</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">{t('editor.design.primary')}</label>
                     <div className="flex flex-wrap gap-4 items-center">
                       {THEME_COLORS.map(color => (
                         <button
@@ -1779,7 +1780,7 @@ const EditorPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-6 pt-6 border-t border-gray-50">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Secondary Theme Color (Titles & Accent)</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">{t('editor.design.secondary')}</label>
                     <div className="flex flex-wrap gap-4 items-center">
                       {THEME_COLORS.map(color => (
                         <button
@@ -1809,10 +1810,10 @@ const EditorPage: React.FC = () => {
                 {inv.settings.package_plan === 'elite' && renderFooterBrandingSection()}
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Margin Kandungan</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.design.margin')}</h3>
                   <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
                     <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                      <span>Ruang Kiri & Kanan</span>
+                      <span>{t('editor.design.spacing')}</span>
                       <span>{inv.settings.content_margin_x || '32'}px</span>
                     </div>
                     <input
@@ -1824,10 +1825,10 @@ const EditorPage: React.FC = () => {
                       className="w-full accent-rose-600 h-2 rounded-full"
                     />
                     <div className="flex justify-between text-[8px] text-gray-400 font-bold uppercase tracking-widest">
-                      <span>Lebar</span>
-                      <span>Sempit</span>
+                      <span>{t('editor.design.wide')}</span>
+                      <span>{t('editor.design.narrow')}</span>
                     </div>
-                    <p className="text-[8px] text-gray-400 italic px-1">Laraskan ruang kiri dan kanan kandungan dalam live preview.</p>
+                    <p className="text-[8px] text-gray-400 italic px-1">{t('editor.design.marginHint')}</p>
                   </div>
                 </section>
               </div>
@@ -1840,13 +1841,13 @@ const EditorPage: React.FC = () => {
                 {/* Couple Names Section - Public */}
                 {/* Couple Names Section - Public */}
                 <section className="space-y-8">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tajuk Utama (Cover)</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.cover.heroHeading')}</h3>
 
                   <div className="space-y-6">
                     {/* 1. Cover Hero Wording */}
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Wording Utama (Cover Hero)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.cover.heroWording')}</label>
                         <input
                           type="text"
                           placeholder="Walimatulurus"
@@ -1857,15 +1858,15 @@ const EditorPage: React.FC = () => {
                       </div>
 
                       <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
-                        <FontPicker label="Font Hero (Cover)" value={inv.settings.cover_hero_font} onChange={(f) => updateSettings('cover_hero_font', f)} />
+                        <FontPicker label={t('editor.cover.heroFont')} value={inv.settings.cover_hero_font} onChange={(f) => updateSettings('cover_hero_font', f)} />
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Hero</label>
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.heroColour')}</label>
                             <input type="color" value={inv.settings.cover_hero_color || inv.settings.hero_color || '#1F2937'} onChange={(e) => updateSettings('cover_hero_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
                           </div>
                           <div className="space-y-1">
                             <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                              <span>Saiz</span>
+                              <span>{t('editor.common.size')}</span>
                               <span>{inv.settings.cover_hero_size || '12'}px</span>
                             </div>
                             <input type="range" min="8" max="40" value={inv.settings.cover_hero_size || '12'} onChange={(e) => updateSettings('cover_hero_size', e.target.value)} className="w-full accent-rose-600 h-1" />
@@ -1878,13 +1879,13 @@ const EditorPage: React.FC = () => {
                     <div className="space-y-4 pt-4 border-t border-gray-100">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 mb-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Cover</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.cover.title')}</label>
                           <div className="relative group">
                             <InformationCircleIcon className="w-4 h-4 text-gray-400 cursor-help hover:text-rose-500 transition" />
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-4 bg-gray-900/95 text-white text-[10px] rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 pointer-events-none backdrop-blur-sm transform scale-95 group-hover:scale-100 origin-bottom">
-                              <p className="font-bold mb-1 text-rose-300">Tips:</p>
-                              <p className="leading-relaxed opacity-90">Gunakan simbol <span className="font-bold text-white bg-white/20 px-1 rounded">&</span> untuk memisahkan baris.</p>
-                              <p className="mt-3 mb-1 font-bold text-rose-300">Contoh:</p>
+                              <p className="font-bold mb-1 text-rose-300">{t('editor.common.tips')}</p>
+                              <p className="leading-relaxed opacity-90">{t('editor.cover.useSymbol')} <span className="font-bold text-white bg-white/20 px-1 rounded">&</span> {t('editor.cover.separateLines')}</p>
+                              <p className="mt-3 mb-1 font-bold text-rose-300">{t('editor.common.example')}</p>
                               <ul className="space-y-1 opacity-80">
                                 <li>Adam Sekeluarga</li>
                                 <li>Adam & Hawa</li>
@@ -1898,7 +1899,7 @@ const EditorPage: React.FC = () => {
                         </div>
                         <input
                           type="text"
-                          placeholder="Contoh: Adam & Hawa"
+                          placeholder={t('editor.example.coverTitle')}
                           value={inv.settings.cover_title || ''}
                           onChange={(e) => updateSettings('cover_title', e.target.value)}
                           className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold placeholder-gray-300"
@@ -1907,14 +1908,14 @@ const EditorPage: React.FC = () => {
 
                       <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Gaya Tajuk Cover</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('editor.cover.titleStyle')}</span>
                         </div>
 
                         <div className="space-y-4 p-4 bg-white rounded-2xl border border-gray-50 shadow-sm">
-                          <FontPicker label="Font Tajuk" value={inv.settings.cover_title_font} onChange={(f) => updateSettings('cover_title_font', f)} />
+                          <FontPicker label={t('editor.cover.titleFont')} value={inv.settings.cover_title_font} onChange={(f) => updateSettings('cover_title_font', f)} />
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                              <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Tajuk</label>
+                              <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.titleColour')}</label>
                               <div className="flex items-center gap-2">
                                 <input type="color" value={inv.settings.cover_title_color || inv.settings.primary_color || '#8B4513'} onChange={(e) => updateSettings('cover_title_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
                                 <span className="text-[10px] font-mono text-gray-500 uppercase">{inv.settings.cover_title_color || 'Auto'}</span>
@@ -1922,7 +1923,7 @@ const EditorPage: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                               <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                                <span>Saiz</span>
+                                <span>{t('editor.common.size')}</span>
                                 <span>{inv.settings.cover_title_size || '48'}px</span>
                               </div>
                               <input type="range" min="20" max="100" value={inv.settings.cover_title_size || '48'} onChange={(e) => updateSettings('cover_title_size', e.target.value)} className="w-full accent-rose-600 h-1" />
@@ -1939,26 +1940,26 @@ const EditorPage: React.FC = () => {
                     {/* 2. Cover Date */}
                     <div className="space-y-4 pt-4 border-t border-gray-100">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tarikh Majlis (Cover)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.cover.dateHeading')}</label>
                         <input
                           type="date"
                           value={inv.event_date || inv.settings.cover_date || ''}
                           onChange={(e) => updateCoverDate(e.target.value)}
                           className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold"
                         />
-                        <p className="text-[8px] text-gray-400 italic ml-1">Tarikh ini juga digunakan di Step 3 Masa, Tarikh & Tempat.</p>
+                        <p className="text-[8px] text-gray-400 italic ml-1">{t('editor.cover.dateHint')}</p>
                       </div>
 
                       <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
-                        <FontPicker label="Font Tarikh (Cover)" value={inv.settings.cover_date_font} onChange={(f) => updateSettings('cover_date_font', f)} />
+                        <FontPicker label={t('editor.cover.dateFont')} value={inv.settings.cover_date_font} onChange={(f) => updateSettings('cover_date_font', f)} />
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Tarikh</label>
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.dateColour')}</label>
                             <input type="color" value={inv.settings.cover_date_color || inv.settings.date_color || '#4B5563'} onChange={(e) => updateSettings('cover_date_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
                           </div>
                           <div className="space-y-1">
                             <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                              <span>Saiz</span>
+                              <span>{t('editor.common.size')}</span>
                               <span>{inv.settings.cover_date_size || '16'}px</span>
                             </div>
                             <input type="range" min="10" max="40" value={inv.settings.cover_date_size || '16'} onChange={(e) => updateSettings('cover_date_size', e.target.value)} className="w-full accent-rose-600 h-1" />
@@ -1970,27 +1971,27 @@ const EditorPage: React.FC = () => {
                     {/* 3. Cover Location */}
                     <div className="space-y-4 pt-4 border-t border-gray-100">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Lokasi (Cover)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.cover.locationHeading')}</label>
                         <input
                           type="text"
-                          placeholder="Contoh: Dewan Seri Kasih"
+                          placeholder={t('editor.example.location')}
                           value={inv.location_name || inv.settings.cover_location || ''}
                           onChange={(e) => updateCoverLocation(e.target.value)}
                           className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-sm outline-none font-bold placeholder-gray-400"
                         />
-                        <p className="text-[8px] text-gray-400 italic ml-1">Lokasi ini juga digunakan di Step 3 Lokasi & Peta.</p>
+                        <p className="text-[8px] text-gray-400 italic ml-1">{t('editor.cover.locationHint')}</p>
                       </div>
 
                       <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
-                        <FontPicker label="Font Lokasi (Cover)" value={inv.settings.cover_location_font} onChange={(f) => updateSettings('cover_location_font', f)} />
+                        <FontPicker label={t('editor.cover.locationFont')} value={inv.settings.cover_location_font} onChange={(f) => updateSettings('cover_location_font', f)} />
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Warna Lokasi</label>
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.locationColour')}</label>
                             <input type="color" value={inv.settings.cover_location_color || inv.settings.location_color || '#9CA3AF'} onChange={(e) => updateSettings('cover_location_color', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border-none p-0 cursor-pointer" />
                           </div>
                           <div className="space-y-1">
                             <div className="flex justify-between text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                              <span>Saiz</span>
+                              <span>{t('editor.common.size')}</span>
                               <span>{inv.settings.cover_location_size || '14'}px</span>
                             </div>
                             <input type="range" min="10" max="40" value={inv.settings.cover_location_size || '14'} onChange={(e) => updateSettings('cover_location_size', e.target.value)} className="w-full accent-rose-600 h-1" />
@@ -2004,8 +2005,8 @@ const EditorPage: React.FC = () => {
                     {/* 4. Cover Layout Arrangement */}
                     <div className="space-y-4 pt-4 border-t border-gray-100">
                       <div>
-                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Susun Atur</h4>
-                        <p className="text-[8px] text-gray-400 italic ml-1 mt-1">Kawal susunan, posisi dan alignment kandungan cover.</p>
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.cover.layout')}</h4>
+                        <p className="text-[8px] text-gray-400 italic ml-1 mt-1">{t('editor.cover.layoutHint')}</p>
                       </div>
 
                       <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-5">
@@ -2016,14 +2017,14 @@ const EditorPage: React.FC = () => {
                             onChange={(e) => updateLayoutSettings('cover_content_order', e.target.value)}
                             className="w-full px-4 py-3 bg-white border border-transparent rounded-xl focus:border-rose-300 transition text-xs outline-none font-bold"
                           >
-                            <option value="layout-1">Layout 1 - Wording utama di atas</option>
-                            <option value="layout-2">Layout 2 - Tajuk cover di atas</option>
+                            <option value="layout-1">{t('editor.cover.layout1')}</option>
+                            <option value="layout-2">{t('editor.cover.layout2')}</option>
                           </select>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Posisi Teks</label>
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.textPosition')}</label>
                             <div className="grid grid-cols-3 gap-2">
                               {[
                                 { id: 'left', label: 'Kiri', icon: 'M4 7h10M4 12h16M4 17h8' },
@@ -2049,7 +2050,7 @@ const EditorPage: React.FC = () => {
                           </div>
 
                           <div className="space-y-2">
-                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">Alignment Cover</label>
+                            <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('editor.cover.alignment')}</label>
                             <div className="grid grid-cols-3 gap-2">
                               {[
                                 { id: 'top', label: 'Atas', y: '5' },
@@ -2090,12 +2091,12 @@ const EditorPage: React.FC = () => {
 
                 {/* Group 1: Butiran Asas */}
                 <section className="space-y-8">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran Asas</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.details.basics')}</h3>
                   <div className="space-y-6">
                     {/* 1. Kata Aluan */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">1. Kata Aluan</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.greeting')}</label>
                         <div className="flex gap-4">
                           {renderVisibilityToggle('show_greeting')}
                           <input type="color" value={inv.settings.greeting_color || '#111827'} onChange={(e) => updateSettings('greeting_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2106,15 +2107,15 @@ const EditorPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <textarea rows={3} placeholder="Contoh: Assalammualaikum W.B.T" value={inv.settings.greeting_text || ''} onChange={(e) => updateSettings('greeting_text', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none leading-relaxed" />
-                        <FontPicker label="Font Greeting" value={inv.settings.greeting_font} onChange={(font) => updateSettings('greeting_font', font)} />
+                        <textarea rows={3} placeholder={t('editor.example.greeting')} value={inv.settings.greeting_text || ''} onChange={(e) => updateSettings('greeting_text', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none leading-relaxed" />
+                        <FontPicker label={t('editor.details.greetingFont')} value={inv.settings.greeting_font} onChange={(font) => updateSettings('greeting_font', font)} />
                       </div>
                     </div>
 
                     {/* 2. Wording Utama */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">2. Wording Utama</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.hero')}</label>
                         <div className="flex gap-4">
                           {renderVisibilityToggle('show_hero_title')}
                           <input type="color" value={inv.settings.hero_color || '#111827'} onChange={(e) => updateSettings('hero_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2125,15 +2126,15 @@ const EditorPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <input type="text" placeholder="Contoh: Raikan Cinta Kami" value={inv.settings.hero_title || ''} onChange={(e) => updateSettings('hero_title', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none" />
-                        <FontPicker label="Font Hero" value={inv.settings.hero_font} onChange={(font) => updateSettings('hero_font', font)} />
+                        <input type="text" placeholder={t('editor.example.heroWording')} value={inv.settings.hero_title || ''} onChange={(e) => updateSettings('hero_title', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none" />
+                        <FontPicker label={t('editor.details.heroFont')} value={inv.settings.hero_font} onChange={(font) => updateSettings('hero_font', font)} />
                       </div>
                     </div>
 
                     {/* 3. Nama Tuan Rumah */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">3. Nama Tuan Rumah</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.hosts')}</label>
                         <div className="flex gap-4">
                           {renderVisibilityToggle('show_host_names')}
                           <input type="color" value={inv.settings.host_color || '#4B5563'} onChange={(e) => updateSettings('host_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2145,14 +2146,14 @@ const EditorPage: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <input type="text" value={inv.host_names} onChange={(e) => updateField('host_names', e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
-                        <FontPicker label="Font Tuan Rumah" value={inv.settings.host_font} onChange={(font) => updateSettings('host_font', font)} />
+                        <FontPicker label={t('editor.details.hostsFont')} value={inv.settings.host_font} onChange={(font) => updateSettings('host_font', font)} />
                       </div>
                     </div>
 
                     {/* 4. Teks Jemputan */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">4. Teks Jemputan</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.invitationText')}</label>
                         <div className="flex gap-4">
                           {renderVisibilityToggle('show_invitation_text')}
                           <input type="color" value={inv.settings.invitation_color || '#6B7280'} onChange={(e) => updateSettings('invitation_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2163,8 +2164,8 @@ const EditorPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <textarea rows={3} placeholder="Wording jemputan..." value={inv.settings.invitation_text || ''} onChange={(e) => updateSettings('invitation_text', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none italic leading-relaxed" />
-                        <FontPicker label="Font Teks Jemputan" value={inv.settings.invitation_font} onChange={(font) => updateSettings('invitation_font', font)} />
+                        <textarea rows={3} placeholder={t('editor.details.invitationWording')} value={inv.settings.invitation_text || ''} onChange={(e) => updateSettings('invitation_text', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none italic leading-relaxed" />
+                        <FontPicker label={t('editor.details.invitationFont')} value={inv.settings.invitation_font} onChange={(font) => updateSettings('invitation_font', font)} />
                       </div>
                     </div>
                   </div>
@@ -2172,12 +2173,12 @@ const EditorPage: React.FC = () => {
 
                 {/* Group 2: Masa, Tarikh & Tempat */}
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Masa, Tarikh & Tempat</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.details.dateVenue')}</h3>
                   <div className="space-y-6">
                     {/* 5. Masa dan Tarikh Majlis */}
                     <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">5. Masa dan Tarikh Majlis</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.dateHeading')}</label>
                         <div className="flex gap-4">
                           {renderVisibilityToggle('show_event_date')}
                           <input type="color" value={inv.settings.date_color || '#1F2937'} onChange={(e) => updateSettings('date_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2207,13 +2208,13 @@ const EditorPage: React.FC = () => {
                           className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none"
                         />
                       </div>
-                      <FontPicker label="Font Tarikh" value={inv.settings.date_font} onChange={(font) => updateSettings('date_font', font)} />
+                      <FontPicker label={t('editor.details.dateFont')} value={inv.settings.date_font} onChange={(font) => updateSettings('date_font', font)} />
                     </div>
 
                     {/* 6. Papar Undur Masa (Countdown) */}
                     <div className="flex items-center justify-between p-6 bg-rose-50 rounded-[2.5rem] border border-rose-100 shadow-inner group transition-all hover:shadow-md">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-rose-800 tracking-tight italic">6. Papar Undur Masa (Countdown)</span>
+                        <span className="text-sm font-bold text-rose-800 tracking-tight italic">{t('editor.details.countdown')}</span>
                         <span className="text-[9px] text-rose-300 uppercase font-bold tracking-widest">Show Countdown timer</span>
                       </div>
                       <input
@@ -2228,7 +2229,7 @@ const EditorPage: React.FC = () => {
                     <div className="space-y-6 pt-6 border-t border-gray-100/50">
                       <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="flex justify-between items-center mb-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">7. Lokasi & Peta</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.locationMap')}</label>
                           <div className="flex gap-4">
                             {renderVisibilityToggle('show_event_location')}
                             <input type="color" value={inv.settings.location_color || '#1F2937'} onChange={(e) => updateSettings('location_color', e.target.value)} className="w-4 h-4 rounded-full border-none p-0 cursor-pointer" />
@@ -2240,12 +2241,12 @@ const EditorPage: React.FC = () => {
                         </div>
                         <div className="space-y-3">
                           <input type="text" value={inv.location_name} onChange={(e) => updateCoverLocation(e.target.value)} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm font-bold outline-none" />
-                          <FontPicker label="Font Lokasi" value={inv.settings.location_font} onChange={(font) => updateSettings('location_font', font)} />
+                          <FontPicker label={t('editor.details.locationFont')} value={inv.settings.location_font} onChange={(font) => updateSettings('location_font', font)} />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Alamat Penuh</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.fullAddress')}</label>
                         <textarea rows={2} value={inv.address} onChange={(e) => updateField('address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none shadow-inner" />
                       </div>
 
@@ -2260,7 +2261,7 @@ const EditorPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">Koordinat / GPS</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">{t('editor.details.coordinates')}</label>
                         <input
                           type="text"
                           value={inv.settings.location_gps || ''}
@@ -2268,7 +2269,7 @@ const EditorPage: React.FC = () => {
                           onChange={(e) => updateSettings('location_gps', e.target.value)}
                           className="w-full px-4 py-3 bg-gray-50 rounded-xl text-[10px] font-mono outline-none focus:ring-1 focus:ring-rose-200"
                         />
-                        <p className="text-[8px] text-gray-400 italic ml-1">Digunakan sebagai fallback untuk peta dan pautan lokasi jika URL khusus tidak disediakan.</p>
+                        <p className="text-[8px] text-gray-400 italic ml-1">{t('editor.details.gpsHint')}</p>
                       </div>
                     </div>
                   </div>
@@ -2276,21 +2277,21 @@ const EditorPage: React.FC = () => {
 
                 {/* Group 3: Butiran lain - lain */}
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Butiran lain - lain</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.details.other')}</h3>
                   <div className="space-y-6">
                     {/* 8. Maklumat Tambahan */}
                     <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">8. Maklumat Tambahan</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.additional')}</label>
                         {renderVisibilityToggle('show_story')}
                       </div>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tajuk Maklumat</label>
-                          <input type="text" placeholder="Contoh: Maklumat Tambahan" value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.infoTitle')}</label>
+                          <input type="text" placeholder={t('editor.example.infoTitle')} value={inv.settings.story_title || ''} onChange={(e) => updateSettings('story_title', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:border-rose-300 transition text-sm outline-none font-bold" />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kandungan Maklumat</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.infoContent')}</label>
                           <textarea rows={4} value={inv.settings.our_story} onChange={(e) => updateSettings('our_story', e.target.value)} className="w-full px-5 py-3 bg-white border border-gray-200 rounded-2xl focus:border-rose-300 transition text-sm outline-none font-medium italic leading-relaxed" />
                         </div>
                       </div>
@@ -2299,7 +2300,7 @@ const EditorPage: React.FC = () => {
                     {/* 9. Atur Cara Majlis */}
                     <div className="space-y-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">9. Atur Cara Majlis</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.programme')}</label>
                         <div className="flex items-center gap-3">
                           {renderVisibilityToggle('show_itinerary')}
                           <button
@@ -2327,7 +2328,7 @@ const EditorPage: React.FC = () => {
                             </button>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-1">
-                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">Waktu</label>
+                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.time')}</label>
                                 <input
                                   type="text"
                                   value={item.time}
@@ -2341,7 +2342,7 @@ const EditorPage: React.FC = () => {
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">Aktiviti</label>
+                                <label className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.details.activity')}</label>
                                 <input
                                   type="text"
                                   value={item.activity}
@@ -2351,7 +2352,7 @@ const EditorPage: React.FC = () => {
                                     updateField('itinerary', newList);
                                   }}
                                   className="w-full px-3 py-2 bg-gray-50 rounded-xl text-xs font-bold outline-none"
-                                  placeholder="Acara"
+                                  placeholder={t('editor.details.activityPlaceholder')}
                                 />
                               </div>
                             </div>
@@ -2373,11 +2374,11 @@ const EditorPage: React.FC = () => {
 
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Video & Muzik Youtube</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.media.videoMusic')}</h3>
 
                   <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Pautan Lagu Youtube (jika ada)</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.media.songLink')}</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -2401,7 +2402,7 @@ const EditorPage: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Mula Dari (mm:ss.ms)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.media.startAt')}</label>
                         <input
                           type="text"
                           placeholder="00:58"
@@ -2411,7 +2412,7 @@ const EditorPage: React.FC = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tunjukkan & Autoplay</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.media.showAutoplay')}</label>
                         <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl border border-transparent hover:border-rose-100 transition">
                           <button
                             onClick={() => updateSettings('youtube_show', !inv.settings.youtube_show)}
@@ -2419,7 +2420,7 @@ const EditorPage: React.FC = () => {
                           >
                             <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${inv.settings.youtube_show ? 'translate-x-6' : ''}`} />
                           </button>
-                          <span className="text-[10px] font-bold text-gray-500 uppercase">Aktifkan</span>
+                          <span className="text-[10px] font-bold text-gray-500 uppercase">{t('editor.common.enable')}</span>
                         </div>
                       </div>
                     </div>
@@ -2437,7 +2438,7 @@ const EditorPage: React.FC = () => {
                           ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-100">
                               <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                              <span className="text-[10px] font-bold uppercase tracking-widest">Video Tidak Sah</span>
+                              <span className="text-[10px] font-bold uppercase tracking-widest">{t('editor.media.invalidVideo')}</span>
                             </div>
                           )}
                           <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -2451,11 +2452,11 @@ const EditorPage: React.FC = () => {
                         <div className="space-y-3">
                           <div className="p-4 bg-white/80 rounded-2xl border border-rose-100/30">
                             <p className="text-[10px] text-gray-500 leading-relaxed italic">
-                              <b>Nota:</b> Isu thumbnail tidak keluar terjadi jika YouTube player diakses terlalu kerap. Tunggu beberapa minit atau log masuk ke akaun Google.
+                              <b>{t('editor.common.note')}</b> Isu thumbnail tidak keluar terjadi jika YouTube player diakses terlalu kerap. Tunggu beberapa minit atau log masuk ke akaun Google.
                             </p>
                           </div>
                           <div className="flex flex-col gap-2 p-4 bg-gray-50/50 rounded-2xl">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Sokongan Autoplay:</span>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('editor.media.autoplaySupport')}</span>
                             <span className="text-[9px] text-gray-500 leading-relaxed font-medium">
                               Menyokong peranti terkini (Chrome, Safari, Edge, dll.). Tidak menyokong In-App Browser (FB/IG/Telegram).
                             </span>
@@ -2467,13 +2468,13 @@ const EditorPage: React.FC = () => {
                 </section>
 
                 <section className="space-y-8 pt-10 border-t border-gray-100">
-                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tetapan Navigasi</h3>
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.media.navSettings')}</h3>
 
                   <div className="space-y-6">
                     <div className="flex items-center justify-between p-6 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-800 tracking-tight">Delay Auto Skrol (saat)</label>
-                        <p className="text-[9px] text-gray-400 font-medium">Auto-skrol dari Paparan Utama selepas dibuka.</p>
+                        <label className="text-xs font-bold text-gray-800 tracking-tight">{t('editor.media.autoScroll')}</label>
+                        <p className="text-[9px] text-gray-400 font-medium">{t('editor.media.autoScrollHint')}</p>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center bg-gray-50 rounded-full px-4 py-2 border border-rose-100/50">
@@ -2485,7 +2486,7 @@ const EditorPage: React.FC = () => {
                             onChange={(e) => updateSettings('auto_scroll_delay', parseInt(e.target.value))}
                             className="w-12 bg-transparent text-center font-bold text-rose-600 outline-none"
                           />
-                          <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">Saat</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">{t('editor.media.seconds')}</span>
                         </div>
                       </div>
                     </div>
@@ -2550,7 +2551,7 @@ const EditorPage: React.FC = () => {
               <div className="space-y-10 relative">
                 <section className="space-y-8">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Hubungi Keluarga</h3>
+                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.contacts.title')}</h3>
                     <button
                       onClick={() => {
                         const newContact: ContactPerson = { id: Date.now().toString(), name: 'Nama Baru', relation: 'Hubungan', phone: '01XXXXXXXX' };
@@ -2575,7 +2576,7 @@ const EditorPage: React.FC = () => {
                         </button>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama</label>
+                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.contacts.name')}</label>
                             <input
                               type="text"
                               value={contact.name}
@@ -2588,7 +2589,7 @@ const EditorPage: React.FC = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Hubungan</label>
+                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.contacts.relation')}</label>
                             <input
                               type="text"
                               value={contact.relation}
@@ -2601,7 +2602,7 @@ const EditorPage: React.FC = () => {
                             />
                           </div>
                           <div className="space-y-2 md:col-span-2">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">No. Telefon</label>
+                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.contacts.phone')}</label>
                             <input
                               type="text"
                               value={contact.phone}
@@ -2639,11 +2640,11 @@ const EditorPage: React.FC = () => {
                       <div className="space-y-4 pb-6 border-b border-gray-100">
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Title</label>
-                          <input type="text" value={inv.money_gift_details.gift_title || 'Hadiah & Ingatan'} onChange={(e) => updateMoneyGift('gift_title', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Default: Hadiah & Ingatan" />
+                          <input type="text" value={inv.money_gift_details.gift_title || 'Hadiah & Ingatan'} onChange={(e) => updateMoneyGift('gift_title', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder={t('editor.gifts.defaultTitle')} />
                         </div>
                         <div className="space-y-2">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Section Subtitle</label>
-                          <input type="text" value={inv.money_gift_details.gift_subtitle || 'Khas buat mempelai'} onChange={(e) => updateMoneyGift('gift_subtitle', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder="Default: Khas buat mempelai" />
+                          <input type="text" value={inv.money_gift_details.gift_subtitle || 'Khas buat mempelai'} onChange={(e) => updateMoneyGift('gift_subtitle', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none" placeholder={t('editor.gifts.defaultSubtitle')} />
                         </div>
                       </div>
 
@@ -2669,7 +2670,7 @@ const EditorPage: React.FC = () => {
                               onClick={() => updateMoneyGift('qr_url', '')}
                               className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                             >
-                              <span className="text-white text-xs font-bold uppercase tracking-widest">Remove QR</span>
+                              <span className="text-white text-xs font-bold uppercase tracking-widest">{t('editor.gifts.removeQr')}</span>
                             </button>
                           </div>
                         ) : (
@@ -2716,15 +2717,15 @@ const EditorPage: React.FC = () => {
                       </div>
 
                       <div className="space-y-8 pt-4">
-                        <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Maklumat Penerima</h4>
+                        <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.wishlist.recipient')}</h4>
                         <div className="space-y-6">
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">No. Telefon Penerima</label>
-                            <input type="text" value={inv.wishlist_details?.receiver_phone || ''} onChange={(e) => updateWishlist('receiver_phone', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-mono" placeholder="Contoh: 0123456789" />
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.wishlist.recipientPhone')}</label>
+                            <input type="text" value={inv.wishlist_details?.receiver_phone || ''} onChange={(e) => updateWishlist('receiver_phone', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-mono" placeholder={t('editor.example.phone')} />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Alamat Penghantaran</label>
-                            <textarea rows={3} value={inv.wishlist_details?.receiver_address || ''} onChange={(e) => updateWishlist('receiver_address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-medium leading-relaxed" placeholder="Alamat penuh untuk pengeposan hadiah..." />
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.wishlist.shipping')}</label>
+                            <textarea rows={3} value={inv.wishlist_details?.receiver_address || ''} onChange={(e) => updateWishlist('receiver_address', e.target.value)} className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none font-medium leading-relaxed" placeholder={t('editor.wishlist.shippingHint')} />
                           </div>
                         </div>
                       </div>
@@ -2732,7 +2733,7 @@ const EditorPage: React.FC = () => {
                       <div className="space-y-8 pt-6 border-t border-gray-100">
                         <div className="flex justify-between items-center">
                           <div className="space-y-3">
-                            <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Permintaan Hadiah</h4>
+                            <h4 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.wishlist.giftRequests')}</h4>
                             <UploadGuide
                               ratio="Maksimum 1MB setiap gambar item. Disarankan square 800x800px."
                               note="Sistem akan resize dan compress ke WebP untuk imej hadiah."
@@ -2782,7 +2783,7 @@ const EditorPage: React.FC = () => {
                                 </div>
                                 <div className="flex-1 space-y-4">
                                   <div className="space-y-1">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Barang</label>
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.wishlist.itemName')}</label>
                                     <input
                                       type="text"
                                       value={item.item_name}
@@ -2792,7 +2793,7 @@ const EditorPage: React.FC = () => {
                                         updateWishlist('items', newItems);
                                       }}
                                       className="w-full px-4 py-2 bg-gray-50 border-none rounded-xl text-xs font-bold outline-none"
-                                      placeholder="Contoh: Airfryer Philips"
+                                      placeholder={t('editor.example.item')}
                                     />
                                   </div>
                                   <div className="space-y-1">
@@ -2828,13 +2829,13 @@ const EditorPage: React.FC = () => {
               <div className="space-y-10 relative">
                 <section className="space-y-8">
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Tetapan RSVP</h3>
+                    <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">{t('editor.rsvp.settings')}</h3>
                   </div>
 
                   {/* Response Mode */}
                   <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                     <div className="space-y-4">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">Mod Pilihan RSVP</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1 block">{t('editor.rsvp.mode')}</label>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { id: 'rsvp_and_wish', label: 'RSVP + Ucapan' },
@@ -2858,7 +2859,7 @@ const EditorPage: React.FC = () => {
 
                     {inv.rsvp_settings?.response_mode === 'external' && (
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Puktan Luar (URL)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.rsvp.external')}</label>
                         <input
                           type="text"
                           value={inv.rsvp_settings?.external_url || ''}
@@ -2870,18 +2871,18 @@ const EditorPage: React.FC = () => {
                     )}
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nota Tambahan RSVP (jika ada)</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.rsvp.note')}</label>
                       <textarea
                         rows={2}
                         value={inv.rsvp_settings?.note || ''}
                         onChange={(e) => updateRsvpSettings('note', e.target.value)}
-                        placeholder="Contoh: Sila sahkan kehadiran selewat-lewatnya seminggu sebelum majlis."
+                        placeholder={t('editor.example.rsvpNote')}
                         className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-medium"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tarikh Tutup RSVP</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.rsvp.closeDate')}</label>
                       <input
                         type="date"
                         value={inv.rsvp_settings?.closing_date ? new Date(inv.rsvp_settings.closing_date).toISOString().split('T')[0] : ''}
@@ -2889,7 +2890,7 @@ const EditorPage: React.FC = () => {
                         className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 focus:bg-white transition text-xs outline-none font-bold text-gray-600"
                       />
                       <div className="flex justify-end">
-                        <button onClick={() => updateRsvpSettings('closing_date', null)} className="text-[9px] text-rose-400 font-bold uppercase hover:text-rose-600">Reset</button>
+                        <button onClick={() => updateRsvpSettings('closing_date', null)} className="text-[9px] text-rose-400 font-bold uppercase hover:text-rose-600">{t('editor.common.reset')}</button>
                       </div>
                     </div>
                   </div>
@@ -2897,7 +2898,7 @@ const EditorPage: React.FC = () => {
                   {/* Fields Configuration */}
                   {(inv.rsvp_settings?.response_mode || 'rsvp_and_wish') === 'rsvp_and_wish' && (
                     <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Pilih Input Borang</h4>
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">{t('editor.rsvp.formFields')}</h4>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { id: 'name', label: 'Nama' },
@@ -2925,7 +2926,7 @@ const EditorPage: React.FC = () => {
 
                       <div className="pt-4 border-t border-gray-100 space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-gray-600">Asingkan Kehadiran Kanak-kanak</span>
+                          <span className="text-xs font-bold text-gray-600">{t('editor.rsvp.children')}</span>
                           <input
                             type="checkbox"
                             checked={inv.rsvp_settings?.has_children_policy}
@@ -2936,7 +2937,7 @@ const EditorPage: React.FC = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Had Tetamu per RSVP</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.rsvp.paxLimit')}</label>
                             <input
                               type="number"
                               min="1"
@@ -2946,7 +2947,7 @@ const EditorPage: React.FC = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jumlah Keseluruhan</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('editor.rsvp.total')}</label>
                             <input
                               type="number"
                               min="1"
@@ -2958,26 +2959,26 @@ const EditorPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-gray-600">Slot / Kategori</span>
+                          <span className="text-xs font-bold text-gray-600">{t('editor.rsvp.slot')}</span>
                           <div className="flex bg-gray-100 rounded-lg p-1">
                             <button
                               onClick={() => updateRsvpSettings('has_slots', true)}
                               className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${inv.rsvp_settings?.has_slots ? 'bg-white shadow-sm text-rose-600' : 'text-gray-400'}`}
-                            >Ada</button>
+                            >{t('editor.common.yes')}</button>
                             <button
                               onClick={() => updateRsvpSettings('has_slots', false)}
                               className={`px-3 py-1 rounded-md text-[10px] font-bold transition ${!inv.rsvp_settings?.has_slots ? 'bg-white shadow-sm text-gray-600' : 'text-gray-400'}`}
-                            >Tiada</button>
+                            >{t('editor.common.no')}</button>
                           </div>
                         </div>
 
                         {inv.rsvp_settings?.has_slots && (
                           <div className="bg-gray-50 p-4 rounded-2xl space-y-3 animate-fade-in">
-                            <p className="text-[10px] text-gray-400 italic">Tetamu perlu memilih satu daripada senarai ini:</p>
+                            <p className="text-[10px] text-gray-400 italic">{t('editor.rsvp.slotHint')}</p>
                             <div className="flex gap-2">
                               <input
                                 id="new-slot-input"
-                                placeholder="Cth: Keluarga Lelaki"
+                                placeholder={t('editor.example.slot')}
                                 className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-rose-300"
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -3021,7 +3022,7 @@ const EditorPage: React.FC = () => {
                                 </div>
                               ))}
                               {(inv.rsvp_settings?.slots_options || []).length === 0 && (
-                                <span className="text-[10px] text-gray-400 italic">Tiada slot ditambah.</span>
+                                <span className="text-[10px] text-gray-400 italic">{t('editor.rsvp.noSlots')}</span>
                               )}
                             </div>
                           </div>
@@ -3132,7 +3133,7 @@ const EditorPage: React.FC = () => {
             </div>
 
             <p className="text-sm leading-6 text-gray-600">
-              {editorOnboardingDescriptions[activeEditorOnboardingStep.id] || 'Gunakan bahagian ini untuk lengkapkan kad jemputan anda.'}
+              {editorOnboardingDescriptions[activeEditorOnboardingStep.id] ? t(editorOnboardingDescriptions[activeEditorOnboardingStep.id]) : t('editor.onboard.fallback')}
             </p>
 
             {isDemo && editorOnboardingIndex === 0 && (
