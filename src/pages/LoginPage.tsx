@@ -4,8 +4,10 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 import AuthLayout from '../../components/AuthLayout';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 
 const LoginPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
 
     if (!isRecaptchaDisabled && !recaptchaToken) {
-      setError('Sila lengkapkan reCAPTCHA.');
+      setError(t('auth.captchaRequired'));
       return;
     }
 
@@ -37,7 +39,7 @@ const LoginPage: React.FC = () => {
         // Redirect to dashboard or requested page
         navigate(redirect || '/dashboard');
       } else {
-        setError(result.error || 'Login failed');
+        setError(result.error || t('auth.loginFailed'));
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -49,8 +51,8 @@ const LoginPage: React.FC = () => {
   return (
     <AuthLayout
       activeTab="login"
-      title="Selamat Datang"
-      subtitle="Masuk ke akaun RaikanBersama anda"
+      title={t('auth.welcome')}
+      subtitle={t('auth.loginSubtitle')}
     >
       {/* Error Message */}
       {error && (
@@ -87,10 +89,10 @@ const LoginPage: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-2">
             <label htmlFor="password" className="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">
-              Kata Laluan
+              {t('auth.password')}
             </label>
             <Link to="/forgot-password" className="text-xs font-bold text-rose-600 hover:text-rose-500 hover:underline">
-              Lupa Kata Laluan?
+              {t('auth.forgotPassword')}
             </Link>
           </div>
           <div className="relative group">
@@ -142,10 +144,10 @@ const LoginPage: React.FC = () => {
             {isLoading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white border-t-transparent border-r-transparent"></div>
-                <span className="ml-2">Memproses...</span>
+                <span className="ml-2">{t('auth.processing')}</span>
               </div>
             ) : (
-              'Masuk Akaun'
+              t('auth.signInAccount')
             )}
           </button>
         </div>
@@ -157,7 +159,7 @@ const LoginPage: React.FC = () => {
           <div className="w-full border-t border-gray-200"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-gray-400 font-medium">atau masuk guna</span>
+          <span className="px-4 bg-white text-gray-400 font-medium">{t('auth.orContinueWith')}</span>
         </div>
       </div>
 
@@ -174,7 +176,7 @@ const LoginPage: React.FC = () => {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
-          <span className="font-semibold text-gray-700">Teruskan dengan Google</span>
+          <span className="font-semibold text-gray-700">{t('auth.continueGoogle')}</span>
         </button>
       </div>
     </AuthLayout>

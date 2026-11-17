@@ -3,9 +3,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../src/contexts/AuthContext';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
+import { usePlatformLanguage } from '../src/i18n/PlatformLanguage';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t, lang, setLang } = usePlatformLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -49,12 +51,12 @@ const Navbar: React.FC = () => {
           {user ? (
             // User is logged in - show dashboard and profile menu
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
-              <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
-              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Tutorial</Link>
-              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
-              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
-              <Link to="/dashboard" className="text-gray-600 hover:text-rose-600 font-medium transition">Dashboard</Link>
+              <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.catalog')}</Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.pricing')}</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.tutorial')}</Link>
+              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.faq')}</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.contact')}</Link>
+              <Link to="/dashboard" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.dashboard')}</Link>
               {user.role === 'admin' && (
                 <Link to="/admin" className="text-rose-600 hover:text-rose-700 font-bold transition flex items-center gap-1">
                   <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse" />
@@ -65,7 +67,7 @@ const Navbar: React.FC = () => {
                 to="/create"
                 className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
               >
-                Mula Bina Kad
+                {t('nav.createCard')}
               </Link>
 
               {/* Profile Dropdown */}
@@ -143,26 +145,43 @@ const Navbar: React.FC = () => {
           ) : (
             // User is not logged in - show login/register
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">Catalog</Link>
-              <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">Pricing</Link>
-              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">Tutorial</Link>
-              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">FAQ</Link>
-              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">Hubungi</Link>
-              <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">Login</Link>
+              <Link to="/catalog" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.catalog')}</Link>
+              <Link to="/pricing" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.pricing')}</Link>
+              <Link to="/tutorial" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.tutorial')}</Link>
+              <Link to="/faq" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.faq')}</Link>
+              <Link to="/contact" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.contact')}</Link>
+              <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.login')}</Link>
               <Link
                 to="/catalog"
                 className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
               >
-                Mula Bina Kad
+                {t('nav.createCard')}
               </Link>
             </div>
           )}
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          {/* Language switcher (always visible) + Mobile Menu Button */}
+          <div className="flex items-center gap-1">
+            <div
+              className="inline-flex rounded-full border border-gray-200 bg-white p-0.5"
+              role="group"
+              aria-label={t('common.language')}
+            >
+              {(['melayu', 'english'] as const).map(option => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setLang(option)}
+                  aria-pressed={lang === option}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${lang === option ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-800'}`}
+                >
+                  {option === 'melayu' ? 'BM' : 'EN'}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-600 hover:text-rose-600 p-2"
+              className="text-gray-600 hover:text-rose-600 p-2 md:hidden"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -183,37 +202,37 @@ const Navbar: React.FC = () => {
           <div className="md:hidden border-t border-gray-200 py-4">
             {user ? (
               <div className="space-y-2">
-                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Catalog</Link>
-                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Pricing</Link>
-                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Tutorial</Link>
-                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">FAQ</Link>
-                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Hubungi</Link>
-                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Dashboard</Link>
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.catalog')}</Link>
+                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.pricing')}</Link>
+                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.tutorial')}</Link>
+                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.faq')}</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.contact')}</Link>
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.dashboard')}</Link>
                 {user.role === 'admin' && (
-                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-rose-600 font-bold bg-rose-50 hover:bg-rose-100 transition">Admin Dashboard</Link>
+                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-rose-600 font-bold bg-rose-50 hover:bg-rose-100 transition">{t('nav.admin')}</Link>
                 )}
-                <Link to="/create" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">Mula Bina Kad</Link>
+                <Link to="/create" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">{t('nav.createCard')}</Link>
 
                 <div className="border-t border-gray-200 mt-4 pt-4 px-4">
                   <div className="mb-3">
                     <p className="text-sm font-bold text-gray-800">{user.name}</p>
                     <p className="text-xs text-gray-400">{user.email}</p>
                   </div>
-                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Profile Settings</Link>
-                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">Order History</Link>
-                  <Link to="/favorites" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">My Favorites</Link>
-                  <button onClick={() => { setIsMobileMenuOpen(false); logout(); }} className="block w-full text-left py-2 text-sm text-red-600 hover:text-red-700 transition">Logout</button>
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">{t('nav.profile')}</Link>
+                  <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">{t('nav.orders')}</Link>
+                  <Link to="/favorites" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-sm text-gray-700 hover:text-rose-600 transition">{t('nav.favorites')}</Link>
+                  <button onClick={() => { setIsMobileMenuOpen(false); logout(); }} className="block w-full text-left py-2 text-sm text-red-600 hover:text-red-700 transition">{t('nav.logout')}</button>
                 </div>
               </div>
             ) : (
               <div className="space-y-2">
-                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Catalog</Link>
-                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Pricing</Link>
-                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Tutorial</Link>
-                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">FAQ</Link>
-                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Hubungi</Link>
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">Login</Link>
-                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">Mula Bina Kad</Link>
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.catalog')}</Link>
+                <Link to="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.pricing')}</Link>
+                <Link to="/tutorial" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.tutorial')}</Link>
+                <Link to="/faq" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.faq')}</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.contact')}</Link>
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-rose-600 transition">{t('nav.login')}</Link>
+                <Link to="/catalog" onClick={() => setIsMobileMenuOpen(false)} className="block mx-4 mt-4 px-4 py-2 bg-rose-600 text-white text-center rounded-full font-semibold hover:bg-rose-700 transition">{t('nav.createCard')}</Link>
               </div>
             )}
           </div>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { usePlatformLanguage } from '../src/i18n/PlatformLanguage';
 
 const Footer: React.FC = () => {
+    const { t } = usePlatformLanguage();
     const socials = [
         {
             label: 'Facebook',
@@ -59,35 +61,35 @@ const Footer: React.FC = () => {
                             </div>
                         </Link>
                         <p className="text-gray-500 text-sm leading-relaxed">
-                            Platform jemputan digital premium RaikanBersama.xyz untuk majlis perkahwinan dan pelbagai acara.
+                            {t('footer.brandBlurb')}
                         </p>
                     </div>
 
                     {/* Quick Links */}
                     <div>
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Quick Links</h4>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">{t('footer.quickLinks')}</h4>
                         <ul className="space-y-4">
-                            <li><Link to="/catalog" className="text-gray-500 hover:text-rose-600 transition text-sm">Catalog Design</Link></li>
-                            <li><Link to="/pricing" className="text-gray-500 hover:text-rose-600 transition text-sm">Pakej & Harga</Link></li>
-                            <li><Link to="/tutorial" className="text-gray-500 hover:text-rose-600 transition text-sm">Tutorial</Link></li>
-                            <li><Link to="/affiliates" className="text-gray-500 hover:text-rose-600 transition text-sm font-bold border-b border-rose-100">Affiliate Program</Link></li>
+                            <li><Link to="/catalog" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.catalogDesign')}</Link></li>
+                            <li><Link to="/pricing" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.plansPricing')}</Link></li>
+                            <li><Link to="/tutorial" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('nav.tutorial')}</Link></li>
+                            <li><Link to="/affiliates" className="text-gray-500 hover:text-rose-600 transition text-sm font-bold border-b border-rose-100">{t('footer.affiliateProgram')}</Link></li>
                         </ul>
                     </div>
 
                     {/* Support */}
                     <div>
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Sokongan</h4>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">{t('footer.support')}</h4>
                         <ul className="space-y-4">
-                            <li><Link to="/faq" className="text-gray-500 hover:text-rose-600 transition text-sm">Soalan Lazim (FAQ)</Link></li>
-                            <li><Link to="/contact" className="text-gray-500 hover:text-rose-600 transition text-sm">Hubungi Kami</Link></li>
-                            <li><Link to="/terms" className="text-gray-500 hover:text-rose-600 transition text-sm">Terma & Syarat</Link></li>
-                            <li><Link to="/privacy" className="text-gray-500 hover:text-rose-600 transition text-sm">Privacy Policy</Link></li>
+                            <li><Link to="/faq" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.faqFull')}</Link></li>
+                            <li><Link to="/contact" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.contactUs')}</Link></li>
+                            <li><Link to="/terms" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.terms')}</Link></li>
+                            <li><Link to="/privacy" className="text-gray-500 hover:text-rose-600 transition text-sm">{t('footer.privacy')}</Link></li>
                         </ul>
                     </div>
 
                     {/* Social */}
                     <div>
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Social</h4>
+                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">{t('footer.social')}</h4>
                         <div className="flex space-x-4">
                             {socials.map((social) => (
                                 <a
@@ -102,7 +104,7 @@ const Footer: React.FC = () => {
                                 </a>
                             ))}
                         </div>
-                        <p className="mt-4 text-xs text-gray-400">Ikuti update katalog, tutorial dan contoh kad terkini.</p>
+                        <p className="mt-4 text-xs text-gray-400">{t('footer.tagline')}</p>
                     </div>
                 </div>
 
@@ -111,7 +113,7 @@ const Footer: React.FC = () => {
                         &copy; 2026 EEE LAB VISUAL (002278324-V). All right reserved
                     </p>
                     <div className="flex space-x-6">
-                        <span className="text-gray-300 text-[10px] font-bold uppercase tracking-widest">Digital E-Invitation</span>
+                        <span className="text-gray-300 text-[10px] font-bold uppercase tracking-widest">{t('footer.digitalInvitation')}</span>
                     </div>
                 </div>
             </div>

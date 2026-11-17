@@ -31,6 +31,7 @@ import PrivacyPolicyPage from './src/pages/PrivacyPolicyPage';
 import TermsPage from './src/pages/TermsPage';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { NotificationProvider } from './src/contexts/NotificationContext';
+import { PlatformLanguageProvider } from './src/i18n/PlatformLanguage';
 import Notification from './src/components/Notification';
 import { trackPageView } from './src/utils/metaPixel';
 
@@ -148,6 +149,7 @@ const MetaPixelRouteTracker: React.FC = () => {
 const App: React.FC = () => {
   return (
     <HelmetProvider>
+      <PlatformLanguageProvider>
       <AuthProvider>
         <NotificationProvider>
           <BrowserRouter>
@@ -247,6 +249,7 @@ const App: React.FC = () => {
           </BrowserRouter>
         </NotificationProvider>
       </AuthProvider>
+      </PlatformLanguageProvider>
     </HelmetProvider>
   );
 };

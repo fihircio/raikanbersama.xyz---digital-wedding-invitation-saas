@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../src/i18n/PlatformLanguage';
 
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -11,6 +12,7 @@ interface AuthLayoutProps {
 }
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, subtitle }) => {
+    const { t } = usePlatformLanguage();
     const location = useLocation();
     const authSearch = location.search || '';
     // Hide Navbar on auth pages
@@ -74,7 +76,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, sub
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            Masuk
+                            {t('auth.tabLogin')}
                         </Link>
                         <Link
                             to={`/register${authSearch}`}
@@ -83,7 +85,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, title, sub
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            Daftar
+                            {t('auth.tabRegister')}
                         </Link>
                     </div>
 

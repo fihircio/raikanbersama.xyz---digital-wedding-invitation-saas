@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,34 +18,34 @@ type OnboardingTarget = 'create' | 'edit' | 'manage' | 'share';
 interface OnboardingStep {
   target: OnboardingTarget;
   eyebrow: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 const FULL_ONBOARDING_STEPS: OnboardingStep[] = [
   {
     target: 'create',
     eyebrow: 'Step 1',
-    title: 'Bina kad jemputan baru',
-    description: 'Mula dari Catalog untuk pilih design, pakej, dan asas kad kahwin digital anda.'
+    titleKey: 'dashboard.onboard.createTitle',
+    descriptionKey: 'dashboard.onboard.createDesc'
   },
   {
     target: 'edit',
     eyebrow: 'Step 2',
-    title: 'Ubah reka dan wording',
-    description: 'Gunakan Ubah Reka untuk edit nama pengantin, warna, font, gambar, butiran majlis dan live preview.'
+    titleKey: 'dashboard.onboard.editTitle',
+    descriptionKey: 'dashboard.onboard.editDesc'
   },
   {
     target: 'manage',
     eyebrow: 'Step 3',
-    title: 'Urus tetamu dan RSVP',
-    description: 'Bahagian ini bantu anda semak kehadiran, ucapan, tetamu, dan maklumat berkaitan majlis.'
+    titleKey: 'dashboard.onboard.manageTitle',
+    descriptionKey: 'dashboard.onboard.manageDesc'
   },
   {
     target: 'share',
     eyebrow: 'Step 4',
-    title: 'Buka dan kongsi link utama',
-    description: 'Semak kad sebenar yang tetamu akan lihat, kemudian kongsi link jemputan apabila semuanya sudah lengkap.'
+    titleKey: 'dashboard.onboard.shareTitle',
+    descriptionKey: 'dashboard.onboard.shareDesc'
   }
 ];
 
@@ -52,8 +53,8 @@ const EMPTY_ONBOARDING_STEPS: OnboardingStep[] = [
   {
     target: 'create',
     eyebrow: 'Step 1',
-    title: 'Bina kad pertama anda',
-    description: 'Dashboard masih kosong. Mula dengan Bina Baru untuk pilih template dan cipta kad jemputan digital pertama.'
+    titleKey: 'dashboard.onboard.emptyTitle',
+    descriptionKey: 'dashboard.onboard.emptyDesc'
   }
 ];
 
@@ -66,6 +67,7 @@ const getInvitationDisplayTitle = (invitation: Invitation) => {
 // Import the existing Dashboard component from App.tsx
 // We'll create a wrapper that uses the existing Dashboard component logic
 const DashboardPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const { user, token } = useAuth();
   const [invitations, setInvitations] = useState<Invitation[]>(MOCK_INVITATIONS);
   const [loading, setLoading] = useState(true);
@@ -242,7 +244,7 @@ const DashboardPage: React.FC = () => {
       <div className="pt-24 pb-12 bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600 mx-auto"></div>
-          <p className="mt-4 text-gray-500">Loading invitations...</p>
+          <p className="mt-4 text-gray-500">{t('dashboard.loading')}</p>
         </div>
       </div>
     );
@@ -254,11 +256,11 @@ const DashboardPage: React.FC = () => {
         <div className="flex justify-between items-center mb-10">
           <div>
             <p className="text-2xl font-bold text-gray-900 font-serif italic tracking-tight">Selamat datang, {user?.name}!</p>
-            <p className="text-gray-500 text-sm">Uruskan semua jemputan digital anda di sini.</p>
+            <p className="text-gray-500 text-sm">{t('dashboard.subtitle')}</p>
           </div>
           <Link ref={createTargetRef} to="/catalog" onClick={() => handleDashboardActionClick('create')} className={`bg-rose-600 text-white px-8 py-3.5 rounded-full font-bold flex items-center space-x-2 hover:bg-rose-700 shadow-2xl shadow-rose-200 transition transform active:scale-95 uppercase text-[10px] tracking-widest ${getHighlightClassName('create')}`}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-            <span>Bina Baru</span>
+            <span>{t('dashboard.createNew')}</span>
           </Link>
         </div>
 
@@ -274,7 +276,7 @@ const DashboardPage: React.FC = () => {
                 <img src={inv.settings.background_image} alt="Preview" className="w-full h-full object-cover group-hover:scale-110 transition duration-1000" />
                 <div className="absolute top-6 right-6 flex flex-col items-end gap-2">
                   <span className={`bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-sm ${isPublished ? 'text-emerald-700' : 'text-gray-500'}`}>
-                    {isPublished ? 'Live' : 'Draft'}
+                    {isPublished ? t('dashboard.live') : t('dashboard.draft')}
                   </span>
                   <div className="bg-rose-600 text-white px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-xl flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> {inv.views} Views
@@ -286,11 +288,11 @@ const DashboardPage: React.FC = () => {
                 <p className="text-xs text-gray-400 mb-10 tracking-widest font-bold uppercase">{new Date(inv.event_date).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 <div className="flex flex-col gap-3">
                   <div className="flex space-x-3">
-                    <Link ref={index === 0 ? manageTargetRef : undefined} to={`/manage/${inv.id}`} onClick={() => handleDashboardActionClick('manage')} className={`flex-1 text-center py-4 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 shadow-lg shadow-rose-100 transition ${index === 0 ? getHighlightClassName('manage') : ''}`}>Urus Tetamu</Link>
-                    <Link ref={index === 0 ? editTargetRef : undefined} to={`/edit/${inv.id}`} onClick={() => handleDashboardActionClick('edit')} className={`flex-1 text-center py-4 bg-gray-50 text-gray-700 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 transition ${index === 0 ? getHighlightClassName('edit') : ''}`}>Ubah Reka</Link>
+                    <Link ref={index === 0 ? manageTargetRef : undefined} to={`/manage/${inv.id}`} onClick={() => handleDashboardActionClick('manage')} className={`flex-1 text-center py-4 bg-rose-600 text-white rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 shadow-lg shadow-rose-100 transition ${index === 0 ? getHighlightClassName('manage') : ''}`}>{t('dashboard.manageGuests')}</Link>
+                    <Link ref={index === 0 ? editTargetRef : undefined} to={`/edit/${inv.id}`} onClick={() => handleDashboardActionClick('edit')} className={`flex-1 text-center py-4 bg-gray-50 text-gray-700 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 transition ${index === 0 ? getHighlightClassName('edit') : ''}`}>{t('dashboard.editDesign')}</Link>
                   </div>
                   {isPublished ? (
-                    <Link ref={index === 0 ? shareTargetRef : undefined} to={`/i/${inv.slug || inv.id}`} onClick={() => handleDashboardActionClick('share')} className={`w-full text-center py-3 border border-gray-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-rose-600 hover:border-rose-100 transition duration-300 ${index === 0 ? getHighlightClassName('share') : ''}`}>Buka Link Utama</Link>
+                    <Link ref={index === 0 ? shareTargetRef : undefined} to={`/i/${inv.slug || inv.id}`} onClick={() => handleDashboardActionClick('share')} className={`w-full text-center py-3 border border-gray-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-rose-600 hover:border-rose-100 transition duration-300 ${index === 0 ? getHighlightClassName('share') : ''}`}>{t('dashboard.mainLink')}</Link>
                   ) : (
                     <button
                       ref={index === 0 ? shareTargetRef : undefined}
@@ -298,7 +300,7 @@ const DashboardPage: React.FC = () => {
                       disabled
                       className="w-full text-center py-3 border border-gray-100 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-gray-300 cursor-not-allowed"
                     >
-                      Buka Link Utama
+                      {t('dashboard.mainLink')}
                     </button>
                   )}
                 </div>
@@ -312,8 +314,8 @@ const DashboardPage: React.FC = () => {
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600">
               <SparklesIcon className="h-7 w-7" />
             </div>
-            <h2 className="text-2xl font-serif italic font-bold text-gray-900">Belum ada kad jemputan</h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">Klik Bina Baru untuk pilih design dan mula bina kad digital pertama anda.</p>
+            <h2 className="text-2xl font-serif italic font-bold text-gray-900">{t('dashboard.empty')}</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">{t('dashboard.emptyHint')}</p>
           </div>
         )}
       </div>
@@ -335,7 +337,7 @@ const DashboardPage: React.FC = () => {
                   {activeOnboardingStep.eyebrow}
                 </div>
                 <h2 id="dashboard-onboarding-title" className="text-xl font-serif italic font-bold tracking-tight text-gray-950">
-                  {activeOnboardingStep.title}
+                  {t(activeOnboardingStep.titleKey)}
                 </h2>
               </div>
               <button
@@ -348,7 +350,7 @@ const DashboardPage: React.FC = () => {
               </button>
             </div>
 
-            <p className="text-sm leading-6 text-gray-600">{activeOnboardingStep.description}</p>
+            <p className="text-sm leading-6 text-gray-600">{t(activeOnboardingStep.descriptionKey)}</p>
 
             <div className="mt-6 flex items-center justify-between gap-4">
               <div className="flex gap-1.5">
@@ -376,7 +378,7 @@ const DashboardPage: React.FC = () => {
                   onClick={goToNextOnboardingStep}
                   className="inline-flex items-center gap-2 rounded-full bg-gray-950 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white shadow-xl transition hover:bg-black active:scale-95"
                 >
-                  <span>{onboardingStepIndex >= onboardingSteps.length - 1 ? 'Selesai' : 'Seterusnya'}</span>
+                  <span>{onboardingStepIndex >= onboardingSteps.length - 1 ? t('dashboard.onboard.finish') : t('dashboard.onboard.next')}</span>
                   {onboardingStepIndex >= onboardingSteps.length - 1 ? (
                     <CheckIcon className="h-4 w-4" />
                   ) : (
