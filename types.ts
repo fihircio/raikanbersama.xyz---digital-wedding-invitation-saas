@@ -105,6 +105,8 @@ export interface Invitation {
     show_countdown: boolean;
     show_gallery: boolean;
     is_published: boolean;
+    /** Owner-selected language for the guest-facing invitation. */
+    language_mode?: 'melayu' | 'english' | 'bilingual';
     background_image?: string;
     invitation_background_image?: string;
     background_color?: string;

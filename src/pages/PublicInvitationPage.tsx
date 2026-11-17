@@ -6,6 +6,7 @@ import { MOCK_INVITATIONS, FONT_FAMILIES } from '../../constants';
 import CoverLayout from '../../components/Invitation/CoverLayout';
 import SEO from '../../components/SEO';
 import { buildApiUrl } from '../config';
+import { InvitationLanguageProvider, useInvitationLanguage } from '../i18n/InvitationLanguage';
 
 
 // --- Font Loading ---
@@ -42,6 +43,7 @@ const GoogleFontLoader: React.FC<{ settings: any }> = ({ settings }) => {
 
 
 const Countdown: React.FC<{ targetDate: string, color: string }> = ({ targetDate, color }) => {
+  const { t } = useInvitationLanguage();
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   React.useEffect(() => {
@@ -66,7 +68,7 @@ const Countdown: React.FC<{ targetDate: string, color: string }> = ({ targetDate
           <div className="w-14 h-14 glass rounded-2xl flex items-center justify-center shadow-sm border border-white/40 mb-1">
             <span className="text-xl font-bold font-serif" style={{ color }}>{value}</span>
           </div>
-          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">{label}</span>
+          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">{t(`unit${label.charAt(0).toUpperCase()}${label.slice(1)}`)}</span>
         </div>
       ))}
     </div>
@@ -74,8 +76,9 @@ const Countdown: React.FC<{ targetDate: string, color: string }> = ({ targetDate
 };
 
 const SimpleCalendar: React.FC<{ date: string, color: string }> = ({ date, color }) => {
+  const { t } = useInvitationLanguage();
   const d = new Date(date);
-  if (isNaN(d.getTime())) return <div className="p-10 text-center text-gray-400 font-serif italic">Sila pilih tarikh yang sah.</div>;
+  if (isNaN(d.getTime())) return <div className="p-10 text-center text-gray-400 font-serif italic">{t('invalidDate')}</div>;
 
   const month = d.getMonth();
   const year = d.getFullYear();
@@ -327,10 +330,11 @@ const EffectOverlay: React.FC<{ type: string, color: string }> = ({ type, color 
 };
 
 const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClosing: boolean, isPreview?: boolean, isOpen?: boolean, showOpeningSkin?: boolean }> = ({ invitation, onOpen, isClosing, isPreview, isOpen, showOpeningSkin = true }) => {
-  const formattedDate = useMemo(() => {
-    const d = invitation?.event_date ? new Date(invitation.event_date) : null;
-    return !d || isNaN(d.getTime()) ? 'Tarikh Belum Ditetapkan' : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
-  }, [invitation?.event_date]);
+  const { t, formatDate } = useInvitationLanguage();
+  const formattedDate = useMemo(
+    () => formatDate(invitation?.event_date),
+    [invitation?.event_date, formatDate]
+  );
 
   const overlayOpacity = invitation.settings.layout_settings?.overlay_opacity ?? 0.4;
   const rawOpeningType = invitation.settings.opening_type || 'none';
@@ -584,7 +588,7 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
             className={buttonClass}
             style={{ borderColor: openingColor !== '#ffffff' ? openingColor : undefined, ...openingButtonStyle, ...openingButtonBackground }}
           >
-            Buka
+            {t('openCta')}
             <div className={`${buttonIsShellIntegrated ? 'w-7 h-7 bg-black/10 text-current' : 'w-6 h-6 bg-white/20 text-white group-hover:bg-rose-500'} rounded-full flex items-center justify-center transform transition-transform group-hover:rotate-12`}>
               <svg className="w-3 h-3 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -601,9 +605,11 @@ const CoverSection: React.FC<{ invitation: Invitation, onOpen: () => void, isClo
 // --- Invitation Content Sections ---
 
 
-const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, sectionTitleStyle?: React.CSSProperties }> = ({ wishes, primaryColor, secondaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont, sectionTitleStyle }) => (
+const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?: string, hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, sectionTitleStyle?: React.CSSProperties }> = ({ wishes, primaryColor, secondaryColor, hashtagText, hashtagColor, hashtagSize, hashtagFont, sectionTitleStyle }) => {
+  const { t, td } = useInvitationLanguage();
+  return (
   <div className="mt-24 text-center px-4 pb-12">
-    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Ucapan & Doa</h4>
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>{td('wishesTitle')}</h4>
     <div className="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar py-4 px-2">
       {(wishes || []).length > 0 ? (wishes || []).map((wish) => (
         <div key={wish.id} className="bg-white border border-gray-100 p-6 rounded-[2rem] shadow-sm text-left relative overflow-hidden group hover:shadow-md transition">
@@ -613,13 +619,13 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?
           <p className="text-[9px] text-gray-300 font-bold uppercase tracking-tighter mt-4">{new Date(wish.created_at).toLocaleDateString()}</p>
         </div>
       )) : (
-        <p className="text-gray-400 italic text-sm py-10">Belum ada ucapan. Jadilah yang pertama!</p>
+        <p className="text-gray-400 italic text-sm py-10">{t('wishesEmpty')}</p>
       )}
     </div>
     {/* Hashtag Display - appears after wishes for Pro/Elite */}
     {hashtagText && (
       <div className="mt-16 mb-2">
-        <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Hashtag</h4>
+        <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>{td('hashtagTitle')}</h4>
         <span
           className="block tracking-wider break-words leading-relaxed"
           style={{
@@ -633,11 +639,14 @@ const Guestbook: React.FC<{ wishes: any[], primaryColor: string, secondaryColor?
       </div>
     )}
   </div>
-);
+  );
+};
 
-const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string, secondaryColor?: string, sectionTitleStyle?: React.CSSProperties }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor, secondaryColor, sectionTitleStyle }) => (
+const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSize?: string, hashtagFont?: string, primaryColor: string, secondaryColor?: string, sectionTitleStyle?: React.CSSProperties }> = ({ hashtagText, hashtagColor, hashtagSize, hashtagFont, primaryColor, secondaryColor, sectionTitleStyle }) => {
+  const { td } = useInvitationLanguage();
+  return (
   <div className="mt-24 text-center px-4 pb-8">
-    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Hashtag</h4>
+    <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-4 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>{td('hashtagTitle')}</h4>
     <span
       className="block tracking-wider break-words leading-relaxed"
       style={{
@@ -649,7 +658,8 @@ const Hashtag: React.FC<{ hashtagText?: string, hashtagColor?: string, hashtagSi
       {hashtagText}
     </span>
   </div>
-);
+  );
+};
 
 // --- Template Renderer ---
 
@@ -719,13 +729,16 @@ const getCsrfToken = async () => {
 
 type PreviewFocusStep = 'pembukaan' | 'utama' | 'butiran' | 'design' | 'media' | 'tetamu' | 'hadiah' | 'wishlist' | 'rsvp';
 
-const InvitationContent: React.FC<{
-  invitation: Invitation,
-  guestName?: string,
-  isPreview?: boolean,
-  previewFocus?: PreviewFocusStep,
-  setInv?: React.Dispatch<React.SetStateAction<Invitation | null>>
-}> = ({ invitation, guestName, isPreview, previewFocus, setInv }) => {
+type InvitationContentProps = {
+  invitation: Invitation;
+  guestName?: string;
+  isPreview?: boolean;
+  previewFocus?: PreviewFocusStep;
+  setInv?: React.Dispatch<React.SetStateAction<Invitation | null>>;
+};
+
+const InvitationContentInner: React.FC<InvitationContentProps> = ({ invitation, guestName, isPreview, previewFocus, setInv }) => {
+  const { t, td, locale } = useInvitationLanguage();
   const coverSectionRef = useRef<HTMLDivElement>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const [showRsvp, setShowRsvp] = useState(false);
@@ -978,13 +991,13 @@ const InvitationContent: React.FC<{
 
   const dateDisplay = useMemo(() => {
     const d = new Date(invitation.event_date);
-    if (isNaN(d.getTime())) return { main: 'Tarikh Belum Ditetapkan' };
+    if (isNaN(d.getTime())) return { main: t('dateTBD') };
 
-    const main = d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+    const main = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
 
     let dayName = '';
     if (invitation.settings.show_day) {
-      dayName = d.toLocaleDateString('ms-MY', { weekday: 'long' });
+      dayName = d.toLocaleDateString(locale, { weekday: 'long' });
     }
 
     let hijriDate = '';
@@ -1082,8 +1095,8 @@ const InvitationContent: React.FC<{
           onClose={() => setActiveModal(null)}
           headerContent={
             <div className="text-center">
-              <h3 className="text-xl font-serif italic font-bold text-gray-800 mb-1">Pemain Muzik</h3>
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Kawal Muzik Latar</p>
+              <h3 className="text-xl font-serif italic font-bold text-gray-800 mb-1">{t('musicPlayerTitle')}</h3>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{t('musicControlTitle')}</p>
             </div>
           }
           footerContent={
@@ -1185,6 +1198,15 @@ const InvitationContent: React.FC<{
   );
 };
 
+const InvitationContent: React.FC<InvitationContentProps> = (props) => (
+  <InvitationLanguageProvider
+    mode={props.invitation?.settings?.language_mode}
+    storageKey={props.invitation?.slug}
+  >
+    <InvitationContentInner {...props} />
+  </InvitationLanguageProvider>
+);
+
 function InvitationBody({
   isPreview,
   coverSectionRef,
@@ -1227,6 +1249,7 @@ function InvitationBody({
   showOpeningSkin: boolean;
 }) {
   const { showNotification } = useNotification();
+  const { t, td, lang, setLang } = useInvitationLanguage();
 
   const greetingStyles = {
     color: invitation.settings.greeting_color || '#6B7280',
@@ -1265,6 +1288,27 @@ function InvitationBody({
 
   return (
     <>
+      {/* Guest language toggle. Hidden in editor preview; shown once the card is open. */}
+      {!isPreview && isOpen && (
+        <div className="fixed inset-x-0 bottom-5 z-[300] pointer-events-none">
+          <div className="mx-auto flex max-w-[500px] justify-end px-4">
+            <div className="pointer-events-auto inline-flex rounded-full border border-gray-200 bg-white/90 p-1 shadow-lg backdrop-blur">
+              {(['melayu', 'english'] as const).map(option => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setLang(option)}
+                  aria-pressed={lang === option}
+                  className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${lang === option ? 'bg-gray-900 text-white' : 'text-gray-500 hover:text-gray-800'}`}
+                >
+                  {option === 'melayu' ? 'BM' : 'EN'}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Persistent Visual Effects Overlay - Now stays visible after opening */}
       {canAccess('visual_effects') && (
         <div className="fixed inset-0 z-[220] pointer-events-none max-w-[500px] w-full left-1/2 -translate-x-1/2">
@@ -1406,7 +1450,7 @@ function InvitationBody({
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   </div>
                   <span className="font-bold text-gray-800 text-lg tracking-tight">{invitation.start_time} - {invitation.end_time}</span>
-                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">Waktu Majlis</span>
+                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-[0.2em]">{td('eventTimeTitle')}</span>
                 </div>
 
                 <div className="w-full h-px bg-gray-200/50" />
@@ -1445,7 +1489,7 @@ function InvitationBody({
                     className={`w-full py-5 text-white font-bold rounded-3xl shadow-2xl transition transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-xs uppercase ${isClosed ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
                     style={{ backgroundColor: isClosed ? '#6B7280' : primaryColor }}
                   >
-                    {isClosed ? 'RSVP Ditutup' : 'Sahkan Kehadiran'}
+                    {isClosed ? t('rsvpClosed') : t('rsvpTitle')}
                   </button>
                 </div>
               );
@@ -1464,7 +1508,7 @@ function InvitationBody({
 
             {showItinerary && (
               <div data-preview-section="itinerary" className="mt-24 text-center">
-                <h4 className="text-xs font-bold uppercase tracking-widest mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>Atur Cara Majlis</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb', ...sectionTitleStyle }}>{td('itineraryTitle')}</h4>
                 <div className="space-y-8 max-w-[280px] mx-auto">
                   {invitation?.itinerary && invitation.itinerary.length > 0 ? (
                     invitation.itinerary.map((item) => (
@@ -1477,7 +1521,7 @@ function InvitationBody({
                       </div>
                     ))
                   ) : (
-                    <p className="text-gray-400 italic text-sm py-10">Tiada atur cara majlis ditetapkan.</p>
+                    <p className="text-gray-400 italic text-sm py-10">{t('itineraryEmpty')}</p>
                   )}
                 </div>
               </div>
@@ -1498,7 +1542,7 @@ function InvitationBody({
 
             {canAccess('gallery') && invitation.settings.show_gallery && invitation.gallery && invitation.gallery.length > 0 && (
               <div data-preview-section="gallery" className="mt-24 text-center">
-                <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>Kenangan Abadi</h4>
+                <h4 className="text-xs font-bold uppercase tracking-[0.3em] mb-10 border-b pb-2 inline-block font-serif" style={{ color: secondaryColor || '#9ca3af', borderColor: secondaryColor ? `${secondaryColor}40` : '#e5e7eb' }}>{td('galleryTitle')}</h4>
                 <div className="grid grid-cols-2 gap-4">
                   {(invitation.gallery || []).map((img, idx) => {
                     const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
@@ -1536,28 +1580,28 @@ function InvitationBody({
                   <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                   </div>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Lokasi</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">{td('navLocation')}</span>
                 </button>
                 <div className="w-px h-6 bg-gray-200/50" />
                 <button onClick={() => setActiveModal('calendar')} className="flex flex-col items-center gap-1 group outline-none">
                   <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                   </div>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Kalendar</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">{t('navCalendar')}</span>
                 </button>
                 <div className="w-px h-6 bg-gray-200/50" />
                 <button onClick={() => setActiveModal('contact')} className="flex flex-col items-center gap-1 group outline-none">
                   <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                   </div>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hubungi</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">{t('navContact')}</span>
                 </button>
                 <div className="w-px h-6 bg-gray-200/50" />
                 <button onClick={() => setActiveModal('music')} className="flex flex-col items-center gap-1 group outline-none">
                   <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
                   </div>
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Muzik</span>
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">{t('navMusic')}</span>
                 </button>
                 {canAccess('gallery') && (invitation.money_gift_details?.enabled || invitation.wishlist_details?.enabled) && (
                   <>
@@ -1566,7 +1610,7 @@ function InvitationBody({
                       <div className="p-2 rounded-full group-hover:bg-rose-50 transition-colors" style={{ color: primaryColor }}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                       </div>
-                      <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">Hadiah</span>
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-rose-600">{t('navGift')}</span>
                     </button>
                   </>
                 )}
@@ -1588,7 +1632,7 @@ function InvitationBody({
                 {activeModal === 'map' && (
                   <div className="space-y-8 py-4">
                     <div className="text-center">
-                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Lokasi Majlis</h3>
+                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{td('locationTitle')}</h3>
                       <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.location_name}</p>
                     </div>
                     <div className="aspect-video w-full rounded-3xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm relative group">
@@ -1617,7 +1661,7 @@ function InvitationBody({
                         return (
                           <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 font-serif italic text-sm p-10 text-center space-y-2">
                             <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                            <p>Tiada Peta Ditetapkan</p>
+                            <p>{t('noMap')}</p>
                           </div>
                         );
                       })()}
@@ -1646,17 +1690,17 @@ function InvitationBody({
                 {activeModal === 'calendar' && (
                   <div className="space-y-8 py-4">
                     <div className="text-center">
-                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Simpan Tarikh</h3>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Raikan Bersama Kami</p>
+                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{td('saveDate')}</h3>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{td('celebrateWithUs')}</p>
                     </div>
                     <SimpleCalendar date={invitation.event_date} color={primaryColor} />
                     <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Mula</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('startTime')}</span>
                         <span className="text-sm font-bold text-gray-700">{invitation.start_time}</span>
                       </div>
                       <div className="flex items-center justify-between border-t border-gray-200/50 pt-3">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Waktu Tamat</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('endTime')}</span>
                         <span className="text-sm font-bold text-gray-700">{invitation.end_time}</span>
                       </div>
                     </div>
@@ -1672,8 +1716,8 @@ function InvitationBody({
                 {activeModal === 'contact' && (
                   <div className="space-y-8 py-4">
                     <div className="text-center">
-                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">Hubungi Keluarga</h3>
-                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Pertanyaan & Bantuan</p>
+                      <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{td('contactFamily')}</h3>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{t('questionsHelp')}</p>
                     </div>
                     <div className="space-y-4">
                       {(invitation.contacts || []).length > 0 ? (invitation.contacts || []).map((contact) => (
@@ -1687,7 +1731,7 @@ function InvitationBody({
                           </div>
                         </a>
                       )) : (
-                        <div className="py-10 text-center text-gray-400 font-serif italic text-sm">Tiada kenalan ditetapkan.</div>
+                        <div className="py-10 text-center text-gray-400 font-serif italic text-sm">{t('noContacts')}</div>
                       )}
                     </div>
                   </div>
@@ -1697,7 +1741,7 @@ function InvitationBody({
                   <div className="space-y-12 py-4">
                     {invitation.money_gift_details?.enabled && (
                       <div className="text-center">
-                        <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.money_gift_details?.gift_title || 'Hadiah & Ingatan'}</h3>
+                        <h3 className="text-2xl font-serif italic font-bold text-gray-800 mb-2">{invitation.money_gift_details?.gift_title || t('giftDefaultTitle')}</h3>
                         <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">{invitation.money_gift_details?.gift_subtitle || 'Khas buat mempelai'}</p>
                       </div>
                     )}
@@ -1743,12 +1787,12 @@ function InvitationBody({
 
                         <div className="bg-rose-50/50 p-8 rounded-[2.5rem] border border-rose-100/50 space-y-6">
                           <div className="space-y-2">
-                            <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">No. Telefon Penerima</p>
-                            <p className="text-sm font-bold text-gray-700 font-mono">{invitation.wishlist_details?.receiver_phone || 'Belum disediakan'}</p>
+                            <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">{t('receiverPhone')}</p>
+                            <p className="text-sm font-bold text-gray-700 font-mono">{invitation.wishlist_details?.receiver_phone || t('notProvided')}</p>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">Alamat Penghantaran</p>
-                            <p className="text-sm text-gray-600 leading-relaxed font-medium">{invitation.wishlist_details?.receiver_address || 'Belum disediakan'}</p>
+                            <p className="text-[9px] font-bold text-rose-300 uppercase tracking-widest">{t('shippingAddress')}</p>
+                            <p className="text-sm text-gray-600 leading-relaxed font-medium">{invitation.wishlist_details?.receiver_address || t('notProvided')}</p>
                           </div>
                         </div>
 
@@ -1757,8 +1801,8 @@ function InvitationBody({
                           <div className="space-y-6">
                             <div className="flex items-center space-x-4 border-l-4 pl-4" style={{ borderColor: primaryColor }}>
                               <div>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Physical Gift Request</p>
-                                <p className="text-lg font-bold text-gray-800 font-serif italic">Permintaan Hadiah</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('giftRequest')}</p>
+                                <p className="text-lg font-bold text-gray-800 font-serif italic">{t('giftRequest')}</p>
                               </div>
                             </div>
 
@@ -1811,13 +1855,13 @@ function InvitationBody({
                     <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
                       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h3 className="text-2xl font-serif font-bold text-gray-800 mb-2 italic">Alhamdulillah!</h3>
-                    <p className="text-sm text-gray-400 leading-relaxed px-4">Terima kasih atas maklum balas anda. Jumpa nanti!</p>
+                    <h3 className="text-2xl font-serif font-bold text-gray-800 mb-2 italic">{t('thanksTitle')}</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed px-4">{t('thanksBody')}</p>
                   </div>
                 ) : (
                   <>
                     <div className="flex justify-between items-center mb-8">
-                      <h3 className="text-2xl font-serif font-bold text-gray-800 italic">Sahkan Kehadiran</h3>
+                      <h3 className="text-2xl font-serif font-bold text-gray-800 italic">{t('rsvpTitle')}</h3>
                       <button onClick={() => setShowRsvp(false)} className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 transform active:rotate-90">
                         &times;
                       </button>
@@ -1833,9 +1877,9 @@ function InvitationBody({
                       <div className="space-y-4 text-left">
                         {/* Always show Name if mode is not none */}
                         <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Tetamu*</label>
+                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('guestNameLabel')}</label>
                           <input
-                            placeholder="Masukkan nama penuh"
+                            placeholder={t('guestNamePlaceholder')}
                             className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                             value={formData.name}
                             onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -1845,9 +1889,9 @@ function InvitationBody({
                         {/* Phone - Conditional */}
                         {(invitation.rsvp_settings?.fields?.phone ?? true) && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Telefon</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('phoneLabel')}</label>
                             <input
-                              placeholder="No. telefon"
+                              placeholder={t('phonePlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.phone}
                               onChange={e => setFormData({ ...formData, phone: e.target.value })}
@@ -1858,10 +1902,10 @@ function InvitationBody({
                         {/* Email - Conditional */}
                         {invitation.rsvp_settings?.fields?.email && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Emel</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('emailLabel')}</label>
                             <input
                               type="email"
-                              placeholder="example@mail.com"
+                              placeholder={t('emailPlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.email}
                               onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -1872,10 +1916,10 @@ function InvitationBody({
                         {/* Address - Conditional */}
                         {invitation.rsvp_settings?.fields?.address && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Alamat Rumah</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('addressLabel')}</label>
                             <textarea
                               rows={2}
-                              placeholder="Alamat penuh..."
+                              placeholder={t('addressPlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.address}
                               onChange={e => setFormData({ ...formData, address: e.target.value })}
@@ -1886,10 +1930,10 @@ function InvitationBody({
                         {/* Company - Conditional */}
                         {invitation.rsvp_settings?.fields?.company && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Nama Syarikat</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('companyLabel')}</label>
                             <input
                               type="text"
-                              placeholder="Nama Syarikat"
+                              placeholder={t('companyPlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.company}
                               onChange={e => setFormData({ ...formData, company: e.target.value })}
@@ -1900,10 +1944,10 @@ function InvitationBody({
                         {/* Job Title - Conditional */}
                         {invitation.rsvp_settings?.fields?.job_title && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Jawatan</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('jobTitleLabel')}</label>
                             <input
                               type="text"
-                              placeholder="Jawatan"
+                              placeholder={t('jobTitlePlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.job_title}
                               onChange={e => setFormData({ ...formData, job_title: e.target.value })}
@@ -1914,10 +1958,10 @@ function InvitationBody({
                         {/* Car Plate - Conditional */}
                         {invitation.rsvp_settings?.fields?.car_plate && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">No. Plat Kenderaan</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('carPlateLabel')}</label>
                             <input
                               type="text"
-                              placeholder="ABC 1234"
+                              placeholder={t('carPlatePlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.car_plate}
                               onChange={e => setFormData({ ...formData, car_plate: e.target.value })}
@@ -1928,10 +1972,10 @@ function InvitationBody({
                         {/* Remarks - Conditional */}
                         {invitation.rsvp_settings?.fields?.remarks && (
                           <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Catatan</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('remarksLabel')}</label>
                             <textarea
                               rows={2}
-                              placeholder="Catatan tambahan..."
+                              placeholder={t('remarksPlaceholder')}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium"
                               value={formData.remarks}
                               onChange={e => setFormData({ ...formData, remarks: e.target.value })}
@@ -1963,14 +2007,14 @@ function InvitationBody({
 
                                   {(invitation.rsvp_settings?.has_slots && (invitation.rsvp_settings?.slots_options || []).length > 0) && (
                                     <div className="relative animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">Pilih Slot / Kategori</label>
+                                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute -top-2 left-5 px-1 bg-white z-10">{t('slotLabel')}</label>
                                       <div className="relative">
                                         <select
                                           className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium appearance-none"
                                           value={formData.slot || ''}
                                           onChange={e => setFormData({ ...formData, slot: e.target.value })}
                                         >
-                                          <option value="" disabled>Sila pilih satu...</option>
+                                          <option value="" disabled>{t('slotPlaceholder')}</option>
                                           {(invitation.rsvp_settings?.slots_options || []).map((slot, i) => (
                                             <option key={i} value={slot}>{slot}</option>
                                           ))}
@@ -1985,7 +2029,7 @@ function InvitationBody({
                                   )}
 
                                   <div className="flex items-center bg-gray-50 border border-gray-100 rounded-[1.5rem] px-6 py-5 justify-between shadow-inner">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bilangan Tetamu</span>
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('paxLabel')}</span>
                                     <div className="flex items-center space-x-6">
                                       <button
                                         onClick={() => setFormData({ ...formData, pax: Math.max(1, formData.pax - 1) })}
@@ -2006,7 +2050,7 @@ function InvitationBody({
                                 </div>
                               ) : (
                                 <div className="animate-fade-in pt-2">
-                                  <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">Kami mendoakan yang terbaik untuk urusan anda.</p>
+                                  <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">{t('closingNote')}</p>
                                 </div>
                               )}
                             </div>
@@ -2016,9 +2060,9 @@ function InvitationBody({
                         {/* Wish / Message */}
                         {(invitation.rsvp_settings?.fields?.wish ?? true) && (
                           <div className="relative pt-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">Titipkan Ucapan</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest absolute top-0 left-5 px-1 bg-white z-10">{t('wishTitle')}</label>
                             <textarea
-                              placeholder="Selamat pengantin baru..."
+                              placeholder={t('wishPlaceholder')}
                               rows={3}
                               className="w-full px-6 py-5 bg-gray-50 border border-gray-100 rounded-[1.5rem] focus:ring-4 focus:ring-rose-100 focus:bg-white transition-all duration-300 text-sm outline-none font-medium italic"
                               value={formData.message}
@@ -2034,7 +2078,7 @@ function InvitationBody({
                         className={`w-full py-5 text-white font-bold rounded-[1.5rem] shadow-2xl transition-all duration-500 transform active:scale-95 hover:brightness-110 tracking-[0.2em] text-[10px] uppercase animate-slide-up shadow-rose-100 ${(isSubmitting || isSuccess) ? 'opacity-50 cursor-not-allowed' : ''}`}
                         style={{ backgroundColor: primaryColor, animationDelay: '0.4s' }}
                       >
-                        {isSubmitting ? 'Menghantar...' : isSuccess ? 'Terkirim!' : 'Hantar RSVP'}
+                        {isSubmitting ? t('submitting') : isSuccess ? t('sent') : t('rsvpSubmit')}
                       </button>
                     </div>
                   </>

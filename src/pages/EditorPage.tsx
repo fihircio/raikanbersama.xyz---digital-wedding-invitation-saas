@@ -1698,6 +1698,38 @@ const EditorPage: React.FC = () => {
             activeTab === 'design' && (
               <div className="space-y-10 relative">
                 <section className="space-y-8 pt-10 border-t border-gray-100">
+                  <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Bahasa Jemputan</h3>
+
+                  <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { id: 'melayu', label: 'Bahasa Melayu' },
+                        { id: 'english', label: 'English' },
+                        { id: 'bilingual', label: 'Dwibahasa' }
+                      ] as const).map(option => {
+                        const active = (inv.settings.language_mode || 'melayu') === option.id;
+                        return (
+                          <button
+                            key={option.id}
+                            onClick={() => updateSettings('language_mode', option.id)}
+                            className={`p-3 rounded-2xl border text-[10px] font-bold uppercase tracking-wider transition-all ${active ? 'border-rose-500 bg-rose-50 text-rose-600 ring-1 ring-rose-200' : 'border-gray-100 bg-white text-gray-500 hover:border-rose-200'}`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[8px] text-gray-400 italic leading-relaxed px-1">
+                      Menukar bahasa untuk teks sistem jemputan (tajuk seksyen, butang, borang RSVP dan tarikh).
+                      Teks yang anda taip sendiri seperti kata aluan, kisah dan doa tidak diterjemah.
+                    </p>
+                    <p className="text-[8px] text-gray-400 italic leading-relaxed px-1">
+                      Tetamu boleh menukar BM / EN sendiri melalui butang pada kad selepas jemputan dibuka.
+                    </p>
+                  </div>
+                </section>
+
+                <section className="space-y-8 pt-10 border-t border-gray-100">
                   <h3 className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] border-l-2 border-rose-200 pl-4 font-serif">Gaya Tajuk Seksyen</h3>
 
                   <div className="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-4">
