@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../src/i18n/PlatformLanguage';
 import React from 'react';
 import { Plan } from '../../types';
 
@@ -6,21 +7,22 @@ interface FeatureComparisonProps {
 }
 
 const FeatureComparison: React.FC<FeatureComparisonProps> = ({ plans }) => {
+  const { t } = usePlatformLanguage();
   const allFeatures = [
-    { name: 'Kalendar / Tambah ke Kalendar', lite: true, pro: true, elite: true },
-    { name: 'Hubungi keluarga', lite: true, pro: true, elite: true },
-    { name: 'Kiraan detik majlis', lite: true, pro: true, elite: true },
-    { name: 'Lokasi (Google Maps / Waze)', lite: true, pro: true, elite: true },
-    { name: 'Muzik Latar', lite: true, pro: true, elite: true },
-    { name: 'Sistem RSVP', lite: false, pro: true, elite: true },
-    { name: 'Pengurusan kehadiran', lite: false, pro: true, elite: true },
-    { name: 'Kesan visual', lite: false, pro: true, elite: true },
-    { name: 'Buku ucapan tetamu', lite: false, pro: true, elite: true },
-    { name: 'Galeri gambar', lite: false, pro: false, elite: true },
-    { name: 'Hadiah wang digital', lite: false, pro: false, elite: true },
-    { name: 'Wishlist fizikal', lite: false, pro: false, elite: true },
-    { name: 'Ubah background footer, katalog dan lain-lain', lite: false, pro: false, elite: true },
-    { name: 'Penjana Magic Link (URL jemputan unik)', lite: false, pro: false, elite: true },
+    { name: t('compare.calendar'), lite: true, pro: true, elite: true },
+    { name: t('compare.contactFamily'), lite: true, pro: true, elite: true },
+    { name: t('compare.countdown'), lite: true, pro: true, elite: true },
+    { name: t('compare.location'), lite: true, pro: true, elite: true },
+    { name: t('compare.music'), lite: true, pro: true, elite: true },
+    { name: t('compare.rsvp'), lite: false, pro: true, elite: true },
+    { name: t('compare.attendance'), lite: false, pro: true, elite: true },
+    { name: t('compare.effects'), lite: false, pro: true, elite: true },
+    { name: t('compare.wishes'), lite: false, pro: true, elite: true },
+    { name: t('compare.gallery'), lite: false, pro: false, elite: true },
+    { name: t('compare.gift'), lite: false, pro: false, elite: true },
+    { name: t('compare.wishlist'), lite: false, pro: false, elite: true },
+    { name: t('compare.backgrounds'), lite: false, pro: false, elite: true },
+    { name: t('compare.magicLink'), lite: false, pro: false, elite: true },
   ];
 
   return (

@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../src/i18n/PlatformLanguage';
 import React from 'react';
 import PricingCard from './PricingCard';
 import FeatureComparison from './FeatureComparison';
@@ -8,6 +9,7 @@ import { trackViewContent } from '../../src/utils/metaPixel';
 import { useSearchParams } from 'react-router-dom';
 
 const PricingPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const [searchParams] = useSearchParams();
   const invitationId = searchParams.get('invitationId');
 

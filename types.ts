@@ -268,6 +268,10 @@ export interface Plan {
   description: string;
   features: string[];
   isPopular: boolean;
+  /** Translation keys for localised rendering. */
+  periodKey?: string;
+  descKey?: string;
+  featureKeys?: string[];
 }
 
 export interface Order {

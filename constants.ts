@@ -128,6 +128,9 @@ export const PACKAGE_PLANS: Plan[] = [
     period: 'Seumur Hidup',
     description: 'Jemputan digital asas untuk majlis ringkas dan kemas',
     features: ['Tiada Had Pelawat', 'Akses seumur hidup', 'Galeri (1 gambar)'],
+    periodKey: 'plan.period.lifetime',
+    descKey: 'plan.lite.desc',
+    featureKeys: ['plan.lite.f1', 'plan.lite.f2', 'plan.lite.f3'],
     isPopular: false
   },
   {
@@ -138,6 +141,9 @@ export const PACKAGE_PLANS: Plan[] = [
     period: 'Seumur Hidup',
     description: 'Pilihan lengkap untuk pasangan moden',
     features: ['Maklumat Boleh Tukar (120 Hari)', 'Galeri (5 gambar)', 'Hadiah wang digital', 'RSVP & ucapan tetamu'],
+    periodKey: 'plan.period.lifetime',
+    descKey: 'plan.pro.desc',
+    featureKeys: ['plan.pro.f1', 'plan.pro.f2', 'plan.pro.f3', 'plan.pro.f4'],
     isPopular: true
   },
   {
@@ -148,6 +154,9 @@ export const PACKAGE_PLANS: Plan[] = [
     period: 'Seumur Hidup',
     description: 'Pengalaman digital paling lengkap',
     features: ['Edit seumur hidup', 'Galeri tanpa had', 'Video terbenam', 'Wishlist fizikal', 'Ubah background footer, katalog dan lain-lain', 'Penjana Magic Link (URL jemputan unik)'],
+    periodKey: 'plan.period.lifetime',
+    descKey: 'plan.elite.desc',
+    featureKeys: ['plan.elite.f1', 'plan.elite.f2', 'plan.elite.f3', 'plan.elite.f4', 'plan.elite.f5', 'plan.elite.f6'],
     isPopular: false
   }
 ];

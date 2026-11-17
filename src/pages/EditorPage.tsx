@@ -1487,7 +1487,7 @@ const EditorPage: React.FC = () => {
                                 <div className="flex justify-between items-start mb-2">
                                   <div>
                                     <h4 className="text-lg font-bold text-gray-900">{plan.name}</h4>
-                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{plan.description}</p>
+                                    <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{plan.descKey ? t(plan.descKey) : plan.description}</p>
                                   </div>
                                   <div className="text-right">
                                     <p className="text-xl font-bold text-rose-600">RM{plan.price}</p>

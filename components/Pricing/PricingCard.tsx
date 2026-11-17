@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../src/i18n/PlatformLanguage';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PaymentModal from './PaymentModal';
@@ -10,6 +11,7 @@ interface PricingCardProps {
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
+  const { t } = usePlatformLanguage();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
 
@@ -52,13 +54,13 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, invitationId }) => {
           <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
           <div className="mb-4">
             <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-            <span className="text-gray-600 ml-2">{plan.period}</span>
+            <span className="text-gray-600 ml-2">{plan.periodKey ? t(plan.periodKey) : plan.period}</span>
           </div>
-          <p className="text-gray-600">{plan.description}</p>
+          <p className="text-gray-600">{plan.descKey ? t(plan.descKey) : plan.description}</p>
         </div>
 
         <ul className="space-y-4 mb-8">
-          {plan.features.map((feature, index) => (
+          {(plan.featureKeys ? plan.featureKeys.map(key => t(key)) : plan.features).map((feature, index) => (
             <li key={index} className="flex items-start">
               <svg className="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

@@ -21,13 +21,23 @@ interface PlatformLanguageContextValue {
 
 const PlatformLanguageContext = createContext<PlatformLanguageContextValue | null>(null);
 
+function detectFromBrowser(): PlatformLang {
+  if (typeof navigator === 'undefined') return 'melayu';
+  const preferred = (navigator.languages?.[0] || navigator.language || '').toLowerCase();
+  if (preferred.startsWith('ms')) return 'melayu';
+  if (preferred.startsWith('en')) return 'english';
+  // Default to Malay for every other browser language: it is the primary market.
+  return 'melayu';
+}
+
 function readStored(): PlatformLang {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
-    return value === 'english' ? 'english' : 'melayu';
+    if (value === 'english' || value === 'melayu') return value;
   } catch {
-    return 'melayu';
+    // storage unavailable; fall through to browser detection
   }
+  return detectFromBrowser();
 }
 
 export const PlatformLanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
