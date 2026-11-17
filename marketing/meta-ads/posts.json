@@ -1,0 +1,26 @@
+[
+  {
+    "slot": "01_reveal",
+    "asset": "../footage/01_invite_reveal.mp4",
+    "thumb": "../footage/thumbs/01_reveal.jpg",
+    "caption": "Kad kahwin digital, siap dalam beberapa minit.\n\nRSVP, peta Waze, kiraan detik dan buku ucapan — semua dalam satu link yang boleh dikongsi terus.\n\nMula RM29 sahaja. Cuba percuma dulu di raikanbersama.xyz"
+  },
+  {
+    "slot": "02_katalog",
+    "asset": "../footage/02_catalog_filter.mp4",
+    "thumb": "../footage/thumbs/02_katalog.jpg",
+    "caption": "122 tema eksklusif: Modern, Islamic, Floral, Minimalist.\n\nPilih tema ikut majlis anda, isi butiran, dan kad anda siap dalam beberapa minit — tanpa perlu designer.\n\nraikanbersama.xyz"
+  },
+  {
+    "slot": "03_hadiah",
+    "asset": "../footage/04_elite_hadiah_qr.mp4",
+    "thumb": "../footage/thumbs/04_hadiah.jpg",
+    "caption": "Tetamu nak beri hadiah tapi tak tahu cara?\n\nDengan pakej Elite, tetamu boleh beri hadiah wang terus ke akaun (imabas QR atau salin no. akaun), atau pilih hadiah fizikal dari wishlist anda.\n\nraikanbersama.xyz"
+  },
+  {
+    "slot": "04_rsvp",
+    "asset": "../footage/06_rsvp_flow.mp4",
+    "thumb": "../footage/thumbs/01_reveal.jpg",
+    "caption": "Tetamu RSVP sendiri — anda tak perlu telefon atau mesej satu-satu.\n\nKehadiran, bilangan tetamu dan ucapan semuanya masuk terus ke dashboard anda.\n\nraikanbersama.xyz"
+  }
+]
