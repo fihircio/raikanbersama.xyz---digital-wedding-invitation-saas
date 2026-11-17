@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl } from '../../config';
@@ -46,6 +47,7 @@ interface Coupon {
 }
 
 const CouponManagement: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [coupons, setCoupons] = useState<Coupon[]>([]);
     const [affiliates, setAffiliates] = useState<any[]>([]);
@@ -189,8 +191,8 @@ const CouponManagement: React.FC = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Kupon & Insentif</h1>
-                        <p className="text-gray-500 text-sm">Urus kod diskaun dan program insentif vendor.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">{t('adm.title.coupon')}</h1>
+                        <p className="text-gray-500 text-sm">{t('adm.sub.coupon')}</p>
                     </div>
                     <div className="flex gap-4">
                         <button
@@ -211,14 +213,14 @@ const CouponManagement: React.FC = () => {
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                 <tr>
-                                    <th className="px-8 py-5">Kod Kupon</th>
-                                    <th className="px-8 py-5">Diskaun</th>
-                                    <th className="px-8 py-5">Vendor & Komisen (%)</th>
+                                    <th className="px-8 py-5">{t('adm.header.couponCode')}</th>
+                                    <th className="px-8 py-5">{t('adm.coupon.discount')}</th>
+                                    <th className="px-8 py-5">{t('adm.coupon.vendorRate')}</th>
                                     <th className="px-8 py-5">Earned</th>
-                                    <th className="px-8 py-5">Penggunaan</th>
-                                    <th className="px-8 py-5">Tamat Tempoh</th>
-                                    <th className="px-8 py-5">Kad Dijana</th>
-                                    <th className="px-8 py-5 text-right">Tindakan</th>
+                                    <th className="px-8 py-5">{t('adm.header.usage')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.expiry')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.cardsAlt')}</th>
+                                    <th className="px-8 py-5 text-right">{t('adm.header.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -230,7 +232,7 @@ const CouponManagement: React.FC = () => {
                                                 <div className="flex flex-col">
                                                     <span className="font-mono font-bold text-gray-900 text-base">{coupon.code}</span>
                                                     {!coupon.is_active && (
-                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">Nyahaktif</span>
+                                                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1">{t('adm.coupon.deactivate')}</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -307,7 +309,7 @@ const CouponManagement: React.FC = () => {
                                                         );
                                                     })
                                                 ) : (
-                                                    <span className="text-gray-300 text-[10px] italic">Tiada Order</span>
+                                                    <span className="text-gray-300 text-[10px] italic">{t('adm.coupon.noOrder')}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -335,7 +337,7 @@ const CouponManagement: React.FC = () => {
                                     <tr>
                                         <td colSpan={8} className="px-8 py-20 text-center opacity-30">
                                             <TicketIcon className="w-12 h-12 mx-auto mb-4" />
-                                            <p className="text-xs font-bold uppercase tracking-widest italic">Belum ada kupon dicipta.</p>
+                                            <p className="text-xs font-bold uppercase tracking-widest italic">{t('adm.coupon.empty')}</p>
                                         </td>
                                     </tr>
                                 )}
@@ -348,10 +350,10 @@ const CouponManagement: React.FC = () => {
                 {showCreateModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                         <div className="bg-white rounded-[3rem] w-full max-w-md p-10 animate-scale-in">
-                            <h2 className="text-2xl font-serif italic font-bold mb-8">Cipta Kupon Baru</h2>
+                            <h2 className="text-2xl font-serif italic font-bold mb-8">{t('adm.coupon.new')}</h2>
                             <form className="space-y-6" onSubmit={handleCreateCoupon}>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kod Kupon</label>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.couponCode')}</label>
                                     <input
                                         required
                                         type="text"
@@ -363,18 +365,18 @@ const CouponManagement: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Diskaun</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.discountType')}</label>
                                         <select
                                             value={newCoupon.discount_type}
                                             onChange={(e) => setNewCoupon({ ...newCoupon, discount_type: e.target.value as any })}
                                             className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold appearance-none"
                                         >
-                                            <option value="percentage">Peratus (%)</option>
-                                            <option value="fixed">Tetap (RM)</option>
+                                            <option value="percentage">{t('adm.coupon.percentage')}</option>
+                                            <option value="fixed">{t('adm.coupon.fixed')}</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nilai</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.value')}</label>
                                         <input
                                             required
                                             type="number"
@@ -386,7 +388,7 @@ const CouponManagement: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Had Penggunaan</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.usageLimit')}</label>
                                         <input
                                             type="number"
                                             value={newCoupon.max_uses}
@@ -396,7 +398,7 @@ const CouponManagement: React.FC = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Tamat Tempoh (Optional)</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.coupon.expiry')}</label>
                                         <input
                                             type="date"
                                             value={newCoupon.expiry_date}
@@ -406,13 +408,13 @@ const CouponManagement: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kaitan Affiliate (Optional)</label>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.coupon.affiliateLink')}</label>
                                     <select
                                         value={newCoupon.affiliate_id}
                                         onChange={(e) => setNewCoupon({ ...newCoupon, affiliate_id: e.target.value })}
                                         className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold appearance-none"
                                     >
-                                        <option value="">Tiada (Diskaun Umum)</option>
+                                        <option value="">{t('adm.coupon.none')}</option>
                                         {affiliates.map(a => (
                                             <option key={a.id} value={a.id}>{a.business_name}</option>
                                         ))}
@@ -443,14 +445,14 @@ const CouponManagement: React.FC = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                         <div className="bg-white rounded-[3rem] w-full max-w-md p-10 animate-scale-in">
                             <div className="flex justify-between items-start mb-8">
-                                <h2 className="text-2xl font-serif italic font-bold">Edit Kupon</h2>
+                                <h2 className="text-2xl font-serif italic font-bold">{t('adm.coupon.edit')}</h2>
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${editingCoupon.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                                     {editingCoupon.is_active ? 'Aktif' : 'Tidak Aktif'}
                                 </span>
                             </div>
                             <form className="space-y-6" onSubmit={handleUpdateCoupon}>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Kod Kupon</label>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.couponCode')}</label>
                                     <input
                                         required
                                         type="text"
@@ -461,7 +463,7 @@ const CouponManagement: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Diskaun</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.discountType')}</label>
                                         <select
                                             value={editingCoupon.discount_type}
                                             onChange={(e) => setEditingCoupon({ ...editingCoupon, discount_type: e.target.value as any })}
@@ -484,7 +486,7 @@ const CouponManagement: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Had Penggunaan</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('adm.header.usageLimit')}</label>
                                         <input
                                             type="number"
                                             value={editingCoupon.max_uses || ''}
@@ -511,7 +513,7 @@ const CouponManagement: React.FC = () => {
                                         </label>
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1">
-                                                <p className="text-[10px] text-gray-400 font-medium mb-1">Set Peratus Komisen (%)</p>
+                                                <p className="text-[10px] text-gray-400 font-medium mb-1">{t('adm.coupon.setRate')}</p>
                                                 <input
                                                     type="number"
                                                     value={editingCoupon.commission_rate ?? editingCoupon.affiliate.commission_rate}
@@ -520,7 +522,7 @@ const CouponManagement: React.FC = () => {
                                                 />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-[10px] text-gray-400 font-medium mb-1">Total Earned Vendor</p>
+                                                <p className="text-[10px] text-gray-400 font-medium mb-1">{t('adm.coupon.totalEarned')}</p>
                                                 <p className="text-base font-black text-rose-900 leading-none mt-1.5">
                                                     RM {Number(editingCoupon.affiliate.earnings_total).toFixed(2)}
                                                 </p>
@@ -539,7 +541,7 @@ const CouponManagement: React.FC = () => {
                                         onChange={(e) => setEditingCoupon({ ...editingCoupon, is_active: e.target.checked })}
                                         className="w-5 h-5 rounded-lg border-gray-200 text-rose-600 focus:ring-rose-500 transition-all cursor-pointer"
                                     />
-                                    <label htmlFor="is_active" className="text-sm font-bold text-gray-600 cursor-pointer">Kupon Aktif</label>
+                                    <label htmlFor="is_active" className="text-sm font-bold text-gray-600 cursor-pointer">{t('adm.coupon.active')}</label>
                                 </div>
                                 <div className="flex gap-4 pt-4">
                                     <button

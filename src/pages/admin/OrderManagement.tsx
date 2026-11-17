@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl } from '../../config';
@@ -30,6 +31,7 @@ interface Order {
 }
 
 const OrderManagement: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -65,8 +67,8 @@ const OrderManagement: React.FC = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Transaksi Platform</h1>
-                        <p className="text-gray-500 text-sm">Pantau semua jualan dan status pembayaran.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">{t('adm.title.order')}</h1>
+                        <p className="text-gray-500 text-sm">{t('adm.sub.order')}</p>
                     </div>
                     <div className="bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                         <div className="p-2 bg-emerald-50 rounded-xl">
@@ -85,11 +87,11 @@ const OrderManagement: React.FC = () => {
                             <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                 <tr>
                                     <th className="px-8 py-5">Order #</th>
-                                    <th className="px-8 py-5">Pelanggan</th>
-                                    <th className="px-8 py-5">Pakej</th>
-                                    <th className="px-8 py-5">Jumlah</th>
-                                    <th className="px-8 py-5">Status</th>
-                                    <th className="px-8 py-5 text-right">Tarikh</th>
+                                    <th className="px-8 py-5">{t('adm.header.customer')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.plan')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.amount')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.status')}</th>
+                                    <th className="px-8 py-5 text-right">{t('adm.header.date')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">

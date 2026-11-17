@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { buildApiUrl } from '../config';
@@ -37,6 +38,7 @@ interface Earning {
 }
 
 const AffiliatePage: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token, user } = useAuth();
     const navigate = useNavigate();
 
@@ -129,13 +131,13 @@ const AffiliatePage: React.FC = () => {
     return (
         <div className="pt-32 pb-20 min-h-screen bg-white">
             <SEO
-                title="Program Affiliate & Vendor"
-                description="Sertai program rakan kongsi RaikanBersama.xyz. Jana pendapatan pasif dengan tawarkan jemputan digital premium kepada pelanggan anda."
+                title={t('aff.seo.title')}
+                description={t('aff.seo.desc')}
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Hero Section */}
                 <div className="text-center mb-24 animate-fade-in">
-                    <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.4em] mb-4 block">Program Rakan Kongsi</span>
+                    <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.4em] mb-4 block">{t('aff.eyebrow')}</span>
                     <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-5 italic leading-tight">
                         Jana Pendapatan Bersama
                         <span className="sr-only"> RaikanBersama.xyz</span>
@@ -157,14 +159,14 @@ const AffiliatePage: React.FC = () => {
                 <div className="mb-32">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         {[
-                            { step: '01', title: 'Daftar Sebagai Rakan', desc: 'Isi borang permohonan vendor dan sertai rangkaian eksklusif kami tanpa kos pendaftaran.' },
-                            { step: '02', title: 'Tawarkan Kepada Pelanggan', desc: 'Promosikan jemputan digital kami sebagai sebahagian daripada pakej perkhidmatan anda.' },
-                            { step: '03', title: 'Terima Komisen Tinggi', desc: 'Dapatkan harga istimewa vendor dan Jana pendapatan pasif bagi setiap tempahan berjaya.' },
+                            { step: '01', titleKey: 'aff.step1.title', descKey: 'aff.step1.desc' },
+                            { step: '02', titleKey: 'aff.step2.title', descKey: 'aff.step2.desc' },
+                            { step: '03', titleKey: 'aff.step3.title', descKey: 'aff.step3.desc' },
                         ].map((item, i) => (
                             <div key={i} className="relative p-10 bg-gray-50 rounded-[3rem] border border-gray-100 group hover:bg-white hover:shadow-2xl hover:shadow-rose-50 transition-all duration-500">
                                 <span className="text-5xl font-serif italic font-bold text-rose-100 absolute top-8 right-10 group-hover:text-rose-200 transition-colors">{item.step}</span>
-                                <h3 className="text-xl font-bold text-gray-900 mb-4 pr-12">{item.title}</h3>
-                                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                                <h3 className="text-xl font-bold text-gray-900 mb-4 pr-12">{t(item.titleKey)}</h3>
+                                <p className="text-gray-500 text-sm leading-relaxed">{t(item.descKey)}</p>
                             </div>
                         ))}
                     </div>
@@ -176,7 +178,7 @@ const AffiliatePage: React.FC = () => {
                         <div className="absolute top-0 right-0 w-96 h-96 bg-rose-600/20 blur-[120px] rounded-full -mr-48 -mt-48"></div>
                         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                             <div>
-                                <h2 className="text-4xl font-serif font-bold italic mb-8">Kelebihan Eksklusif <br />Vendor RaikanBersama</h2>
+                                <h2 className="text-4xl font-serif font-bold italic mb-8">{t('aff.benefits.title')} <br />{t('aff.benefits.sub')}</h2>
                                 <div className="space-y-6">
                                     {[
                                         'Harga Diskaun Vendor',
@@ -196,15 +198,15 @@ const AffiliatePage: React.FC = () => {
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 text-center">
                                     <p className="text-3xl font-bold mb-2">0%</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">Kos Permulaan ! Sertai secara percuma</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">{t('aff.benefits.free')}</p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 text-center">
                                     <p className="text-3xl font-bold mb-2">10%</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">untuk 10 jemputan pertama</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">{t('aff.calc.forFirst')}</p>
                                 </div>
                                 <div className="col-span-2 bg-rose-600 p-8 rounded-[2.5rem] text-center shadow-2xl shadow-rose-900/20">
-                                    <p className="text-lg font-serif italic mb-1">Paparan Cashback</p>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">Semuanya di hujung jari anda !</p>
+                                    <p className="text-lg font-serif italic mb-1">{t('aff.benefits.cashback')}</p>
+                                    <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-80">{t('aff.hero2')}</p>
                                 </div>
                             </div>
                         </div>
@@ -218,8 +220,8 @@ const AffiliatePage: React.FC = () => {
                                         <h3 className="text-2xl font-serif italic font-bold">Sistem Dua Manfaat</h3>
                                     </div>
                                     <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                                        Setiap kod referral berfungsi sebagai <strong className="text-white">kupon diskaun</strong> untuk pelanggan
-                                        dan <strong className="text-white"> ID komisen</strong> untuk vendor. Pelanggan berjimat, vendor pula menjana pendapatan daripada setiap tempahan berjaya.
+                                        Setiap kod referral berfungsi sebagai <strong className="text-white">{t('aff.tier.discount')}</strong> untuk pelanggan
+                                        dan <strong className="text-white"> {t('aff.calc.commissionId')}</strong> untuk vendor. Pelanggan berjimat, vendor pula menjana pendapatan daripada setiap tempahan berjaya.
                                     </p>
                                     <div className="space-y-4">
                                         <div className="flex gap-4">
@@ -227,8 +229,8 @@ const AffiliatePage: React.FC = () => {
                                                 <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                                             </div>
                                             <div>
-                                                <p className="font-bold text-sm">Diskaun Pelanggan</p>
-                                                <p className="text-white/60 text-xs italic">Kod vendor boleh digunakan pelanggan untuk dapat potongan harga semasa checkout.</p>
+                                                <p className="font-bold text-sm">{t('aff.calc.discount')}</p>
+                                                <p className="text-white/60 text-xs italic">{t('aff.tier.coupon')}</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-4">
@@ -236,31 +238,31 @@ const AffiliatePage: React.FC = () => {
                                                 <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                                             </div>
                                             <div>
-                                                <p className="font-bold text-sm">Komisen Vendor</p>
-                                                <p className="text-white/60 text-xs italic">Komisen dikira berdasarkan jumlah sebenar yang dibayar selepas diskaun pelanggan.</p>
+                                                <p className="font-bold text-sm">{t('aff.calc.commission')}</p>
+                                                <p className="text-white/60 text-xs italic">{t('aff.tier.desc')}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
-                                    <div className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.2em] mb-4">Contoh Pengiraan</div>
+                                    <div className="text-[10px] font-bold text-rose-300 uppercase tracking-[0.2em] mb-4">{t('aff.calc.title')}</div>
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
-                                            <span className="text-white/60 uppercase tracking-widest">Harga Asal</span>
+                                            <span className="text-white/60 uppercase tracking-widest">{t('aff.calc.original')}</span>
                                             <span>RM 50.00</span>
                                         </div>
                                         <div className="flex justify-between text-xs font-medium py-2 border-b border-white/10">
-                                            <span className="text-rose-300 uppercase tracking-widest">Diskaun Pelanggan</span>
+                                            <span className="text-rose-300 uppercase tracking-widest">{t('aff.calc.memberDiscount')}</span>
                                             <span>- RM 5.00</span>
                                         </div>
                                         <div className="flex justify-between text-base font-bold py-4">
-                                            <span className="uppercase tracking-[0.2em]">Bayaran Bersih</span>
+                                            <span className="uppercase tracking-[0.2em]">{t('aff.calc.net')}</span>
                                             <span>RM 45.00</span>
                                         </div>
                                         <div className="p-4 bg-rose-500/20 rounded-2xl border border-rose-500/30">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-bold text-rose-300 uppercase tracking-widest">Komisen Vendor</span>
+                                                    <span className="text-[10px] font-bold text-rose-300 uppercase tracking-widest">{t('aff.calc.commission')}</span>
                                                     <span className="text-lg font-black italic">RM 9.00</span>
                                                 </div>
                                                 <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-900/50">
@@ -278,7 +280,7 @@ const AffiliatePage: React.FC = () => {
                 {/* Tier System Section */}
                 <div className="mb-32">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic">Sistem Tier & Komisen</h2>
+                        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic">{t('aff.tier.title')}</h2>
                         <p className="text-gray-500 max-w-2xl mx-auto">
                             Tingkatkan pendapatan anda dengan mencapai tier yang lebih tinggi. Semakin banyak jualan, semakin tinggi komisen anda.
                         </p>
@@ -292,15 +294,15 @@ const AffiliatePage: React.FC = () => {
                             </div>
                             <div className="mb-6">
                                 <h3 className="text-2xl font-serif font-bold text-gray-900">Tier 1</h3>
-                                <p className="text-gray-500 text-sm">Permulaan perjalanan anda</p>
+                                <p className="text-gray-500 text-sm">{t('aff.tier.start')}</p>
                             </div>
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between items-center border-b border-gray-50 pb-2">
-                                    <span className="text-gray-600 text-sm">Diskaun Pelanggan</span>
+                                    <span className="text-gray-600 text-sm">{t('aff.calc.memberDiscount')}</span>
                                     <span className="font-bold text-gray-900">10%</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b border-gray-50 pb-2 bg-rose-50 p-2 rounded-lg">
-                                    <span className="text-rose-600 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="text-rose-600 text-sm font-bold">{t('aff.tier.cash')}</span>
                                     <span className="font-bold text-rose-600 text-xl">20%</span>
                                 </div>
                             </div>
@@ -313,15 +315,15 @@ const AffiliatePage: React.FC = () => {
                             </div>
                             <div className="mb-6">
                                 <h3 className="text-2xl font-serif font-bold text-gray-900">Tier 2</h3>
-                                <p className="text-gray-500 text-sm">Untuk vendor aktif</p>
+                                <p className="text-gray-500 text-sm">{t('aff.tier.active')}</p>
                             </div>
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between items-center border-b border-rose-100 pb-2">
-                                    <span className="text-gray-600 text-sm">Diskaun Pelanggan</span>
+                                    <span className="text-gray-600 text-sm">{t('aff.calc.memberDiscount')}</span>
                                     <span className="font-bold text-gray-900">10%</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b border-rose-100 pb-2 bg-white p-2 rounded-lg shadow-sm">
-                                    <span className="text-rose-600 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="text-rose-600 text-sm font-bold">{t('aff.tier.cash')}</span>
                                     <span className="font-bold text-rose-600 text-xl">22%</span>
                                 </div>
                             </div>
@@ -334,15 +336,15 @@ const AffiliatePage: React.FC = () => {
                             </div>
                             <div className="mb-6">
                                 <h3 className="text-2xl font-serif font-bold text-white">Tier 3</h3>
-                                <p className="text-gray-400 text-sm">Pencapaian tertinggi</p>
+                                <p className="text-gray-400 text-sm">{t('aff.tier.top')}</p>
                             </div>
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between items-center border-b border-gray-800 pb-2">
-                                    <span className="text-gray-400 text-sm">Diskaun Pelanggan</span>
+                                    <span className="text-gray-400 text-sm">{t('aff.calc.memberDiscount')}</span>
                                     <span className="font-bold text-white">10%</span>
                                 </div>
                                 <div className="flex justify-between items-center border-b border-gray-800 pb-2 bg-gray-800 p-2 rounded-lg">
-                                    <span className="text-yellow-400 text-sm font-bold">Komisen Tunai</span>
+                                    <span className="text-yellow-400 text-sm font-bold">{t('aff.tier.cash')}</span>
                                     <span className="font-bold text-yellow-400 text-xl">25%</span>
                                 </div>
                             </div>
@@ -353,7 +355,7 @@ const AffiliatePage: React.FC = () => {
                 {/* Inquiry Form */}
                 <div id="join" className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
                     <div>
-                        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic tracking-tight">Kembangkan Bisnes Anda Hari Ini</h2>
+                        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-6 italic tracking-tight">{t('aff.cta')}</h2>
                         <p className="text-gray-500 mb-10 leading-relaxed">
                             Berminat untuk menjadi sebahagian daripada keluarga RaikanBersama.xyz? Sila lengkapkan maklumat perniagaan anda di sebelah. Pasukan kami akan meneliti permohonan anda dan menghubungi anda dalam masa 24-48 jam.
                         </p>
@@ -364,8 +366,8 @@ const AffiliatePage: React.FC = () => {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 mb-1">Potensi Pendapatan Tinggi</h4>
-                                    <p className="text-sm text-gray-500">Tingkatkan revenue sedia ada anda dengan produk digital yang mempunyai demand tinggi.</p>
+                                    <h4 className="font-bold text-gray-900 mb-1">{t('aff.tier.growth')}</h4>
+                                    <p className="text-sm text-gray-500">{t('aff.hero1')}</p>
                                 </div>
                             </div>
                             <div className="flex gap-6">
@@ -373,8 +375,8 @@ const AffiliatePage: React.FC = () => {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-gray-900 mb-1">Mula Dengan Pantas</h4>
-                                    <p className="text-sm text-gray-500">Proses pendaftaran yang mudah. Selepas diluluskan, anda boleh terus mula menjual.</p>
+                                    <h4 className="font-bold text-gray-900 mb-1">{t('aff.tier.fast')}</h4>
+                                    <p className="text-sm text-gray-500">{t('aff.benefits.easy')}</p>
                                 </div>
                             </div>
                         </div>
@@ -388,11 +390,11 @@ const AffiliatePage: React.FC = () => {
                                         <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-8">
                                             <ClockIcon className="w-10 h-10" />
                                         </div>
-                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Permohonan Sedang Diproses</h3>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">{t('aff.status.processing')}</h3>
                                         <p className="text-gray-500 mb-8 px-4">Kami telah menerima maklumat perniagaan anda (**{affiliateProfile.business_name}**). Pasukan kami akan memberikan maklum balas dalam masa 24-48 jam.</p>
                                         <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 max-w-sm mx-auto">
-                                            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">Status</p>
-                                            <p className="text-sm font-bold text-amber-600 uppercase">Menunggu Pengesahan</p>
+                                            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-1">{t('aff.form.status')}</p>
+                                            <p className="text-sm font-bold text-amber-600 uppercase">{t('aff.status.pending')}</p>
                                         </div>
                                     </div>
                                 ) : affiliateProfile.status === 'active' ? (
@@ -400,23 +402,23 @@ const AffiliatePage: React.FC = () => {
                                         <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
                                             <CheckBadgeIcon className="w-10 h-10" />
                                         </div>
-                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Akaun Vendor Aktif!</h3>
-                                        <p className="text-gray-500 mb-8 px-4">Tahniah! Anda kini merupakan Rakan Kongsi Rasmi RaikanBersama.xyz.</p>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">{t('aff.status.active')}</h3>
+                                        <p className="text-gray-500 mb-8 px-4">{t('aff.status.congrats')}</p>
 
                                         <div className="space-y-6">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="bg-green-50 rounded-2xl p-6 border border-green-100 text-left">
-                                                    <p className="text-[10px] font-bold text-green-800 uppercase tracking-widest mb-1">Kod Referral</p>
-                                                    <p className="text-2xl font-serif italic font-bold text-rose-600 uppercase tracking-widest">{affiliateProfile.referral_code || 'TIDAK AKTIF'}</p>
+                                                    <p className="text-[10px] font-bold text-green-800 uppercase tracking-widest mb-1">{t('aff.active.referral')}</p>
+                                                    <p className="text-2xl font-serif italic font-bold text-rose-600 uppercase tracking-widest">{affiliateProfile.referral_code || t('aff.active.inactive')}</p>
                                                 </div>
                                                 <div className="bg-rose-50 rounded-2xl p-6 border border-rose-100 text-left">
-                                                    <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">Kadar Komisen</p>
+                                                    <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">{t('aff.active.rate2')}</p>
                                                     <p className="text-2xl font-serif italic font-bold text-gray-900">{affiliateProfile.commission_rate}%</p>
                                                 </div>
                                             </div>
 
                                             <p className="text-gray-500 text-xs italic px-4">
-                                                Lihat sejarah komisen dan prestasi jualan anda di halaman profil.
+                                                {t('aff.active.history')}
                                             </p>
 
                                             <div className="flex gap-4">
@@ -434,7 +436,7 @@ const AffiliatePage: React.FC = () => {
                                         <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-8">
                                             <XCircleIcon className="w-10 h-10" />
                                         </div>
-                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">Permohonan Tidak Berjaya</h3>
+                                        <h3 className="text-2xl font-serif italic font-bold text-gray-900 mb-4">{t('aff.status.rejected')}</h3>
                                         <p className="text-gray-500 mb-8 px-4">Maaf, permohonan anda belum memenuhi kriteria kami buat masa ini. Anda boleh mengemaskini profil sosial anda dan memohon semula di masa hadapan.</p>
                                         <button
                                             onClick={() => setAffiliateProfile(null)}
@@ -447,7 +449,7 @@ const AffiliatePage: React.FC = () => {
                             </div>
                         ) : (
                             <>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-8 font-serif italic tracking-tight">Borang Permohonan Vendor</h2>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-8 font-serif italic tracking-tight">{t('aff.form.title')}</h2>
                                 {error && (
                                     <div className="mb-6 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-2xl flex items-center gap-2 text-xs font-bold">
                                         <ExclamationCircleIcon className="w-4 h-4" />
@@ -458,29 +460,29 @@ const AffiliatePage: React.FC = () => {
                                     <div className="space-y-6">
                                         {token ? (
                                             <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100">
-                                                <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">Profil Pemohon</p>
+                                                <p className="text-[10px] font-bold text-rose-800 uppercase tracking-widest mb-1">{t('aff.form.applicant')}</p>
                                                 <p className="text-sm font-bold text-gray-900">{user?.name} ({user?.email})</p>
                                             </div>
                                         ) : (
                                             <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-4">
-                                                <p className="text-xs text-amber-800 font-medium leading-relaxed">Sila log masuk untuk menghantar permohonan vendor anda.</p>
+                                                <p className="text-xs text-amber-800 font-medium leading-relaxed">{t('aff.form.loginNote')}</p>
                                             </div>
                                         )}
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Nama Bisnes</label>
-                                            <input required name="business_name" value={formData.business_name} onChange={handleChange} type="text" placeholder="E.g. Indah Photography" className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('aff.form.businessName')}</label>
+                                            <input required name="business_name" value={formData.business_name} onChange={handleChange} type="text" placeholder={t('aff.form.businessNamePh')} className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Jenis Perniagaan</label>
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">{t('aff.form.businessType')}</label>
                                         <select name="business_type" value={formData.business_type} onChange={handleChange} className="w-full px-6 py-4 bg-white border border-transparent rounded-2xl focus:border-rose-300 transition text-sm outline-none font-bold appearance-none cursor-pointer">
                                             <option>Photographer / Videographer</option>
                                             <option>Wedding / Event Planner</option>
                                             <option>Bridal / Boutique</option>
                                             <option>Venue Owner</option>
                                             <option>Catering</option>
-                                            <option>Lain-lain</option>
+                                            <option>{t('aff.form.other')}</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">

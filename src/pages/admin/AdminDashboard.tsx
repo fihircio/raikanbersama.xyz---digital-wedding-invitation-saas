@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,6 +20,7 @@ import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 
 const AdminDashboard = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -182,11 +184,11 @@ const AdminDashboard = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 text-[9px] font-bold text-gray-400 uppercase tracking-widest">
                                     <tr>
-                                        <th className="px-8 py-4">Customer</th>
-                                        <th className="px-8 py-4">Plan</th>
-                                        <th className="px-8 py-4">Amount</th>
-                                        <th className="px-8 py-4">Status</th>
-                                        <th className="px-8 py-4 text-right">Date</th>
+                                        <th className="px-8 py-4">{t('adm.header.customer')}</th>
+                                        <th className="px-8 py-4">{t('adm.header.plan')}</th>
+                                        <th className="px-8 py-4">{t('adm.header.amount')}</th>
+                                        <th className="px-8 py-4">{t('adm.header.status')}</th>
+                                        <th className="px-8 py-4 text-right">{t('adm.header.date')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">

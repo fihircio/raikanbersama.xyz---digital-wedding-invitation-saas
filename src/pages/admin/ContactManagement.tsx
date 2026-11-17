@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl } from '../../config';
@@ -24,6 +25,7 @@ interface ContactMessage {
 }
 
 const ContactManagement: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -91,8 +93,8 @@ const ContactManagement: React.FC = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Peti Masuk</h1>
-                        <p className="text-gray-500 text-sm">Urus mesej dan pertanyaan daripada pelanggan.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">{t('adm.inbox')}</h1>
+                        <p className="text-gray-500 text-sm">{t('adm.sub.contact')}</p>
                     </div>
                     <button onClick={fetchMessages} className="p-2 bg-white rounded-full border border-gray-100 shadow-sm hover:bg-gray-50 transition">
                         <ArrowPathIcon className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
@@ -111,7 +113,7 @@ const ContactManagement: React.FC = () => {
                     <div className="lg:col-span-1 space-y-4">
                         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[600px]">
                             <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Senarai Mesej</span>
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('adm.title.contact')}</span>
                                 <span className="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[8px] font-bold">{messages.filter(m => m.status === 'new').length} Baru</span>
                             </div>
                             <div className="flex-grow overflow-y-auto divide-y divide-gray-50">
@@ -136,7 +138,7 @@ const ContactManagement: React.FC = () => {
                                 {messages.length === 0 && !loading && (
                                     <div className="p-10 text-center opacity-30">
                                         <EnvelopeIcon className="w-10 h-10 mx-auto mb-2" />
-                                        <p className="text-xs font-bold uppercase tracking-widest">Peti kosong</p>
+                                        <p className="text-xs font-bold uppercase tracking-widest">{t('adm.inboxEmpty')}</p>
                                     </div>
                                 )}
                             </div>
@@ -177,7 +179,7 @@ const ContactManagement: React.FC = () => {
                                 </div>
                                 <div className="p-10 flex-grow overflow-y-auto">
                                     <div className="mb-8">
-                                        <span className="text-[10px] font-bold text-rose-600 uppercase tracking-[0.3em] mb-2 block">Subjek</span>
+                                        <span className="text-[10px] font-bold text-rose-600 uppercase tracking-[0.3em] mb-2 block">{t('adm.header.subject')}</span>
                                         <h2 className="text-3xl font-serif font-bold italic text-gray-900 leading-tight">
                                             {selectedMessage.subject}
                                         </h2>
@@ -200,8 +202,8 @@ const ContactManagement: React.FC = () => {
                             <div className="bg-white rounded-[3.5rem] border border-dashed border-gray-200 h-full flex items-center justify-center text-center p-10 py-32 opacity-50">
                                 <div>
                                     <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-200 mx-auto mb-6" />
-                                    <h3 className="text-xl font-serif italic font-bold text-gray-400">Pilih Mesej Untuk Dibaca</h3>
-                                    <p className="text-sm text-gray-400 max-w-xs mx-auto mt-2">Pilih sebarang mesej daripada senarai di sebelah untuk melihat perincian penuh.</p>
+                                    <h3 className="text-xl font-serif italic font-bold text-gray-400">{t('adm.selectMessage')}</h3>
+                                    <p className="text-sm text-gray-400 max-w-xs mx-auto mt-2">{t('adm.selectPrompt')}</p>
                                 </div>
                             </div>
                         )}

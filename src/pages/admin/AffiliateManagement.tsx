@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl } from '../../config';
@@ -38,6 +39,7 @@ interface Affiliate {
 }
 
 const AffiliateManagement: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
     const [loading, setLoading] = useState(true);
@@ -131,8 +133,8 @@ const AffiliateManagement: React.FC = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Urus Affiliate</h1>
-                        <p className="text-gray-500 text-sm">Review dan urus permohonan rakan kongsi vendor.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">{t('adm.title.affiliate')}</h1>
+                        <p className="text-gray-500 text-sm">{t('adm.sub.affiliate')}</p>
                     </div>
                     <button onClick={fetchAffiliates} className="p-2 bg-white rounded-full border border-gray-100 shadow-sm hover:bg-gray-50 transition">
                         <ArrowPathIcon className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
@@ -151,12 +153,12 @@ const AffiliateManagement: React.FC = () => {
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                 <tr>
-                                    <th className="px-8 py-5">Pemohon & Bisnes</th>
-                                    <th className="px-8 py-5">Diskaun Pelanggan</th>
-                                    <th className="px-8 py-5">Kod Referral</th>
-                                    <th className="px-8 py-5">Info Profil</th>
-                                    <th className="px-8 py-5">Status</th>
-                                    <th className="px-8 py-5 text-right">Tindakan</th>
+                                    <th className="px-8 py-5">{t('adm.header.affiliate')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.discount')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.referral')}</th>
+                                    <th className="px-8 py-5">{t('adm.profileInfo')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.status')}</th>
+                                    <th className="px-8 py-5 text-right">{t('adm.header.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -187,7 +189,7 @@ const AffiliateManagement: React.FC = () => {
                                                         </span>
                                                     ))
                                                 ) : (
-                                                    <span className="text-gray-300 text-[10px] italic">Tiada Kod</span>
+                                                    <span className="text-gray-300 text-[10px] italic">{t('adm.noReferral')}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -243,7 +245,7 @@ const AffiliateManagement: React.FC = () => {
                                     <tr>
                                         <td colSpan={6} className="px-8 py-20 text-center">
                                             <BriefcaseIcon className="w-12 h-12 text-gray-100 mx-auto mb-4" />
-                                            <p className="text-gray-400 font-medium italic">Tiada permohonan affiliate ditemui.</p>
+                                            <p className="text-gray-400 font-medium italic">{t('adm.noAffiliate')}</p>
                                         </td>
                                     </tr>
                                 )}
@@ -260,11 +262,11 @@ const AffiliateManagement: React.FC = () => {
 const StatusBadge = ({ status }: { status: string }) => {
     switch (status) {
         case 'active':
-            return <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-[9px] font-bold uppercase tracking-wider">Aktif</span>;
+            return <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('adm.status.active')}</span>;
         case 'rejected':
-            return <span className="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-[9px] font-bold uppercase tracking-wider">Ditolak</span>;
+            return <span className="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('adm.status.rejected')}</span>;
         default:
-            return <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-bold uppercase tracking-wider">Menunggu</span>;
+            return <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-bold uppercase tracking-wider">{t('adm.status.pending')}</span>;
     }
 };
 

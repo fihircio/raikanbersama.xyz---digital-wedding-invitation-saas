@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { buildApiUrl } from '../../config';
@@ -32,6 +33,7 @@ interface User {
 }
 
 const UserManagement: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { token } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
@@ -119,14 +121,14 @@ const UserManagement: React.FC = () => {
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">Urus Pengguna</h1>
-                        <p className="text-gray-500 text-sm">Lihat dan tadbir peranan serta keahlian pengguna.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 font-serif italic tracking-tight">{t('adm.title.user')}</h1>
+                        <p className="text-gray-500 text-sm">{t('adm.sub.user')}</p>
                     </div>
 
                     <form onSubmit={handleSearch} className="flex-grow max-w-md relative group">
                         <input
                             type="text"
-                            placeholder="Cari nama atau email..."
+                            placeholder={t('adm.searchUsers')}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-12 pr-6 py-3.5 bg-white border border-gray-100 rounded-full shadow-sm focus:border-rose-300 transition-all outline-none text-sm group-hover:shadow-md"
@@ -140,11 +142,11 @@ const UserManagement: React.FC = () => {
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                 <tr>
-                                    <th className="px-8 py-5">Pengguna</th>
-                                    <th className="px-8 py-5">Peranan</th>
-                                    <th className="px-8 py-5">Kad Dijana</th>
-                                    <th className="px-8 py-5">Tarikh Daftar</th>
-                                    <th className="px-8 py-5 text-right">Tindakan</th>
+                                    <th className="px-8 py-5">{t('adm.header.user')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.role')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.cards')}</th>
+                                    <th className="px-8 py-5">{t('adm.header.registered')}</th>
+                                    <th className="px-8 py-5 text-right">{t('adm.header.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
