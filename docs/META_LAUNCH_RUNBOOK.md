@@ -205,7 +205,8 @@ audiences in the selected locations.
 Diagnosis:
 - The same ad set with `--targeting-countries US` **was accepted** (then deleted),
   so this is **location-specific**, not an account-wide failure.
-- Business portfolio `1937706830452016` reports `verification_status: not_verified`.
+- Business portfolio `1937706830452016` reports `verification_status: pending`
+  (it was `not_verified`; verification has been submitted and is in review).
 
 So Malaysian delivery now requires a **verified advertiser**. Fix (days, not minutes):
 

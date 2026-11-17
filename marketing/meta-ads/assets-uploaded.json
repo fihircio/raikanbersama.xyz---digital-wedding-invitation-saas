@@ -39,7 +39,21 @@
     "spec-katalog.json"
   ],
   "blockers": [
-    "Ad set creation for MY: 'Provide a verified advertiser' (business verification_status: not_verified)",
-    "Creative creation: 'Ads creative post was created by an app that is in development mode. It must be in public' (app 3822869751351876)"
-  ]
+    "Ad set for MY: 'Provide a verified advertiser' - business verification_status is now 'pending' (was not_verified), so review is in progress"
+  ],
+  "creatives": {
+    "reveal": {
+      "id": "2448198919044141",
+      "status": "IN_PROCESS"
+    },
+    "hadiah": {
+      "id": "1142610278271075",
+      "status": "IN_PROCESS"
+    },
+    "katalog": {
+      "id": "1758794791853373",
+      "status": "IN_PROCESS"
+    }
+  },
+  "_updated": "2026-11-17 - app 3822869751351876 published Live; creatives created successfully"
 }
