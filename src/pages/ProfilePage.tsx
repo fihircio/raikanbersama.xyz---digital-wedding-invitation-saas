@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { buildApiUrl } from '../config';
@@ -38,6 +39,7 @@ interface AffiliateDetails {
 }
 
 const ProfilePage: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { user, token, updateUser } = useAuth();
     const location = useLocation();
     const [isEditing, setIsEditing] = useState(false);
@@ -442,7 +444,7 @@ const ProfilePage: React.FC = () => {
                             <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-rose-50/30">
                                 <div>
                                     <h3 className="text-2xl font-serif italic font-bold text-gray-900">Dashboard Vendor</h3>
-                                    <p className="text-xs text-rose-600 font-bold uppercase tracking-widest mt-1">Status: Aktif</p>
+                                    <p className="text-xs text-rose-600 font-bold uppercase tracking-widest mt-1">{t('profile.status.active')}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowAffiliateModal(false)}
@@ -457,7 +459,7 @@ const ProfilePage: React.FC = () => {
                                 {isLoadingEarnings ? (
                                     <div className="flex flex-col items-center justify-center py-20">
                                         <ArrowPathIcon className="w-10 h-10 text-rose-500 animate-spin mb-4" />
-                                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Memuat turun data...</p>
+                                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('profile.downloading')}</p>
                                     </div>
                                 ) : (
                                     <>
@@ -468,7 +470,7 @@ const ProfilePage: React.FC = () => {
                                                 <div className="relative z-10">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <TicketIcon className="w-4 h-4 text-rose-500" />
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kod Referral</span>
+                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('profile.referralCode')}</span>
                                                     </div>
                                                     <div className="text-lg font-black text-gray-900 font-mono tracking-wider mb-2">
                                                         {affiliateDetails?.referral_code || '-'}
@@ -493,7 +495,7 @@ const ProfilePage: React.FC = () => {
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="flex items-center gap-2">
                                                         <BanknotesIcon className="w-4 h-4 text-rose-600" />
-                                                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Komisen</span>
+                                                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">{t('profile.commission')}</span>
                                                     </div>
                                                     <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${(affiliateDetails?.successful_referrals || 0) >= 26 ? 'bg-amber-100 text-amber-600 border-amber-200' :
                                                             (affiliateDetails?.successful_referrals || 0) >= 11 ? 'bg-slate-200 text-slate-600 border-slate-300' :
@@ -514,7 +516,7 @@ const ProfilePage: React.FC = () => {
                                             <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex flex-col justify-between">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <UserGroupIcon className="w-4 h-4 text-blue-500" />
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Jualan</span>
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('profile.sales')}</span>
                                                 </div>
                                                 <div className="text-lg font-black text-gray-900">
                                                     {affiliateDetails?.successful_referrals || 0}
@@ -528,7 +530,7 @@ const ProfilePage: React.FC = () => {
                                             <div className="bg-green-50 p-5 rounded-2xl border border-green-100 flex flex-col justify-between">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <CurrencyDollarIcon className="w-4 h-4 text-green-600" />
-                                                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">Jumlah Untung</span>
+                                                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{t('profile.totalProfit')}</span>
                                                 </div>
                                                 <div className="text-lg font-black text-green-700">
                                                     RM {affiliateDetails?.earnings_total || '0.00'}
@@ -541,15 +543,15 @@ const ProfilePage: React.FC = () => {
 
                                         {/* Commission History Table */}
                                         <div className="space-y-4">
-                                            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest border-l-4 border-rose-500 pl-3">Sejarah Transaksi</h4>
+                                            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest border-l-4 border-rose-500 pl-3">{t('profile.txnHistory')}</h4>
 
                                             {earnings.length > 0 ? (
                                                 <div className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-sm">
                                                     <div className="hidden sm:grid grid-cols-4 bg-gray-50 px-6 py-4 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        <div>Tarikh</div>
-                                                        <div>Jualan</div>
-                                                        <div>% Komisen</div>
-                                                        <div className="text-right">Untung</div>
+                                                        <div>{t('profile.date')}</div>
+                                                        <div>{t('profile.sales')}</div>
+                                                        <div>{t('profile.commissionPct')}</div>
+                                                        <div className="text-right">{t('profile.profit')}</div>
                                                     </div>
                                                     <div className="divide-y divide-gray-50">
                                                         {earnings.map((e) => (
@@ -573,7 +575,7 @@ const ProfilePage: React.FC = () => {
                                                                 </div>
 
                                                                 <div className="flex items-center justify-between sm:block mb-1 sm:mb-0">
-                                                                    <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase">Jualan:</span>
+                                                                    <span className="sm:hidden text-[10px] font-bold text-gray-400 uppercase">{t('profile.salesColon')}</span>
                                                                     <span className="text-xs font-bold text-gray-600">RM {Number(e.order.amount).toLocaleString()}</span>
                                                                 </div>
 
@@ -585,7 +587,7 @@ const ProfilePage: React.FC = () => {
                                                                 </div>
 
                                                                 <div className="flex items-center justify-between sm:justify-end gap-2">
-                                                                    <span className="sm:hidden text-[10px] font-bold text-rose-400 uppercase">Untung:</span>
+                                                                    <span className="sm:hidden text-[10px] font-bold text-rose-400 uppercase">{t('profile.profitColon')}</span>
                                                                     <div className="flex items-center gap-2 text-green-600">
                                                                         <span className="text-sm font-black">+ RM {Number(e.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                                     </div>
@@ -599,8 +601,8 @@ const ProfilePage: React.FC = () => {
                                                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                                         <CurrencyDollarIcon className="w-8 h-8 text-gray-300" />
                                                     </div>
-                                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Tiada Rekod Jualan</h4>
-                                                    <p className="text-xs text-gray-300 mt-2">Belum ada komisen yang direkodkan.</p>
+                                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('profile.noSales')}</h4>
+                                                    <p className="text-xs text-gray-300 mt-2">{t('profile.noCommission')}</p>
                                                 </div>
                                             )}
                                         </div>

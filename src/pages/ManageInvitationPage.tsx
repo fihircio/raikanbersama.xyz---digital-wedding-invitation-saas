@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Invitation, RSVP } from '../../types';
@@ -7,6 +8,7 @@ import { buildApiUrl } from '../config';
 import { useNotification } from '../contexts/NotificationContext';
 
 const ManageInvitationPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
   const { id } = useParams<{ id: string }>();
   const { token } = useAuth();
   const { showNotification } = useNotification();
@@ -274,7 +276,7 @@ const ManageInvitationPage: React.FC = () => {
       if (data.data.settings?.is_published) {
         showNotification('Custom URL berjaya dikemaskini.', 'success');
       } else {
-        showNotification('Custom URL disimpan. Kad masih Draft, aktifkan Publish di Editor sebelum kongsi link.', 'warning');
+        showNotification(t('manage.notify.slugDraft'), 'warning');
       }
     } catch (error) {
       console.error('Failed to update custom slug:', error);
@@ -358,7 +360,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
             {isPublished ? (
               <Link to={`/i/${invitation.slug}`} className="bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition">View Live Page</Link>
             ) : (
-              <Link to={`/edit/${invitation.id}`} className="bg-amber-50 border border-amber-100 text-amber-700 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-amber-100 transition">Publish di Editor</Link>
+              <Link to={`/edit/${invitation.id}`} className="bg-amber-50 border border-amber-100 text-amber-700 px-6 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-amber-100 transition">{t('manage.publishInEditor')}</Link>
             )}
           </div>
         </div>
@@ -367,14 +369,14 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
           <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 bg-blue-50 text-blue-600`}>👁️</div>
             <p className="text-3xl font-bold text-gray-900 mb-1">{invitation.views || 0}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Kad Dibuka</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{t('manage.opened')}</p>
           </div>
 
           {!canAccess('rsvp') ? (
             <div className="col-span-1 md:col-span-3 bg-rose-50/50 border border-dashed border-rose-200 rounded-[2rem] flex flex-col items-center justify-center p-6 text-center">
               <span className="text-[10px] font-bold text-rose-400 uppercase tracking-[0.2em] mb-2 border border-rose-200 px-3 py-1 rounded-full">Premium Feature</span>
-              <p className="text-sm font-bold text-rose-800 italic">Upgrade ke pelan PRO untuk <br /> menggunakan Sistem RSVP & Ucapan.</p>
-              <Link to="/pricing" className="mt-4 text-xs font-bold text-white bg-rose-600 px-6 py-2 rounded-full shadow-lg shadow-rose-100 hover:bg-rose-700 transition">Upgrade Sekarang</Link>
+              <p className="text-sm font-bold text-rose-800 italic">{t('manage.upgrade.pro1')} <br /> {t('manage.upgrade.pro2')}</p>
+              <Link to="/pricing" className="mt-4 text-xs font-bold text-white bg-rose-600 px-6 py-2 rounded-full shadow-lg shadow-rose-100 hover:bg-rose-700 transition">{t('manage.upgrade.now')}</Link>
             </div>
           ) : (
             <>
@@ -405,8 +407,8 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
         <div className="mb-12">
           <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex-1 text-center md:text-left">
-              <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">Kongsi Kad Anda</span>
-              <h3 className="text-xl font-serif italic font-bold text-gray-800">Sedia untuk dikongsi?</h3>
+              <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest block mb-2">{t('manage.share.title')}</span>
+              <h3 className="text-xl font-serif italic font-bold text-gray-800">{t('manage.share.ready')}</h3>
               <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
                 <p className="text-sm text-gray-400 italic max-w-md truncate">{invitationLink}</p>
                 <button
@@ -456,7 +458,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
 
                 <div className="space-y-6">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">Pilih Template</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">{t('manage.share.template')}</label>
                     <select
                       value={selectedTemplate}
                       onChange={(e) => setSelectedTemplate(e.target.value as 'A' | 'B')}
@@ -468,7 +470,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">Edit Mesej</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 cursor-default">{t('manage.share.editMessage')}</label>
                     <textarea
                       value={shareText}
                       onChange={(e) => setShareText(e.target.value)}
@@ -561,7 +563,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
           <div className="flex flex-col lg:flex-row gap-8 animate-fade-in">
             <div className="flex-1 bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-                <h3 className="font-serif italic font-bold text-xl">Senarai RSVP</h3>
+                <h3 className="font-serif italic font-bold text-xl">{t('manage.rsvp.title')}</h3>
                 <div className="flex space-x-2">
                   <button className="text-[10px] font-bold text-rose-600 bg-rose-50 px-4 py-2 rounded-full hover:bg-rose-100 transition">Export CSV</button>
                 </div>
@@ -570,8 +572,8 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                 <table className="w-full text-left">
                   <thead className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                     <tr>
-                      <th className="px-8 py-4">Nama Tetamu</th>
-                      <th className="px-8 py-4 text-center">Kehadiran</th>
+                      <th className="px-8 py-4">{t('manage.rsvp.name')}</th>
+                      <th className="px-8 py-4 text-center">{t('manage.attendance')}</th>
                       <th className="px-8 py-4 text-center">Pax</th>
                     </tr>
                   </thead>
@@ -632,7 +634,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
               </div>
             )) : (
               <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-dashed border-gray-200">
-                <p className="text-gray-400 italic">Belum ada ucapan lagi.</p>
+                <p className="text-gray-400 italic">{t('manage.wishes.empty')}</p>
               </div>
             )}
           </div>
@@ -650,7 +652,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
               <div className="space-y-8">
                 <div className="rounded-[2.5rem] border border-rose-100 bg-rose-50/40 p-8">
                   <div className="mb-5">
-                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Link Jemputan Utama</label>
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.main')}</label>
                     <p className="mt-2 text-xs leading-6 text-gray-500">
                       Tukar nombor panjang pada link jemputan kepada nama yang lebih pendek dan mudah diingati, contohnya <span className="font-bold text-gray-700">/i/adam-hawa</span>.
                     </p>
@@ -684,21 +686,21 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                   </div>
                   {!isPublished && (
                     <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-800">
-                      Kad ini masih Draft. Custom URL boleh disimpan, tetapi link tetamu hanya boleh dibuka selepas anda aktifkan Publish di Editor.
+                      {t('manage.draftNote')}
                     </div>
                   )}
                 </div>
 
                 <div className="rounded-[2.5rem] border border-rose-100 bg-rose-50/40 p-8">
                   <div className="mb-5">
-                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Nama Penuh Tetamu</label>
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.guestName')}</label>
                     <p className="mt-2 text-xs leading-6 text-gray-500">
                       Masukkan nama tetamu untuk jana link peribadi. Nama ini akan dipaparkan pada kad apabila tetamu membuka jemputan.
                     </p>
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
                     <input
-                      placeholder="Contoh: Ahmad Suhairi"
+                      placeholder={t('manage.link.namePlaceholder')}
                       className="flex-1 px-8 py-5 bg-white border-none rounded-3xl outline-none ring-1 ring-rose-100 focus:ring-2 focus:ring-rose-200 transition text-sm font-bold"
                       value={magicGuest}
                       onChange={e => setMagicGuest(e.target.value)}
@@ -716,7 +718,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                   <div className="pt-8 animate-slide-up">
                     <div className="bg-rose-50/40 p-8 rounded-[2.5rem] border border-rose-100 relative">
                       <div className="mb-5">
-                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Link Sedia Dikongsi</label>
+                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{t('manage.link.ready')}</label>
                         <p className="mt-2 text-xs leading-6 text-gray-500">
                           Link ini khas untuk tetamu tersebut. Salin link atau hantar melalui WhatsApp selepas kad dipublish.
                         </p>

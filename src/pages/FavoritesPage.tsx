@@ -1,3 +1,4 @@
+import { usePlatformLanguage } from '../i18n/PlatformLanguage';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import BackgroundCard from '../../components/Catalog/BackgroundCard';
@@ -6,6 +7,7 @@ import { BackgroundImage } from '../../types';
 import { buildApiUrl } from '../config';
 
 const FavoritesPage: React.FC = () => {
+  const { t } = usePlatformLanguage();
     const { user, token } = useAuth();
     const navigate = useNavigate();
     const [favorites, setFavorites] = useState<BackgroundImage[]>([]);
@@ -91,7 +93,7 @@ const FavoritesPage: React.FC = () => {
         <div className="pt-24 pb-12 bg-gray-50 min-h-screen">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 font-serif italic">My Favorites</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 font-serif italic">{t('favorites.title')}</h1>
                     <p className="text-gray-500 mt-2">Your saved background images from the catalog</p>
                 </div>
 
