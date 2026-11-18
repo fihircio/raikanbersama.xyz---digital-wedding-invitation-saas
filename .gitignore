@@ -28,3 +28,7 @@ cred.md
 marketing/footage/*.mp4
 marketing/meta-ads/.env.local
 marketing/meta-ads/.env.bak
+
+# Local session token (never commit)
+marketing/.session-token
+marketing/session token.rtf
