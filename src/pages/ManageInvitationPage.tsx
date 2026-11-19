@@ -351,7 +351,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
             <div className="flex items-center space-x-3 mb-2">
               <Link to="/dashboard" className="text-rose-600 font-bold text-xs uppercase tracking-widest hover:underline">&larr; Dashboard</Link>
               <span className="text-gray-300">/</span>
-              <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Analytics & Guests</span>
+              <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">{t('manage.analytics')}</span>
             </div>
             <h2 className="text-4xl font-serif font-bold text-gray-900 italic">{displayTitle}</h2>
           </div>
@@ -381,9 +381,9 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
           ) : (
             <>
               {[
-                { label: 'Jumlah Pax', value: stats.totalPax, icon: '👥', color: 'bg-green-50 text-green-600' },
-                { label: 'Hadir', value: stats.attendingCount, icon: '✅', color: 'bg-emerald-50 text-emerald-600' },
-                { label: 'Ucapan', value: (invitation.wishes || []).length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
+                { label: t('manage.stat.totalPax'), value: stats.totalPax, icon: '👥', color: 'bg-green-50 text-green-600' },
+                { label: t('manage.stat.attending'), value: stats.attendingCount, icon: '✅', color: 'bg-emerald-50 text-emerald-600' },
+                { label: t('manage.stat.wishes'), value: (invitation.wishes || []).length, icon: '💌', color: 'bg-purple-50 text-purple-600' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 group hover:shadow-md transition">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl mb-4 ${stat.color}`}>{stat.icon}</div>
@@ -398,9 +398,9 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
         {/* Dashboard Tabs - Only for Pro+ */}
         {canAccess('rsvp') && (
           <div className="flex border-b border-gray-200 mb-8 space-x-10">
-            <button onClick={() => setActiveTab('guests')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'guests' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Guest List</button>
-            <button onClick={() => setActiveTab('wishes')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'wishes' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Wishes</button>
-            {canAccess('magic_link') && <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>Magic Link & URL</button>}
+            <button onClick={() => setActiveTab('guests')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'guests' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>{t('manage.tab.guests')}</button>
+            <button onClick={() => setActiveTab('wishes')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'wishes' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>{t('manage.tab.wishes')}</button>
+            {canAccess('magic_link') && <button onClick={() => setActiveTab('magic')} className={`pb-4 text-[11px] font-bold uppercase tracking-[0.2em] border-b-2 transition ${activeTab === 'magic' ? 'border-rose-600 text-rose-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>{t('manage.tab.magic')}</button>}
           </div>
         )}
 
@@ -414,10 +414,10 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(invitationLink);
-                    showNotification('Pautan disalin!', 'success');
+                    showNotification(t('manage.copy.urlCopied'), 'success');
                   }}
                   className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-rose-600 transition"
-                  title="Salin Pautan"
+                  title={t('manage.copy.copyLink')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -454,7 +454,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
               </button>
 
               <div className="p-10">
-                <h3 className="text-2xl font-serif font-bold text-center text-gray-900 mb-8 italic">Share it to your family & friends!</h3>
+                <h3 className="text-2xl font-serif font-bold text-center text-gray-900 mb-8 italic">{t('manage.share.modalTitle')}</h3>
 
                 <div className="space-y-6">
                   <div>
@@ -464,8 +464,8 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                       onChange={(e) => setSelectedTemplate(e.target.value as 'A' | 'B')}
                       className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-rose-200 transition text-sm font-bold text-gray-700 appearance-none cursor-pointer"
                     >
-                      <option value="A">Template A (Formal)</option>
-                      <option value="B">Template B (Modern/Casual)</option>
+                      <option value="A">{t('manage.share.templateA')}</option>
+                      <option value="B">{t('manage.share.templateB')}</option>
                     </select>
                   </div>
 
@@ -487,7 +487,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                         showNotification('Mesej disalin!', 'success');
                       }}
                       className="w-11 h-11 rounded-full bg-gray-400 text-white flex items-center justify-center hover:bg-gray-500 transition shadow-lg shadow-gray-100"
-                      title="Salin Pautan"
+                      title={t('manage.copy.copyLink')}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -565,7 +565,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
               <div className="p-8 border-b border-gray-50 flex justify-between items-center">
                 <h3 className="font-serif italic font-bold text-xl">{t('manage.rsvp.title')}</h3>
                 <div className="flex space-x-2">
-                  <button className="text-[10px] font-bold text-rose-600 bg-rose-50 px-4 py-2 rounded-full hover:bg-rose-100 transition">Export CSV</button>
+                  <button className="text-[10px] font-bold text-rose-600 bg-rose-50 px-4 py-2 rounded-full hover:bg-rose-100 transition">{t('manage.exportCsv')}</button>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -586,7 +586,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                         </td>
                         <td className="px-8 py-6 text-center">
                           <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${rsvp.is_attending ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
-                            {rsvp.is_attending ? 'Hadir' : 'Maaf'}
+                            {rsvp.is_attending ? t('manage.rsvp.attending') : t('manage.rsvp.notAttending')}
                           </span>
                         </td>
                         <td className="px-8 py-6 text-center text-sm font-bold text-gray-600">{rsvp.pax}</td>
@@ -676,7 +676,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                       disabled={!canUseCustomSlug || isUpdatingSlug}
                       className="rounded-3xl bg-gray-950 px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-xl transition hover:bg-black disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
                     >
-                      {isUpdatingSlug ? 'Menyimpan...' : 'Simpan URL'}
+                      {isUpdatingSlug ? t('manage.magic.saving') : t('manage.magic.saveUrl')}
                     </button>
                   </div>
                   <div className="mt-5 rounded-2xl bg-white/80 p-4">
@@ -709,7 +709,7 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
                       onClick={handleGenerateMagic}
                       className="bg-rose-600 text-white px-10 py-5 rounded-3xl font-bold text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-700 transition"
                     >
-                      Jana Link
+                      {t('manage.magic.generate')}
                     </button>
                   </div>
                 </div>
@@ -729,10 +729,10 @@ Semoga kehadiran anda memeriahkan lagi majlis kami. Terima kasih!`
 
                       <div className="grid grid-cols-2 gap-4">
                         <button
-                          onClick={() => { navigator.clipboard.writeText(magicLink); showNotification('Link disalin!', 'success'); }}
+                          onClick={() => { navigator.clipboard.writeText(magicLink); showNotification(t('manage.copy.linkCopied'), 'success'); }}
                           className="bg-white text-gray-700 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-sm border border-gray-100 hover:bg-gray-50 transition"
                         >
-                          Salin Link
+                          {t('manage.copy.copyLink')}
                         </button>
                         <a
                           onClick={(e) => {
