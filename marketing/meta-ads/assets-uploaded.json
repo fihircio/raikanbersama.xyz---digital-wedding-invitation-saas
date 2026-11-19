@@ -55,5 +55,29 @@
       "status": "IN_PROCESS"
     }
   },
-  "_updated": "2026-11-17 - app 3822869751351876 published Live; creatives created successfully"
+  "_updated": "2026-11-17 - app 3822869751351876 published Live; creatives created successfully",
+  "d2_retarget": {
+    "campaign": {
+      "id": "120251387829470214",
+      "name": "RB | D2 Retarget IC | Sales | 2026-11",
+      "status": "PAUSED"
+    },
+    "creative": {
+      "id": "1155204563866783",
+      "slot": "pricing",
+      "video_id": "1001592563023128",
+      "image_hash": "dc1520f217c66246de7a5dfa681a81d9"
+    },
+    "adset": null,
+    "audience": {
+      "id": null,
+      "reason": "Graph API rejected every rule shape tried: subtype=WEBSITE is 'not supported in the current API version', subtype=CUSTOM requires customer_file_source and then rejects the pixel rule JSON. Must be created in Ads Manager UI (Audiences -> Create audience -> Website).",
+      "spec": {
+        "pixel": "968435972628878",
+        "event": "InitiateCheckout",
+        "retention_days": 7,
+        "exclude": "Purchase"
+      }
+    }
+  }
 }
