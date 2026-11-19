@@ -29,13 +29,26 @@ async function recordGalleryThumbKeys(
   // the entries recorded by the previous iteration.
   const fresh = await databaseService.getInvitationById(invitationId);
   if (!fresh) return;
-  const existing = (fresh.settings as any)?.gallery_thumb_keys;
+  const settings = (fresh.settings || {}) as Record<string, any>;
+
+  const existingKeys = settings.gallery_thumb_keys;
   const galleryThumbKeys =
-    existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
+    existingKeys && typeof existingKeys === 'object' && !Array.isArray(existingKeys) ? { ...existingKeys } : {};
   galleryThumbKeys[imageUrl] = newKeys;
 
+  // The guest page needs URLs, not keys: the grid renders the medium thumbnail so
+  // it does not download a full-size photo for every tile.
+  const existingUrls = settings.gallery_thumb_urls;
+  const galleryThumbUrls =
+    existingUrls && typeof existingUrls === 'object' && !Array.isArray(existingUrls) ? { ...existingUrls } : {};
+  galleryThumbUrls[imageUrl] = {
+    small: thumbnails.small || undefined,
+    medium: thumbnails.medium || undefined,
+    large: thumbnails.large || undefined
+  };
+
   await databaseService.updateInvitation(invitationId, {
-    settings: { ...fresh.settings, gallery_thumb_keys: galleryThumbKeys } as any
+    settings: { ...settings, gallery_thumb_keys: galleryThumbKeys, gallery_thumb_urls: galleryThumbUrls } as any
   });
 }
 

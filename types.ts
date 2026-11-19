@@ -107,6 +107,8 @@ export interface Invitation {
     is_published: boolean;
     /** Owner-selected language for the guest-facing invitation. */
     language_mode?: 'melayu' | 'english' | 'bilingual';
+    /** Thumbnail URLs per gallery image, recorded on upload for grid rendering. */
+    gallery_thumb_urls?: Record<string, { small?: string; medium?: string; large?: string }>;
     background_image?: string;
     invitation_background_image?: string;
     background_color?: string;

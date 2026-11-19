@@ -1251,6 +1251,7 @@ function InvitationBody({
 }) {
   const { showNotification } = useNotification();
   const { t, td, lang, setLang } = useInvitationLanguage();
+  const [galleryLightbox, setGalleryLightbox] = useState<string | null>(null);
 
   const greetingStyles = {
     color: invitation.settings.greeting_color || '#6B7280',
@@ -1307,6 +1308,29 @@ function InvitationBody({
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {galleryLightbox && (
+        <div
+          className="fixed inset-0 z-[320] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setGalleryLightbox(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <img
+            src={galleryLightbox}
+            alt=""
+            className="max-h-full max-w-full object-contain rounded-2xl shadow-2xl"
+          />
+          <button
+            type="button"
+            onClick={() => setGalleryLightbox(null)}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/15 text-white text-xl backdrop-blur"
+            aria-label={t('close')}
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -1549,10 +1573,27 @@ function InvitationBody({
                     const imgSrc = typeof img === 'string' ? img : (img as any).image_url;
                     if (!imgSrc) return null;
 
+                    // Grid tiles use the medium thumbnail (300px) so a card with many
+                    // photos does not download every full-size image up front.
+                    const thumbSrc =
+                      invitation.settings.gallery_thumb_urls?.[imgSrc]?.medium || imgSrc;
+
                     return (
-                      <div key={idx} className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white">
-                        <img src={imgSrc} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                      </div>
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setGalleryLightbox(imgSrc)}
+                        className="aspect-square rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white block"
+                        aria-label={`${t('galleryTitle')} ${idx + 1}`}
+                      >
+                        <img
+                          src={thumbSrc}
+                          alt={`Gallery ${idx + 1}`}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
                     );
                   })}
                 </div>

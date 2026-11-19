@@ -193,6 +193,9 @@ class FileStorageService {
         Key: key,
         Body: buffer,
         ContentType: contentType,
+        // Keys are unique per upload, so the bytes never change: let browsers and
+        // CDNs keep them forever instead of re-requesting on every visit.
+        CacheControl: 'public, max-age=31536000, immutable',
         // ACL: 'private' removed to support 'Bucket owner enforced' policy
       });
 
