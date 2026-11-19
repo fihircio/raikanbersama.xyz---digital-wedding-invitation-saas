@@ -68,16 +68,35 @@
       "video_id": "1001592563023128",
       "image_hash": "dc1520f217c66246de7a5dfa681a81d9"
     },
-    "adset": null,
+    "adset": {
+      "status": "blocked",
+      "reason": "verified advertiser still pending - MY delivery",
+      "planned": {
+        "daily_budget": "RM15",
+        "optimization": "PURCHASE",
+        "name": "AS1 Retarget pricing 7d"
+      }
+    },
     "audience": {
-      "id": null,
-      "reason": "Graph API rejected every rule shape tried: subtype=WEBSITE is 'not supported in the current API version', subtype=CUSTOM requires customer_file_source and then rejects the pixel rule JSON. Must be created in Ads Manager UI (Audiences -> Create audience -> Website).",
-      "spec": {
-        "pixel": "968435972628878",
-        "event": "InitiateCheckout",
-        "retention_days": 7,
-        "exclude": "Purchase"
+      "id": "120251388661920214",
+      "name": "RB | Retarget | pricing 7d",
+      "subtype": "WEBSITE",
+      "status": "ready, ~20+ people",
+      "rule": {
+        "include": "url contains raikanbersama.xyz/pricing, 7 days",
+        "exclude": "event Purchase, 30 days"
       }
     }
+  },
+  "ic_event_seeded": {
+    "note": "one real InitiateCheckout fired 2026-11-19 via /pricing?invitationId=... with the /payments/checkout request aborted, so no order or bill was created",
+    "events_fired": [
+      "PageView",
+      "ViewContent",
+      "AddToCart",
+      "SelectPlan",
+      "InitiateCheckout"
+    ],
+    "orders_before_after": "2 -> 2 (unchanged)"
   }
 }

@@ -1,0 +1,7 @@
+{
+  "custom_audiences": [{ "id": "120251388661920214" }],
+  "geo_locations": { "countries": ["MY"] },
+  "age_min": 22,
+  "age_max": 65,
+  "publisher_platforms": ["facebook", "instagram"]
+}
