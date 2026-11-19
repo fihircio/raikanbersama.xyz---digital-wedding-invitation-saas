@@ -100,3 +100,34 @@ interested visitor and the product, hides the real domain, and breaks UTM
 attribution unless configured carefully. If multiple links are genuinely needed
 (catalog, pricing, affiliates), host a link page on the project's own domain
 rather than a third-party.
+
+
+## Organic calendar — Facebook Page
+
+| Date (MYT) | Post | Form | Link |
+|---|---|---|---|
+| 17 Nov 11:55 | Invitation reveal | Reel | facebook.com/reel/29487071090916483 |
+| 18 Nov 19:00 | Catalog / 122 themes | Reel | facebook.com/reel/1672896914539519 |
+| 18 Nov 13:01 | 5-step tutorial (images) | Carousel | facebook.com/122150446917244956/posts/122150548617244956 |
+| 19 Nov 19:00 | DuitNow QR + wishlist | Reel | scheduled |
+| 20 Nov 19:00 | RSVP flow | Reel | scheduled |
+| 21 Nov 19:00 | Lokasi / Waze | Reel | scheduled (video 2231591007485786) |
+
+## Organic calendar — Instagram
+
+| Date (MYT) | Post | Form | Link |
+|---|---|---|---|
+| 17 Nov 12:14 | Invitation reveal | Reel | instagram.com/reel/Df1DDe9lQlP/ |
+| 17 Nov 12:15 | Catalog | Reel | instagram.com/reel/Df1DLo5lY7Q/ |
+| 17 Nov 12:17 | DuitNow QR | Reel | instagram.com/reel/Df1DX1nmebh/ |
+| 17 Nov 12:18 | RSVP flow | Reel | instagram.com/reel/Df1DdnYiqRH/ |
+| 18 Nov 13:01 | 5-step tutorial (images) | Carousel | instagram.com/p/Df3tOg_GInU/ |
+
+Instagram has no scheduling API, so the Lokasi Reel has to be published by hand
+(or via `backend/publish-ig-reels.mjs`) to match the Page post on 21 Nov.
+
+## Deliberately not posted
+
+`03_pricing_pro.mp4` is 3.9s — too short for Reels. It is reserved for the
+retargeting campaign (D2), where a price anchor suits people who already started
+checkout. It also exists as an ad creative already (see assets-uploaded.json).
