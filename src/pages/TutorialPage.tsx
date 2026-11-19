@@ -6,7 +6,8 @@ interface GuideStep {
     titleKey: string;
     descriptionKey: string;
     label: string;
-    image: string;
+    /** Optional: steps without a screenshot render as a text-only card. */
+    image?: string;
 }
 
 interface Guide {
@@ -36,6 +37,15 @@ const TutorialPage: React.FC = () => {
         descriptionKey,
         label: `Step ${n}/9`,
         image: `/tutorial/step${n}.jpg`,
+    });
+
+    // Guide 6 covers the post-publish workflow on /manage, so it does not follow
+    // the 9-step editor numbering and uses its own screenshots.
+    const manageStep = (n: number, titleKey: string, descriptionKey: string, image?: string): GuideStep => ({
+        titleKey,
+        descriptionKey,
+        label: `Manage ${n}/6`,
+        image,
     });
 
     const guides: Guide[] = [
@@ -91,6 +101,21 @@ const TutorialPage: React.FC = () => {
             metaKey: 'tut.g5.meta',
             steps: [
                 step(9, 'tut.s9.title', 'tut.s9.desc'),
+            ],
+        },
+        {
+            id: 'g6',
+            number: '6',
+            titleKey: 'tut.g6.title',
+            descKey: 'tut.g6.desc',
+            metaKey: 'tut.g6.meta',
+            steps: [
+                manageStep(1, 'tut.m1.title', 'tut.m1.desc', '/tutorial/manage-guests.jpg'),
+                manageStep(2, 'tut.m2.title', 'tut.m2.desc', '/tutorial/manage-wishes.jpg'),
+                manageStep(3, 'tut.m3.title', 'tut.m3.desc', '/tutorial/manage-magic.jpg'),
+                manageStep(4, 'tut.m4.title', 'tut.m4.desc', '/tutorial/manage-magiclink.jpg'),
+                manageStep(5, 'tut.m5.title', 'tut.m5.desc', '/tutorial/manage-share.jpg'),
+                manageStep(6, 'tut.m6.title', 'tut.m6.desc'),
             ],
         },
     ];
@@ -196,12 +221,20 @@ const TutorialPage: React.FC = () => {
                             <div className={`grid gap-5 ${g.steps.length > 1 ? 'sm:grid-cols-2 xl:grid-cols-2' : ''} ${g.id === 'g5' ? 'md:grid-cols-2' : ''}`}>
                                 {g.steps.map((s, i) => (
                                     <div key={s.label} className="overflow-hidden rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-rose-100/60 transition">
-                                        <img
-                                            src={s.image}
-                                            alt={t(s.titleKey)}
-                                            loading="lazy"
-                                            className="w-full border-b border-gray-100 bg-gray-50 object-cover"
-                                        />
+                                        {s.image ? (
+                                            <img
+                                                src={s.image}
+                                                alt={t(s.titleKey)}
+                                                loading="lazy"
+                                                className="w-full border-b border-gray-100 bg-gray-50 object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-40 items-center justify-center border-b border-gray-100 bg-gradient-to-br from-rose-50 via-white to-amber-50">
+                                                <span className="font-serif text-5xl italic font-bold text-rose-200">
+                                                    {String(i + 1).padStart(2, '0')}
+                                                </span>
+                                            </div>
+                                        )}
                                         <div className="p-6">
                                             <div className="flex items-center justify-between gap-4 mb-5">
                                                 <span className="rounded-full bg-rose-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-600">{s.label}</span>

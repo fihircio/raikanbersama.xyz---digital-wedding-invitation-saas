@@ -65,7 +65,7 @@ const Navbar: React.FC = () => {
               )}
               <Link
                 to="/create"
-                className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
+                className="whitespace-nowrap bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
               >
                 {t('nav.createCard')}
               </Link>
@@ -153,7 +153,7 @@ const Navbar: React.FC = () => {
               <Link to="/login" className="text-gray-600 hover:text-rose-600 font-medium transition">{t('nav.login')}</Link>
               <Link
                 to="/catalog"
-                className="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
+                className="whitespace-nowrap bg-rose-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-rose-700 transition shadow-lg shadow-rose-100"
               >
                 {t('nav.createCard')}
               </Link>
