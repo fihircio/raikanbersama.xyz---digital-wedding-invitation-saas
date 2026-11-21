@@ -4,7 +4,7 @@ import { Plan } from '../../types';
 import { buildApiUrl } from '../../src/config';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { XMarkIcon, TagIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-import { trackCustom, trackInitiateCheckout, newEventId, getMetaBrowserIds } from '../../src/utils/metaPixel';
+import { trackCustom, trackInitiateCheckout, newEventId, getMetaBrowserIds } from '../../src/utils/analytics';
 
 interface PaymentModalProps {
   plan: Plan;

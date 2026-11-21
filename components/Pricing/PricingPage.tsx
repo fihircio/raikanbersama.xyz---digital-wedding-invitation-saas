@@ -4,7 +4,7 @@ import PricingCard from './PricingCard';
 import FeatureComparison from './FeatureComparison';
 import SEO from '../SEO';
 import { Plan } from '../../types';
-import { trackViewContent } from '../../src/utils/metaPixel';
+import { trackViewContent } from '../../src/utils/analytics';
 
 import { useSearchParams } from 'react-router-dom';
 

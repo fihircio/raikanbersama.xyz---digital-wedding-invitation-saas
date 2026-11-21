@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PaymentModal from './PaymentModal';
 import { Plan } from '../../types';
-import { trackAddToCart, trackCustom } from '../../src/utils/metaPixel';
+import { trackAddToCart, trackCustom } from '../../src/utils/analytics';
 
 interface PricingCardProps {
   plan: Plan;

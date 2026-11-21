@@ -33,7 +33,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { NotificationProvider } from './src/contexts/NotificationContext';
 import { PlatformLanguageProvider } from './src/i18n/PlatformLanguage';
 import Notification from './src/components/Notification';
-import { trackPageView } from './src/utils/metaPixel';
+import { trackPageView } from './src/utils/analytics';
 
 class RouteErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
   state = { error: null };

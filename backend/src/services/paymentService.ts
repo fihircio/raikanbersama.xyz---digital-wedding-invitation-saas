@@ -3,40 +3,86 @@ import { Order, Coupon, Invitation, Affiliate, AffiliateEarning, User } from '..
 import { OrderStatus } from '../types/models';
 import logger from '../utils/logger';
 import MetaConversionsService from './metaConversionsService';
+import Ga4MeasurementService from './ga4MeasurementService';
+import TikTokEventsService from './tiktokEventsService';
 
 /**
- * Sends the authoritative server-side Purchase conversion.
+ * Sends the authoritative server-side purchase conversions.
  *
  * This runs from the payment webhook (not the browser redirect) because a
  * customer can close the Billplz tab and never return to the success page.
- * Failures are logged only - tracking must never break order completion.
+ *
+ * All three platforms are attempted independently: one vendor being down or
+ * unconfigured must never stop the others, and failures are logged only so
+ * tracking can never break order completion.
  */
 const sendPurchaseConversion = async (order: Order): Promise<void> => {
-    try {
-        const user = await User.findByPk(order.user_id);
+    // Resolved once and shared by every platform, so a lookup failure cannot
+    // leave one vendor with data and another without.
+    let conversionUser: User | null = null;
+    let couponCodeForLog: string | null = null;
 
-        let couponCode: string | null = null;
+    try {
+        conversionUser = await User.findByPk(order.user_id);
+
         if (order.coupon_id) {
             const coupon = await Coupon.findByPk(order.coupon_id);
-            couponCode = coupon ? coupon.code : null;
+            couponCodeForLog = coupon ? coupon.code : null;
         }
+    } catch (error) {
+        logger.error(`Conversion enrichment failed for order ${order.id}:`, error);
+    }
 
-        const frontendUrl = (process.env.FRONTEND_URL || 'https://www.raikanbersama.xyz')
-            .replace(/\/+$/, '');
+    const frontendUrl = (process.env.FRONTEND_URL || 'https://www.raikanbersama.xyz')
+        .replace(/\/+$/, '');
+    const eventSourceUrl = `${frontendUrl}/#/orders?status=success`;
 
+    // Meta: the authoritative Purchase that the ad set optimises toward.
+    try {
         await MetaConversionsService.trackPurchase({
             orderId: order.id,
             userId: order.user_id,
             amount: Number(order.amount),
             planTier: order.plan_tier,
-            email: user ? user.email : null,
-            phone: user ? (user.phone_number ?? null) : null,
-            fullName: user ? user.name : null,
-            couponCode,
-            eventSourceUrl: `${frontendUrl}/#/orders?status=success`,
+            email: conversionUser ? conversionUser.email : null,
+            phone: conversionUser ? (conversionUser.phone_number ?? null) : null,
+            fullName: conversionUser ? conversionUser.name : null,
+            couponCode: couponCodeForLog,
+            eventSourceUrl,
         });
     } catch (error) {
         logger.error(`Meta Purchase conversion failed for order ${order.id}:`, error);
+    }
+
+    // GA4 Measurement Protocol: deduplicates on transaction_id.
+    try {
+        await Ga4MeasurementService.trackPurchase({
+            transactionId: order.id,
+            value: Number(order.amount),
+            currency: 'MYR',
+            itemId: order.plan_tier,
+            itemName: `RaikanBersama ${order.plan_tier}`,
+            coupon: couponCodeForLog,
+            userId: order.user_id,
+        });
+    } catch (error) {
+        logger.error(`GA4 purchase conversion failed for order ${order.id}:`, error);
+    }
+
+    // TikTok Events API: deterministic event_id so webhook retries dedupe.
+    try {
+        await TikTokEventsService.trackCompletePayment({
+            orderId: order.id,
+            userId: order.user_id,
+            amount: Number(order.amount),
+            planTier: order.plan_tier,
+            email: conversionUser ? conversionUser.email : null,
+            phone: conversionUser ? (conversionUser.phone_number ?? null) : null,
+            couponCode: couponCodeForLog,
+            eventSourceUrl,
+        });
+    } catch (error) {
+        logger.error(`TikTok payment conversion failed for order ${order.id}:`, error);
     }
 };
 

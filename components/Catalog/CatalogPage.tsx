@@ -7,7 +7,7 @@ import SEO from '../SEO';
 import { BackgroundImage } from '../../types';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { buildApiUrl } from '../../src/config';
-import { trackViewContent } from '../../src/utils/metaPixel';
+import { trackViewContent } from '../../src/utils/analytics';
 
 const CATEGORIES = [
   'Baby', 'Party', 'Ramadan', 'Raya', 'Floral', 'Islamic',
