@@ -67,7 +67,9 @@ const doctor = async () => {
     console.log('  Set META_ACCESS_TOKEN or create marketing/meta-ads/.env.local');
     return false;
   }
-  console.log(`  length ${TOKEN.length}, prefix ${TOKEN.slice(0, 8)}…`);
+  // Never print any part of the token: a prefix is still secret material and
+  // ends up in terminal scrollback, screen shares and pasted bug reports.
+  console.log(`  length ${TOKEN.length} (value hidden)`);
 
   let debug;
   try {
